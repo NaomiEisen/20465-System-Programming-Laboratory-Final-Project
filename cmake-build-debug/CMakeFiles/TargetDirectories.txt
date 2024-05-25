@@ -1,0 +1,3 @@
+C:/Users/naomi/Documents/OpenU/ClionWorkspace/20465-System-Programming-Laboratory-Final-Project/cmake-build-debug/CMakeFiles/20465_System_Programming_Laboratory_Final_Project.dir
+C:/Users/naomi/Documents/OpenU/ClionWorkspace/20465-System-Programming-Laboratory-Final-Project/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/naomi/Documents/OpenU/ClionWorkspace/20465-System-Programming-Laboratory-Final-Project/cmake-build-debug/CMakeFiles/rebuild_cache.dir
