@@ -1,9 +1,7 @@
-//
-// Created by naomi on 25/05/2024.
-//
 
-#ifndef INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_MACRO_LIST_H
-#define INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_MACRO_LIST_H
+#ifndef MACRO_LIST_H
+#define MACRO_LIST_H
+
 #include "general.h"
 
 /* Define a structure for a single line in the macro value */
@@ -30,4 +28,4 @@ void add_content_line(MacroList* list, const char* line);
 void free_macro_list(MacroList* list);
 void print_all_macros(const MacroList* list);
 
-#endif //INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_MACRO_LIST_H
+#endif /* MACRO_LIST_H */

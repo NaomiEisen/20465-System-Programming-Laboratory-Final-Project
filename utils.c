@@ -1,10 +1,9 @@
-//
-// Created by naomi on 26/05/2024.
-//
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "general.h"
+
 
 /* Custom implementation of the is_space function */
 int is_space(char c) {
@@ -29,9 +28,7 @@ void trim_spaces(char **str) {
     char *start = *str;
 
     /* Trim leading spaces */
-    while (is_space( *start)) {
-        start++;
-    }
+    trim_leading_spaces(&start);
 
     /* If all spaces */
     if (*start == 0) {
@@ -53,13 +50,11 @@ void trim_spaces(char **str) {
 }
 
 /* Function to check if the rest of the line is empty */
-bool is_empty_line(const char* line) {
-    // Skip leading whitespace
-    while (*line && is_space(*line)) {
-        line++;
-    }
+bool is_empty_line(char* line) {
+    /* Trim leading spaces */
+    trim_leading_spaces(&line);
 
-    // Check if the rest of the line is empty
+    /* Check if the rest of the line is empty */
     return *line == '\0';
 }
 

@@ -1,9 +1,6 @@
-//
-// Created by naomi on 25/05/2024.
-//
 
-#ifndef INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_ERRORS_H
-#define INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_ERRORS_H
+#ifndef ERRORS_H
+#define ERRORS_H
 
 /* Define error codes */
 typedef enum {
@@ -29,7 +26,7 @@ typedef enum {
     ERROR_COUNT
 } ErrorCode;
 
-// Define a struct to hold location information
+/* Define a struct to hold location information*/
 typedef struct {
     const char *file;
     int line;
@@ -49,4 +46,4 @@ extern Error global_error;
 void set_error(Error *error, ErrorCode code, const char *file, int line);
 void print_error(Error *error);
 
-#endif //INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_ERRORS_H
+#endif /* ERRORS_H */

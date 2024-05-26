@@ -1,6 +1,4 @@
-//
-// Created by naomi on 25/05/2024.
-//
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -84,7 +82,7 @@ void free_macro_list(MacroList* list) {
     list->head = NULL; /* Set list head to NULL after freeing */
 }
 
-/*Function to print all macros and their values*/
+/* Function to print all macros and their values */
 void print_all_macros(const MacroList* list) {
     const MacroNode* current_macro = list->head;
     while (current_macro != NULL) {

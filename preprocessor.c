@@ -1,6 +1,6 @@
-//
-// Created by naomi on 25/05/2024.
-//
+/* ---------------------------------------------------------------------------------------
+ *                                          Includes
+ * --------------------------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,29 +16,45 @@ const char* reserved_words[] = {
         "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop"
 };
 
+/* ---------------------------------------------------------------------------------------
+ *                               Main Function Of Preprocessor
+ * --------------------------------------------------------------------------------------- */
+
 void preprocessor(const char* file_origin){
     FILE* source_file;                  /* the source file */
     FILE* output_file;
-    char *output_filename = NULL;
+    char* source_filename = NULL;
+    char* output_filename = NULL;
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    char *line_ptr = NULL;
+    char* line_ptr = NULL;
     int line_count = 0;                 /* line counter */
     bool inside_macro = false;          /* flag that indicated if read line is part of macro */
     MacroList macr_list = {NULL};       /* Initialize empty list of macros */
     MacroNode* current_macr = NULL;
 
+
+    /* ------------------ Create the source filename with the specified extension ------------------*/
+    if (!create_new_file_name(file_origin, &source_filename, ".as")) {
+        set_error(&global_error, MEMORY_ALLOCATION_ERROR, file_origin, 0);
+        print_error(&global_error);
+        return;
+    }
+
     /* ---------------------------- Open the source file in read mode ---------------------------- */
-    if (!(source_file = fopen(file_origin, "r"))) {
+    if (!(source_file = fopen(source_filename, "r"))) {
         /* if the file fails to open, set an error and return */
         set_error(&global_error, CANNOT_OPEN_FILE, file_origin, 0);
+        print_error(&global_error);
         fclose(source_file); /* close the file */
+        free(source_filename);
         return;
     }
 
     /* ------------------ Create the output filename with the specified extension ------------------*/
     if (!create_new_file_name(file_origin, &output_filename, ".am")) {
         set_error(&global_error, MEMORY_ALLOCATION_ERROR, file_origin, 0);
+        print_error(&global_error);
         return;
     }
 
@@ -46,66 +62,68 @@ void preprocessor(const char* file_origin){
     if (!(output_file = fopen(output_filename, "w"))) {
         /* if the file fails to open, set an error and return */
         set_error(&global_error, CANNOT_CREATE_FILE, output_filename, 0);
-        fclose(source_file); /* close the file */
-        fclose(output_file); /* close the file */
+        print_error(&global_error);
+        fclose(source_file); /* close the source file */
+        fclose(output_file); /* close the output file */
         free(output_filename);
+        free(source_filename);
         return;
     }
 
     /* ---------------------------- Process each line in the source file ---------------------------- */
     while (fgets(line, sizeof(line), source_file) != NULL) {
-        /* update counter */
-        line_count++;
-        line_ptr = line;
-        trim_leading_spaces(&line_ptr);
+        line_count++; /* Update counter */
+        line_ptr = line;  /* Set line pointer to line start */
+        trim_leading_spaces(&line_ptr); /* Skip leading spaces */
 
-        /* if line is not empty */
+        /* If line is not empty - process the line */
         if (sscanf(line_ptr, "%s", word) == 1) {
-            printf("%s\n", word); /* FOR ME */
 
-            /* ignore comment line */
+            /* ============ 1. Ignore comment line ============ */
             if (is_comment(word))
                 continue;
 
-            /* end of macro */
+            /* ======== 2. End of macro initialization ======== */
             if (!macr_end(word)) {
                 inside_macro = false;
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
                     set_error(&global_error, global_error.code, file_origin, line_count);
-                    break;
+                    print_error(&global_error);
                 }
                 continue;
             }
 
-            /* if this line is inside initialized macro */
+            /* ======== 3. Inside of macro initialization ======== */
             if (inside_macro) {
                 /* copy to macro */
                 add_content_line(&macr_list, line_ptr);
             }
 
-            /* if this line is macro initialization line */
+            /* ============ 4. Macro initialization ============ */
             else if (!macr_start(word)) {
-                inside_macro = true;
+                inside_macro = true; /* set flag */
 
+                /* scan the next word */
                 if (sscanf(line_ptr+ strlen(word), "%s", word) == 1)
                 {
-                    if (!create_macr(&macr_list, word)){
+                    if (!create_macr(&macr_list, word)){ /* if macro creation fails */
                         set_error(&global_error, global_error.code, file_origin, line_count);
-                        break;
+                        print_error(&global_error);
                     }
                 }
                 else {
                     set_error(&global_error, INVALID_MACR, file_origin, line_count);
+                    print_error(&global_error);
                 }
             }
 
-            /* if this is a macro */
+            /* =============== 5. Existing macro =============== */
             else if ((current_macr = is_macro(&macr_list, word) )!= NULL) {
                 copy_macro_to_file(current_macr, output_file);
             }
 
-            /* regular command line */
+            /* ============ 6. Regular command line ============ */
             else {
                 fputs(line_ptr, output_file);
             }
@@ -114,10 +132,17 @@ void preprocessor(const char* file_origin){
     print_all_macros(&macr_list);
     print_error(&global_error);
     free_macro_list(&macr_list);
-    free(output_filename);
     /* close the file */
     fclose(source_file);
+    fclose(output_file);
+    free(output_filename);
+    free(source_filename);
+
 }
+
+/* ---------------------------------------------------------------------------------------
+ *                                   Utility Functions
+ * --------------------------------------------------------------------------------------- */
 
 bool verify_macro(char *str) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */

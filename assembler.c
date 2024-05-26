@@ -1,6 +1,3 @@
-//
-// Created by naomi on 25/05/2024.
-//
 
 #include "errors.h"
 void controller(int argc, char* argv[]);
