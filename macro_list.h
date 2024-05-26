@@ -20,8 +20,9 @@ typedef struct {
 
 
 MacroNode* create_macro_node(const char* macro_name, const char* macro_value);
-void insert_macro_node(MacroList* list, const char* name, const char* value);
 void printMacros(const MacroNode* head);
 void free_macros(MacroList* list);
+void insert_macro_node(MacroList* list, const char* name, const char* value);
+bool add_value_to_head(MacroList* list, const char* value);
 
 #endif //INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_MACRO_LIST_H

@@ -13,9 +13,10 @@ typedef enum {
     MEMORY_ALLOCATION_ERROR,
     EOF_ERROR,
 
-    /* file open errors */
+    /* file errors */
     NO_ARGUMENTS,
     CANNOT_OPEN_FILE,
+    CANNOT_CREATE_FILE,
 
     /* macro errors */
     INVALID_MACR,
@@ -28,17 +29,24 @@ typedef enum {
     ERROR_COUNT
 } ErrorCode;
 
+// Define a struct to hold location information
+typedef struct {
+    const char *file;
+    int line;
+} Location;
+
 /* Define a struct to hold error information */
 typedef struct {
     ErrorCode code;
     const char *message;
+    Location location;
 } Error;
 
 /* Declare the global error variable */
 extern Error global_error;
 
 /* Function to set the global error */
-void set_error(ErrorCode code);
-void print_error(Error error);
+void set_error(Error *error, ErrorCode code, const char *file, int line);
+void print_error(Error *error);
 
 #endif //INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_ERRORS_H

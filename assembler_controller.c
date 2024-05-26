@@ -10,7 +10,7 @@ void controller(int argc, char* argv[]) {
     while (argc > 1) {
         preprocessor(argv[i]);
         if (global_error.code != NO_ERROR) {
-            printf("%s %s", global_error.message, argv[i]);
+            print_error(&global_error);
         }
         i++;
         argc--;

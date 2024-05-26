@@ -43,13 +43,13 @@ void print_macros(const MacroList* list) {
 
 bool add_value_to_head(MacroList* list, const char* value) {
     if (list->head == NULL){
-        set_error(OTHER_ERROR);
+        set_error(&global_error, OTHER_ERROR, "", 0);
         return false;
     }
     size_t oldLen = strlen(list->head->value);
     char* combinedValue = (char*)malloc(oldLen + MAX_LINE_LENGTH + 1); /* Allocate memory for the combined value */
     if (combinedValue == NULL) {
-        set_error(MEMORY_ALLOCATION_ERROR);
+        set_error(&global_error, MEMORY_ALLOCATION_ERROR, "", 0);
         return false;
     }
 

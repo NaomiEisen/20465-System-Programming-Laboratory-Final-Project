@@ -6,6 +6,6 @@
 #define INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_ASSEMBLER_CONTROLLER_H
 
 #include <stdio.h>
-void preprocessor(char* file_origin);
+void preprocessor(const char* file_origin);
 
 #endif //INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_ASSEMBLER_CONTROLLER_H
