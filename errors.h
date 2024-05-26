@@ -1,49 +1,47 @@
-
 #ifndef ERRORS_H
 #define ERRORS_H
 
-/* Define error codes */
+/* ---------------------------- Error Codes ---------------------------- */
 typedef enum {
-
-    /* general errors */
+    /* ======= General Errors ======= */
     NO_ERROR,
     MEMORY_ALLOCATION_ERROR,
     EOF_ERROR,
 
-    /* file errors */
+    /* ======= File Errors ======= */
     NO_ARGUMENTS,
     CANNOT_OPEN_FILE,
     CANNOT_CREATE_FILE,
 
-    /* macro errors */
+    /* ======= Macro Errors ======= */
     INVALID_MACR,
     EXTRA_TXT,
 
-    /* other */
+    /* ======= Other ======= */
     OTHER_ERROR,
 
     /* This will automatically be equal to the number of error codes */
     ERROR_COUNT
 } ErrorCode;
 
-/* Define a struct to hold location information*/
+/* ---------------------------- Location Information ---------------------------- */
 typedef struct {
     const char *file;
     int line;
 } Location;
 
-/* Define a struct to hold error information */
+/* ---------------------------- Error information ---------------------------- */
 typedef struct {
     ErrorCode code;
     const char *message;
     Location location;
 } Error;
 
-/* Declare the global error variable */
-extern Error global_error;
-
-/* Function to set the global error */
+/* ---------------------------- Function Prototypes ---------------------------- */
 void set_error(Error *error, ErrorCode code, const char *file, int line);
 void print_error(Error *error);
+
+/* Declare the global error variable */
+extern Error global_error;
 
 #endif /* ERRORS_H */

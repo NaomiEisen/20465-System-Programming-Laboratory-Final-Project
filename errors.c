@@ -17,8 +17,8 @@ static const Error errorTable[ERROR_COUNT] = {
         {NO_ARGUMENTS, "No arguments were passed",{NULL, 0}},
         {CANNOT_OPEN_FILE, "Cannot open file",{NULL, 0}},
         {CANNOT_CREATE_FILE, "Cannot create file",{NULL, 0}},
-        {INVALID_MACR, "Invalid macro name.",{NULL, 0}},
-        {EXTRA_TXT, "Extra text after macro initialization.",{NULL, 0}},
+        {INVALID_MACR, "Invalid macro name",{NULL, 0}},
+        {EXTRA_TXT, "Extra text after macro initialization",{NULL, 0}},
         {OTHER_ERROR, "An unspecified error occurred",{NULL, 0}},
 };
 
@@ -44,9 +44,9 @@ void set_error(Error *error, ErrorCode code, const char *file, int line) {
 
 void print_error(Error *error) {
     if (error->code != NO_ERROR) {
-        printf("Error: %s\n", error->message);
+        printf("\nError: %s\n", error->message);
         printf("Location: file %s", error->location.file);
         if (error->location.line > 0)
-            printf(" in line %d", error->location.line);
+            printf(" in line %d\n", error->location.line);
     }
 }

@@ -104,10 +104,15 @@ void preprocessor(const char* file_origin){
             else if (!macr_start(word)) {
                 inside_macro = true; /* set flag */
 
-                /* scan the next word */
+                if (!create_macr(&macr_list, line_ptr+ strlen(word))){ /* if macro creation fails */
+                    set_error(&global_error, global_error.code, file_origin, line_count);
+                    print_error(&global_error);
+                }
+
+                /* scan the next word
                 if (sscanf(line_ptr+ strlen(word), "%s", word) == 1)
                 {
-                    if (!create_macr(&macr_list, word)){ /* if macro creation fails */
+                    if (!create_macr(&macr_list, word)){
                         set_error(&global_error, global_error.code, file_origin, line_count);
                         print_error(&global_error);
                     }
@@ -115,7 +120,7 @@ void preprocessor(const char* file_origin){
                 else {
                     set_error(&global_error, INVALID_MACR, file_origin, line_count);
                     print_error(&global_error);
-                }
+                }*/
             }
 
             /* =============== 5. Existing macro =============== */
@@ -130,7 +135,6 @@ void preprocessor(const char* file_origin){
         }
     }
     print_all_macros(&macr_list);
-    print_error(&global_error);
     free_macro_list(&macr_list);
     /* close the file */
     fclose(source_file);

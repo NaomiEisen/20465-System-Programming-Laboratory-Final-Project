@@ -3,7 +3,7 @@
 macr        m_macr dbf
 cmp r3, #-6
 bne END
-   endmacr
+   endmacr d
 lea STR, r6
 ; this is comment
 inc r6

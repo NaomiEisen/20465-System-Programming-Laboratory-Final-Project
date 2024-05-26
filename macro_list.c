@@ -10,7 +10,7 @@
 MacroNode* create_macro_node(const char* macro_name) {
     MacroNode* newNode = (MacroNode*)malloc(sizeof(MacroNode));
     if (newNode == NULL) {
-        fprintf(stderr, "Memory allocation error\n");
+        printf("Memory allocation error\n");
         exit(EXIT_FAILURE);
     }
     strncpy(newNode->name, macro_name, sizeof(newNode->name) - 1);
@@ -30,13 +30,13 @@ void insert_macro_node(MacroList* list, const char* name) {
 /* Function to add a line to the value lines of a macro node */
 void add_content_line(MacroList* list, const char* line) {
     if (list->head == NULL) {
-        fprintf(stderr, "Error: No macro node available to add value lines\n");
+        printf("Error: No macro node available to add value lines\n");
         return;
     }
 
     LineNode* newLine = (LineNode*)malloc(sizeof(LineNode));
     if (newLine == NULL) {
-        fprintf(stderr, "Memory allocation error\n");
+        printf("Memory allocation error\n");
         exit(EXIT_FAILURE);
     }
     strncpy(newLine->line, line, sizeof(newLine->line) - 1);
