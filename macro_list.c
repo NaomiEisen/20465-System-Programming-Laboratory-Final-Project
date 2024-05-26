@@ -7,64 +7,94 @@
 #include "macro_list.h"
 #include "errors.h"
 
-/* Function to create a new macro node */
-MacroNode* create_macro_node(const char* macro_name, const char* macro_value) {
-    MacroNode* newNode = (MacroNode*)malloc(sizeof(MacroNode));
 
+/* Function to create a new macro node */
+MacroNode* create_macro_node(const char* macro_name) {
+    MacroNode* newNode = (MacroNode*)malloc(sizeof(MacroNode));
     if (newNode == NULL) {
         fprintf(stderr, "Memory allocation error\n");
         exit(EXIT_FAILURE);
     }
-
     strncpy(newNode->name, macro_name, sizeof(newNode->name) - 1);
     newNode->name[sizeof(newNode->name) - 1] = '\0'; /* Ensure null-termination */
-    strncpy(newNode->value, macro_value, sizeof(newNode->value) - 1);
-    newNode->value[sizeof(newNode->value) - 1] = '\0'; /* Ensure null-termination */
+    newNode->content_lines = NULL; /* Initialize value lines to NULL (empty list) */
     newNode->next = NULL;
     return newNode;
 }
 
-/* Function to insert a new macro node at the beginning of the list */
-void insert_macro_node(MacroList* list, const char* name, const char* value) {
-    MacroNode* newNode = create_macro_node(name, value);
-    newNode->next = list->head; /* Point the new node's next to the current head */
-    list->head = newNode;       /* Update the head to be the new node */
+/* Function to insert a new macro node with empty value list at the head of the list */
+void insert_macro_node(MacroList* list, const char* name) {
+    MacroNode* newNode = create_macro_node(name);
+    newNode->next = list->head;
+    list->head = newNode;
 }
 
-/* Function to print all macros in the list */
-void print_macros(const MacroList* list) {
-    const MacroNode* current = list->head;
+/* Function to add a line to the value lines of a macro node */
+void add_content_line(MacroList* list, const char* line) {
+    if (list->head == NULL) {
+        fprintf(stderr, "Error: No macro node available to add value lines\n");
+        return;
+    }
 
-    while (current != NULL) {
-        printf("Macro Name: %s\tMacro Value: %s\n", current->name, current->value);
-        current = current->next;
+    LineNode* newLine = (LineNode*)malloc(sizeof(LineNode));
+    if (newLine == NULL) {
+        fprintf(stderr, "Memory allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+    strncpy(newLine->line, line, sizeof(newLine->line) - 2);
+    newLine->line[sizeof(newLine->line) - 2] = '\n'; /* Ensure null-termination */
+    newLine->line[sizeof(newLine->line) - 1] = '\0'; /* Ensure null-termination */
+    newLine->next = NULL;
+
+    if (list->head->content_lines == NULL) {
+        /* If the value lines are empty, set the new line as the first line */
+        list->head->content_lines = newLine;
+    } else {
+        /* Traverse to the end of the value lines and add the new line node */
+        LineNode* current = list->head->content_lines;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newLine;
     }
 }
 
-bool add_value_to_head(MacroList* list, const char* value) {
-    if (list->head == NULL){
-        set_error(&global_error, OTHER_ERROR, "", 0);
-        return false;
+/* Function to free a line node */
+void free_line_node(LineNode* node) {
+    while (node != NULL) {
+        LineNode* temp = node;
+        node = node->next;
+        free(temp);
     }
-    size_t oldLen = strlen(list->head->value);
-    char* combinedValue = (char*)malloc(oldLen + MAX_LINE_LENGTH + 1); /* Allocate memory for the combined value */
-    if (combinedValue == NULL) {
-        set_error(&global_error, MEMORY_ALLOCATION_ERROR, "", 0);
-        return false;
-    }
-
-    strcpy(combinedValue, value); /* Copy the new text to the combined value */
-    strcat(combinedValue, list->head->value); /* Concatenate the old value to the combined value */
 }
 
-/* Function to free the memory allocated for the list */
-void free_macros(MacroList* list) {
+/* Function to free a macro node */
+void free_macro_node(MacroNode* node) {
+    free_line_node(node->content_lines);
+    free(node);
+}
+
+/* Function to free the entire macro list */
+void free_macro_list(MacroList* list) {
     MacroNode* current = list->head;
     while (current != NULL) {
         MacroNode* temp = current;
         current = current->next;
-        free(temp->value); /* Free the duplicated macro value */
-        free(temp);
+        free_macro_node(temp);
     }
-    list->head = NULL; /* Ensure the list is now empty */
+    list->head = NULL; /* Set list head to NULL after freeing */
 }
+
+/* Function to print all macros and their values
+void print_all_macros(const MacroList* list) {
+    const MacroNode* current_macro = list->head;
+    while (current_macro != NULL) {
+        printf("Macro Name: %s\n", current_macro->name);
+        const LineNode* current_line = current_macro->value_lines;
+        while (current_line != NULL) {
+            printf("\tValue Line: %s\n", current_line->line);
+            current_line = current_line->next;
+        }
+        current_macro = current_macro->next;
+    }
+}*/

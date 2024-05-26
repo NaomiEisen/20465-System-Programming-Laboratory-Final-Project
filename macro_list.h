@@ -6,11 +6,17 @@
 #define INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_MACRO_LIST_H
 #include "general.h"
 
+/* Define a structure for a single line in the macro value */
+typedef struct LineNode {
+    char line[MAX_LINE_LENGTH];
+    struct LineNode* next;
+} LineNode;
+
 /* Define the structure for a macro node in the linked list */
 typedef struct MacroNode {
     char name[MAX_LINE_LENGTH]; /* Maximum length for macro name */
-    char *value; /* Maximum length for macro value */
-    struct macro_node* next;
+    LineNode* content_lines; /* Linked list to store lines of macro value */
+    struct MacroNode* next;
 } MacroNode;
 
 /* Define the structure for the macro list */
@@ -19,10 +25,9 @@ typedef struct {
 } MacroList;
 
 
-MacroNode* create_macro_node(const char* macro_name, const char* macro_value);
-void printMacros(const MacroNode* head);
-void free_macros(MacroList* list);
-void insert_macro_node(MacroList* list, const char* name, const char* value);
-bool add_value_to_head(MacroList* list, const char* value);
+void insert_macro_node(MacroList* list, const char* name);
+void add_content_line(MacroList* list, const char* line);
+void free_macro_list(MacroList* list);
+void print_all_macros(const MacroList* list);
 
 #endif //INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_MACRO_LIST_H

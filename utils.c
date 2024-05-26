@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include "general.h"
 
-/* Custom implementation of the isspace function */
-int isspace(int c) {
+/* Custom implementation of the is_space function */
+int is_space(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v';
 }
 
@@ -15,7 +15,7 @@ int isspace(int c) {
 /* Function to check if the rest of the line is empty */
 bool is_empty_line(const char* line) {
     // Skip leading whitespace
-    while (*line && isspace((unsigned char)*line)) {
+    while (*line && is_space(*line)) {
         line++;
     }
 
@@ -36,3 +36,33 @@ bool create_new_file_name(const char* original_filename, char** new_filename ,co
     }
     return false;
 }
+
+
+void trim_spaces(char **str) {
+    char *end;
+    char *start = *str;
+
+    /* Trim leading spaces */
+    while (is_space( *start)) {
+        start++;
+    }
+
+    /* If all spaces */
+    if (*start == 0) {
+        *str = start;
+        return;
+    }
+
+    /* Trim trailing spaces */
+    end = start + strlen(start) - 1;
+    while (end > start && is_space(*end)) {
+        end--;
+    }
+
+    /* Null-terminate the trimmed string */
+    *(end + 1) = '\0';
+
+    /* Update the original string pointer */
+    *str = start;
+}
+
