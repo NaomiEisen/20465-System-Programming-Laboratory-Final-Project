@@ -41,8 +41,7 @@ void add_content_line(MacroList* list, const char* line) {
         fprintf(stderr, "Memory allocation error\n");
         exit(EXIT_FAILURE);
     }
-    strncpy(newLine->line, line, sizeof(newLine->line) - 2);
-    newLine->line[sizeof(newLine->line) - 2] = '\n'; /* Ensure null-termination */
+    strncpy(newLine->line, line, sizeof(newLine->line) - 1);
     newLine->line[sizeof(newLine->line) - 1] = '\0'; /* Ensure null-termination */
     newLine->next = NULL;
 
@@ -85,16 +84,16 @@ void free_macro_list(MacroList* list) {
     list->head = NULL; /* Set list head to NULL after freeing */
 }
 
-/* Function to print all macros and their values
+/*Function to print all macros and their values*/
 void print_all_macros(const MacroList* list) {
     const MacroNode* current_macro = list->head;
     while (current_macro != NULL) {
         printf("Macro Name: %s\n", current_macro->name);
-        const LineNode* current_line = current_macro->value_lines;
+        const LineNode* current_line = current_macro->content_lines;
         while (current_line != NULL) {
-            printf("\tValue Line: %s\n", current_line->line);
+            printf("\tValue Line: %s", current_line->line);
             current_line = current_line->next;
         }
         current_macro = current_macro->next;
     }
-}*/
+}

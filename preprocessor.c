@@ -28,7 +28,7 @@ void preprocessor(const char* file_origin){
     MacroList macr_list = {NULL};       /* Initialize empty list of macros */
     MacroNode* current_macr = NULL;
 
-    /* ------------------------------ open source file in read mode ------------------------------ */
+    /* ---------------------------- Open the source file in read mode ---------------------------- */
     if (!(source_file = fopen(file_origin, "r"))) {
         /* if the file fails to open, set an error and return */
         set_error(&global_error, CANNOT_OPEN_FILE, file_origin, 0);
@@ -42,6 +42,7 @@ void preprocessor(const char* file_origin){
         return;
     }
 
+    /* ---------------------------- Open the output file in write mode ---------------------------- */
     if (!(output_file = fopen(output_filename, "w"))) {
         /* if the file fails to open, set an error and return */
         set_error(&global_error, CANNOT_CREATE_FILE, output_filename, 0);
@@ -51,12 +52,12 @@ void preprocessor(const char* file_origin){
         return;
     }
 
-    /* read lines from the file */
+    /* ---------------------------- Process each line in the source file ---------------------------- */
     while (fgets(line, sizeof(line), source_file) != NULL) {
         /* update counter */
         line_count++;
         line_ptr = line;
-        trim_spaces(&line_ptr);
+        trim_leading_spaces(&line_ptr);
 
         /* if line is not empty */
         if (sscanf(line_ptr, "%s", word) == 1) {
@@ -69,7 +70,7 @@ void preprocessor(const char* file_origin){
             /* end of macro */
             if (!macr_end(word)) {
                 inside_macro = false;
-                /* verify macro */
+                /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
                     set_error(&global_error, global_error.code, file_origin, line_count);
                     break;
@@ -102,17 +103,16 @@ void preprocessor(const char* file_origin){
             /* if this is a macro */
             else if ((current_macr = is_macro(&macr_list, word) )!= NULL) {
                 copy_macro_to_file(current_macr, output_file);
-                fputs("\n", output_file);
             }
 
             /* regular command line */
             else {
                 fputs(line_ptr, output_file);
-                fputs("\n", output_file);
             }
         }
     }
-   /* print_macros(&macr_list);*/
+    print_all_macros(&macr_list);
+    print_error(&global_error);
     free_macro_list(&macr_list);
     free(output_filename);
     /* close the file */
@@ -121,18 +121,24 @@ void preprocessor(const char* file_origin){
 
 bool verify_macro(char *str) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
+
+    /* if macr don't have name */
     if (sscanf(str, "%s", word) != 1)
         return false;
+
+    /* macr name is reserved name */
     if (is_reserved_word(word)) {
         set_error(&global_error, INVALID_MACR, "", 0);
         return false;
     }
+
+    /* macr initialization line contain extra text */
     if (is_empty_line(str + strlen(word) + 1) == false) {
         set_error(&global_error, EXTRA_TXT, "", 0);
         return false;
 
     }
-    return true;
+    return true; /* macr is valid */
 }
 
 int is_comment(const char* str) {
