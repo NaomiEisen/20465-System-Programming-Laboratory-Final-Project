@@ -13,4 +13,6 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         assembler_controller.h
         general.h
         macro_list.h
-        macro_list.c)
+        macro_list.c
+        utils.c
+        utils.h)

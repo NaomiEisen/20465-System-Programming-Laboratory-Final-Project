@@ -16,20 +16,37 @@ static const Error errorTable[ERROR_COUNT] = {
         {EOF_ERROR, "End of file reached"},
         {NO_ARGUMENTS, "No arguments were passed"},
         {CANNOT_OPEN_FILE, "Cannot open file"},
+        {CANNOT_CREATE_FILE, "Cannot create file"},
         {INVALID_MACR, "Invalid macro name."},
-        {EXTRA_TXT, "Extra text after macro initialization."}
+        {EXTRA_TXT, "Extra text after macro initialization."},
         {OTHER_ERROR, "An unspecified error occurred"},
 };
 
-/* Function to set the global error */
+/* Function to set the global error
 void set_error(ErrorCode code) {
     if (code < ERROR_COUNT) {
         global_error = errorTable[code];
     } else {
         global_error = (Error){OTHER_ERROR, "Unknown error"};
     }
+}*/
+
+/* Function to set the global error */
+void set_error(Error *error, ErrorCode code, const char *file, int line) {
+    if (code < ERROR_COUNT) {
+        global_error = errorTable[code];
+    } else {
+        global_error = (Error){OTHER_ERROR, "Unknown error"};
+    }
+    error->location.file = file;
+    error->location.line = line;
 }
 
-void print_error(Error error) {
-    printf("Error: %s", error.message);
+void print_error(Error *error) {
+    if (error->code != NO_ERROR) {
+        printf("Error: %s\n", error->message);
+        printf("Location: file %s", error->location.file);
+        if (error->location.line > 0)
+            printf(" in line %d", error->location.line);
+    }
 }

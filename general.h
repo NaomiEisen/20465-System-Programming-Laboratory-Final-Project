@@ -7,6 +7,7 @@
 
 #define MAX_LINE_LENGTH 81
 #define MAX_LABLE_LENGTH 30
+#define MAX_FILENAME_LENGTH 30
 
 /* Define a Boolean Type */
 typedef enum { false, true } bool;
