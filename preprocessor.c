@@ -17,7 +17,7 @@ const char* reserved_words[] = {
 };
 
 /* ---------------------------------------------------------------------------------------
- *                               Main Function Of Preprocessor
+ *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
 
 void preprocessor(const char* file_origin){
@@ -90,6 +90,7 @@ void preprocessor(const char* file_origin){
                 if (!is_empty_line(line_ptr+ strlen(word))) {
                     set_error(&global_error, global_error.code, file_origin, line_count);
                     print_error(&global_error);
+                    clear_error(&global_error);
                 }
                 continue;
             }
@@ -107,20 +108,8 @@ void preprocessor(const char* file_origin){
                 if (!create_macr(&macr_list, line_ptr+ strlen(word))){ /* if macro creation fails */
                     set_error(&global_error, global_error.code, file_origin, line_count);
                     print_error(&global_error);
+                    inside_macro = false; /* no macro was initialized */
                 }
-
-                /* scan the next word
-                if (sscanf(line_ptr+ strlen(word), "%s", word) == 1)
-                {
-                    if (!create_macr(&macr_list, word)){
-                        set_error(&global_error, global_error.code, file_origin, line_count);
-                        print_error(&global_error);
-                    }
-                }
-                else {
-                    set_error(&global_error, INVALID_MACR, file_origin, line_count);
-                    print_error(&global_error);
-                }*/
             }
 
             /* =============== 5. Existing macro =============== */
@@ -187,10 +176,13 @@ bool create_macr(MacroList* list,char* str) {
     trim_spaces(&str);
     if (verify_macro(str)) {
         insert_macro_node(list, str);
-        return true;
+        if (global_error.code == NO_ERROR) {
+            return true;
+        }
     }
     return false;
 }
+
 MacroNode* is_macro(MacroList* list, const char* str) {
     MacroNode* current = list->head;
 

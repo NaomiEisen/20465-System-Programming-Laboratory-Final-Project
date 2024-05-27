@@ -1,11 +1,17 @@
-    MAIN: add r3, LIST
-        LOOP: prn #48
-macr        m_macr dbf
+MAIN: add r3, LIST
+LOOP: prn #48
+macr        m_macr
 cmp r3, #-6
 bne END
-   endmacr d
+   endmacr
 lea STR, r6
 ; this is comment
+
+    macr        m_macr2 dbf
+    cmp r3, #-6
+    bne END
+    endmacr
+
 inc r6
 mov *r6,K
 sub r1, r4

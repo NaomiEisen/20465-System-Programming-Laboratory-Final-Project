@@ -1,4 +1,6 @@
-
+/* ---------------------------------------------------------------------------------------
+ *                                          Includes
+ * --------------------------------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,8 +12,8 @@
 MacroNode* create_macro_node(const char* macro_name) {
     MacroNode* newNode = (MacroNode*)malloc(sizeof(MacroNode));
     if (newNode == NULL) {
-        printf("Memory allocation error\n");
-        exit(EXIT_FAILURE);
+        set_error(&global_error, MEMORY_ALLOCATION_ERROR,NULL,0);
+        return NULL;
     }
     strncpy(newNode->name, macro_name, sizeof(newNode->name) - 1);
     newNode->name[sizeof(newNode->name) - 1] = '\0'; /* Ensure null-termination */
@@ -36,8 +38,8 @@ void add_content_line(MacroList* list, const char* line) {
 
     LineNode* newLine = (LineNode*)malloc(sizeof(LineNode));
     if (newLine == NULL) {
-        printf("Memory allocation error\n");
-        exit(EXIT_FAILURE);
+        set_error(&global_error, MEMORY_ALLOCATION_ERROR,NULL,0);
+        return;
     }
     strncpy(newLine->line, line, sizeof(newLine->line) - 1);
     newLine->line[sizeof(newLine->line) - 1] = '\0'; /* Ensure null-termination */

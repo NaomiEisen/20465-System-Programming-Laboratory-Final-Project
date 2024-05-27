@@ -40,6 +40,7 @@ typedef struct {
 /* ---------------------------- Function Prototypes ---------------------------- */
 void set_error(Error *error, ErrorCode code, const char *file, int line);
 void print_error(Error *error);
+void clear_error (Error *error);
 
 /* Declare the global error variable */
 extern Error global_error;
