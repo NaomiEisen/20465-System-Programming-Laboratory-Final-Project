@@ -33,15 +33,14 @@ void preprocessor(const char* file_origin){
     MacroList macr_list = {NULL};       /* Initialize empty list of macros */
     MacroNode* current_macr = NULL;
 
-
-    /* ------------------ Create the source filename with the specified extension ------------------*/
+    /* ------------- Create the source filename with the specified extension -------------*/
     if (!create_new_file_name(file_origin, &source_filename, ".as")) {
         set_error(&global_error, MEMORY_ALLOCATION_ERROR, file_origin, 0);
         print_error(&global_error);
         return;
     }
 
-    /* ---------------------------- Open the source file in read mode ---------------------------- */
+    /* ----------------------- Open the source file in read mode ----------------------- */
     if (!(source_file = fopen(source_filename, "r"))) {
         /* if the file fails to open, set an error and return */
         set_error(&global_error, CANNOT_OPEN_FILE, file_origin, 0);
@@ -51,14 +50,14 @@ void preprocessor(const char* file_origin){
         return;
     }
 
-    /* ------------------ Create the output filename with the specified extension ------------------*/
+    /* -------------- Create the output filename with the specified extension --------------*/
     if (!create_new_file_name(file_origin, &output_filename, ".am")) {
         set_error(&global_error, MEMORY_ALLOCATION_ERROR, file_origin, 0);
         print_error(&global_error);
         return;
     }
 
-    /* ---------------------------- Open the output file in write mode ---------------------------- */
+    /* ------------------------ Open the output file in write mode ------------------------ */
     if (!(output_file = fopen(output_filename, "w"))) {
         /* if the file fails to open, set an error and return */
         set_error(&global_error, CANNOT_CREATE_FILE, output_filename, 0);
@@ -70,7 +69,7 @@ void preprocessor(const char* file_origin){
         return;
     }
 
-    /* ---------------------------- Process each line in the source file ---------------------------- */
+    /* ------------------------ Process each line in the source file ------------------------ */
     while (fgets(line, sizeof(line), source_file) != NULL) {
         line_count++; /* Update counter */
         line_ptr = line;  /* Set line pointer to line start */
