@@ -27,7 +27,7 @@ void preprocessor(const char* file_origin){
     char* output_filename = NULL;
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    char* line_ptr = NULL;
+    const char* line_ptr = NULL;
     int line_count = 0;                 /* line counter */
     bool inside_macro = false;          /* flag that indicated if read line is part of macro */
     MacroList macr_list = {NULL};       /* Initialize empty list of macros */
@@ -136,7 +136,7 @@ void preprocessor(const char* file_origin){
  *                                   Utility Functions
  * --------------------------------------------------------------------------------------- */
 
-bool verify_macro(char *str) {
+bool verify_macro(const char *str) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
     /* if macr don't have name */
@@ -171,7 +171,7 @@ int macr_end(const char* str) {
 }
 
 
-bool create_macr(MacroList* list,char* str) {
+bool create_macr(MacroList* list, const char *str) {
     trim_spaces(&str);
     if (verify_macro(str)) {
         insert_macro_node(list, str);

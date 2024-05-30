@@ -14,8 +14,8 @@ int is_space(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v';
 }
 
-void trim_leading_spaces(char **str) {
-    char *start = *str;
+void trim_leading_spaces(const char** str) {
+    const char *start = *str;
 
     /* Trim leading spaces */
     while (is_space(*start)) {
@@ -27,9 +27,9 @@ void trim_leading_spaces(char **str) {
 }
 
 
-void trim_spaces(char **str) {
+void trim_spaces(const char **str) {
     char *end;
-    char *start = *str;
+    const char *start = *str;
 
     /* Trim leading spaces */
     trim_leading_spaces(&start);
@@ -54,7 +54,7 @@ void trim_spaces(char **str) {
 }
 
 /* Function to check if the rest of the line is empty */
-bool is_empty_line(char* line) {
+bool is_empty_line(const char *line) {
     /* Trim leading spaces */
     trim_leading_spaces(&line);
 
@@ -76,6 +76,22 @@ bool create_new_file_name(const char* original_filename, char** new_filename ,co
     return false;
 }
 
+
+
+char* my_strndup(const char* str, size_t size) {
+    char* result;
+    size_t len = strlen(str);
+
+    if (size < len)
+        len = size;
+
+    result = (char*)malloc(len + 1);
+    if (!result)
+        return NULL;
+
+    result[len] = '\0';
+    return (char*)memcpy(result, str, len);
+}
 
 
 

@@ -17,6 +17,11 @@ typedef enum {
     INVALID_MACR,
     EXTRA_TXT,
 
+    /* ======= Comma Errors ======= */
+    MULTIPULE_COMMA_ERROR,
+    MISSING_COMMA_ERROR,
+    ILLEGAL_COMMA_ERROR,
+
     /* ======= Other ======= */
     OTHER_ERROR,
 
