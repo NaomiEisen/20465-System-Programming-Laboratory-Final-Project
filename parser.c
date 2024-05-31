@@ -122,6 +122,7 @@ ASTNode* parseLine(const char *line) {
     check_label(&line_ptr, node);
 
     /* ====================== 3. Read the operation ====================== */
+
     /* determine line type */
     trim_leading_spaces(&line_ptr);
     setLineType(node, LINE_OPERATION); /* default */

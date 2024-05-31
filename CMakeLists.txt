@@ -16,7 +16,7 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         macro_list.c
         utils.c
         utils.h
-        parcer.c
+        parser.c
         ast.h
         hardware.h
         ast.c)
