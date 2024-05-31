@@ -28,6 +28,7 @@ void setLabel(ASTNode *node, const char *label);
 void setOperation(ASTNode *node, const char *operation);
 int addOperand(ASTNode *node, const char *operand);
 void freeASTNode(ASTNode *node);
+void printASTNode(const ASTNode *node);
 
 
 #endif /* AST_H */

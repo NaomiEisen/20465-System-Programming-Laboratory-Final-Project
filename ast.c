@@ -60,3 +60,25 @@ void freeASTNode(ASTNode *node) {
         free(node);
     }
 }
+
+void printASTNode(const ASTNode *node) {
+    const char *lineTypeStr;
+    switch (node->lineType) {
+        case LINE_EMPTY: lineTypeStr = "Empty"; break;
+        case LINE_COMMENT: lineTypeStr = "Comment"; break;
+        case LINE_DIRECTIVE: lineTypeStr = "Directive"; break;
+        case LINE_OPERATION: lineTypeStr = "Operation"; break;
+    }
+
+    printf("Line Type: %s\n", lineTypeStr);
+    if (node->label) printf("Label: %s\n", node->label);
+    if (node->operation) printf("Operation: %s\n", node->operation);
+    printf("Operands: ");
+    OperandNode *current = node->operands;
+    while (current) {
+        printf("%s ", current->operand);
+        current = current->next;
+    }
+    printf("\nNumber of Operands: %d\n", node->numOperands);
+    printf("\n");
+}

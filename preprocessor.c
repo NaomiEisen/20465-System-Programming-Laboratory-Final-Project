@@ -20,14 +20,14 @@ const char* reserved_words[] = {
  *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
 
-void preprocessor(const char* file_origin){
-    FILE* source_file;                  /* the source file */
-    FILE* output_file;
-    char* source_filename = NULL;
-    char* output_filename = NULL;
+char* preprocessor(const char* file_origin){
+    FILE* source_file;                  /* the source file (.as) */
+    FILE* output_file;                  /* the output file (.am) */
+    char* source_filename = NULL;       /* the source file name */
+    char* output_filename = NULL;       /* the output file name */
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    const char* line_ptr = NULL;
+    const char* line_ptr = NULL;        /* pointer to go through line */
     int line_count = 0;                 /* line counter */
     bool inside_macro = false;          /* flag that indicated if read line is part of macro */
     MacroList macr_list = {NULL};       /* Initialize empty list of macros */
@@ -37,7 +37,7 @@ void preprocessor(const char* file_origin){
     if (!create_new_file_name(file_origin, &source_filename, ".as")) {
         set_error(&global_error, MEMORY_ALLOCATION_ERROR, file_origin, 0);
         print_error(&global_error);
-        return;
+        return NULL;
     }
 
     /* ----------------------- Open the source file in read mode ----------------------- */
@@ -47,14 +47,14 @@ void preprocessor(const char* file_origin){
         print_error(&global_error);
         fclose(source_file); /* close the file */
         free(source_filename);
-        return;
+        return NULL;
     }
 
     /* -------------- Create the output filename with the specified extension --------------*/
     if (!create_new_file_name(file_origin, &output_filename, ".am")) {
         set_error(&global_error, MEMORY_ALLOCATION_ERROR, file_origin, 0);
         print_error(&global_error);
-        return;
+        return NULL;
     }
 
     /* ------------------------ Open the output file in write mode ------------------------ */
@@ -66,7 +66,7 @@ void preprocessor(const char* file_origin){
         fclose(output_file); /* close the output file */
         free(output_filename);
         free(source_filename);
-        return;
+        return NULL;
     }
 
     /* ------------------------ Process each line in the source file ------------------------ */
@@ -127,9 +127,10 @@ void preprocessor(const char* file_origin){
     /* close the file */
     fclose(source_file);
     fclose(output_file);
-    free(output_filename);
+    /*free(output_filename);*/
     free(source_filename);
 
+    return output_filename;
 }
 
 /* ---------------------------------------------------------------------------------------

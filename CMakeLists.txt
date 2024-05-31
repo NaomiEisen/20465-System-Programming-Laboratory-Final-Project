@@ -19,4 +19,7 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         parser.c
         ast.h
         hardware.h
-        ast.c)
+        ast.c
+        first_phase.h
+        first_phase.c
+        parser.h)

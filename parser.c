@@ -4,7 +4,6 @@
 #include "utils.h"
 #include "errors.h"
 #include "general.h"
-#include "hardware.h"
 
 
 int check_empty_line (const char** line, ASTNode* node) {
@@ -30,7 +29,7 @@ void check_label(const char **line, ASTNode *node) {
         /* Save label in AST node */
         setLabel(node, my_strndup(start, line_ptr - start));
         line_ptr++;  /* Skip the colon */
-        while (isspace(*line_ptr)) line_ptr++; /* Skip any whitespace after the label */
+        trim_leading_spaces(&line_ptr); /* Skip any whitespace after the label */
         *line = line_ptr;
     }
 }
@@ -80,7 +79,10 @@ int parse_operands(const char **line, ASTNode *node) {
                 set_error(&global_error, MISSING_COMMA_ERROR, NULL, 0);
                 return 0;
             }
+            line_ptr++; /* Skip comma */
+            trim_leading_spaces(&line_ptr); /* Skip spaces */
         }
+        start = line_ptr;
         while (*line_ptr && *line_ptr != ',' && !isspace(*line_ptr)) {
             if (is_space(*line_ptr)) {
                 set_error(&global_error, MISSING_COMMA_ERROR, NULL, 0);
@@ -94,7 +96,6 @@ int parse_operands(const char **line, ASTNode *node) {
         }
         first_op = false;
         trim_leading_spaces(&line_ptr);
-        start = line_ptr;
     }
 
     return 1;
@@ -103,12 +104,6 @@ int parse_operands(const char **line, ASTNode *node) {
 ASTNode* parseLine(const char *line) {
     ASTNode *node = create_empty_ASTNode();
     const char *line_ptr = line;
-    const char *start_ptr = NULL;
-    int i = 0;
-
-    if (global_error.code != NO_ERROR) {
-        return NULL;
-    }
 
     /* Skip leading whitespace */
     trim_leading_spaces(&line_ptr);
