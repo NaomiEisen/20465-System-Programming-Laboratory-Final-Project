@@ -1,6 +1,6 @@
-//
-// Created by naomi on 25/05/2024.
-//
+/* ---------------------------------------------------------------------------------------
+ *                                          Includes
+ * --------------------------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,110 +16,128 @@ const char* reserved_words[] = {
         "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop"
 };
 
-void preprocessor(const char* file_origin){
-    FILE* source_file;                  /* the source file */
-    FILE* output_file;
-    char *output_filename = NULL;
+/* ---------------------------------------------------------------------------------------
+ *                               Head Function Of Preprocessor
+ * --------------------------------------------------------------------------------------- */
+
+char* preprocessor(const char* file_origin){
+    FILE* source_file;                  /* the source file (.as) */
+    FILE* output_file;                  /* the output file (.am) */
+    char* source_filename = NULL;       /* the source file name */
+    char* output_filename = NULL;       /* the output file name */
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    char *line_ptr = NULL;
+    const char* line_ptr = NULL;        /* pointer to go through line */
     int line_count = 0;                 /* line counter */
     bool inside_macro = false;          /* flag that indicated if read line is part of macro */
     MacroList macr_list = {NULL};       /* Initialize empty list of macros */
     MacroNode* current_macr = NULL;
 
-    /* ---------------------------- Open the source file in read mode ---------------------------- */
-    if (!(source_file = fopen(file_origin, "r"))) {
+    /* ------------- Create the source filename with the specified extension -------------*/
+    if (!create_new_file_name(file_origin, &source_filename, ".as")) {
+        set_error(&global_error, MEMORY_ALLOCATION_ERROR, file_origin, 0);
+        print_error(&global_error);
+        return NULL;
+    }
+
+    /* ----------------------- Open the source file in read mode ----------------------- */
+    if (!(source_file = fopen(source_filename, "r"))) {
         /* if the file fails to open, set an error and return */
         set_error(&global_error, CANNOT_OPEN_FILE, file_origin, 0);
+        print_error(&global_error);
         fclose(source_file); /* close the file */
-        return;
+        free(source_filename);
+        return NULL;
     }
 
-    /* ------------------ Create the output filename with the specified extension ------------------*/
+    /* -------------- Create the output filename with the specified extension --------------*/
     if (!create_new_file_name(file_origin, &output_filename, ".am")) {
         set_error(&global_error, MEMORY_ALLOCATION_ERROR, file_origin, 0);
-        return;
+        print_error(&global_error);
+        return NULL;
     }
 
-    /* ---------------------------- Open the output file in write mode ---------------------------- */
+    /* ------------------------ Open the output file in write mode ------------------------ */
     if (!(output_file = fopen(output_filename, "w"))) {
         /* if the file fails to open, set an error and return */
         set_error(&global_error, CANNOT_CREATE_FILE, output_filename, 0);
-        fclose(source_file); /* close the file */
-        fclose(output_file); /* close the file */
+        print_error(&global_error);
+        fclose(source_file); /* close the source file */
+        fclose(output_file); /* close the output file */
         free(output_filename);
-        return;
+        free(source_filename);
+        return NULL;
     }
 
-    /* ---------------------------- Process each line in the source file ---------------------------- */
+    /* ------------------------ Process each line in the source file ------------------------ */
     while (fgets(line, sizeof(line), source_file) != NULL) {
-        /* update counter */
-        line_count++;
-        line_ptr = line;
-        trim_leading_spaces(&line_ptr);
+        line_count++; /* Update counter */
+        line_ptr = line;  /* Set line pointer to line start */
+        trim_leading_spaces(&line_ptr); /* Skip leading spaces */
 
-        /* if line is not empty */
+        /* If line is not empty - process the line */
         if (sscanf(line_ptr, "%s", word) == 1) {
-            printf("%s\n", word); /* FOR ME */
 
-            /* ignore comment line */
+            /* ============ 1. Ignore comment line ============ */
             if (is_comment(word))
                 continue;
 
-            /* end of macro */
+            /* ======== 2. End of macro initialization ======== */
             if (!macr_end(word)) {
                 inside_macro = false;
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
                     set_error(&global_error, global_error.code, file_origin, line_count);
-                    break;
+                    print_error(&global_error);
+                    clear_error(&global_error);
                 }
                 continue;
             }
 
-            /* if this line is inside initialized macro */
+            /* ======== 3. Inside of macro initialization ======== */
             if (inside_macro) {
                 /* copy to macro */
                 add_content_line(&macr_list, line_ptr);
             }
 
-            /* if this line is macro initialization line */
+            /* ============ 4. Macro initialization ============ */
             else if (!macr_start(word)) {
-                inside_macro = true;
+                inside_macro = true; /* set flag */
 
-                if (sscanf(line_ptr+ strlen(word), "%s", word) == 1)
-                {
-                    if (!create_macr(&macr_list, word)){
-                        set_error(&global_error, global_error.code, file_origin, line_count);
-                        break;
-                    }
-                }
-                else {
-                    set_error(&global_error, INVALID_MACR, file_origin, line_count);
+                if (!create_macr(&macr_list, line_ptr+ strlen(word))){ /* if macro creation fails */
+                    set_error(&global_error, global_error.code, file_origin, line_count);
+                    print_error(&global_error);
+                    inside_macro = false; /* no macro was initialized */
                 }
             }
 
-            /* if this is a macro */
+            /* =============== 5. Existing macro =============== */
             else if ((current_macr = is_macro(&macr_list, word) )!= NULL) {
                 copy_macro_to_file(current_macr, output_file);
             }
 
-            /* regular command line */
+            /* ============ 6. Regular command line ============ */
             else {
                 fputs(line_ptr, output_file);
             }
         }
     }
     print_all_macros(&macr_list);
-    print_error(&global_error);
     free_macro_list(&macr_list);
-    free(output_filename);
     /* close the file */
     fclose(source_file);
+    fclose(output_file);
+    /*free(output_filename);*/
+    free(source_filename);
+
+    return output_filename;
 }
 
-bool verify_macro(char *str) {
+/* ---------------------------------------------------------------------------------------
+ *                                   Utility Functions
+ * --------------------------------------------------------------------------------------- */
+
+bool verify_macro(const char *str) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
     /* if macr don't have name */
@@ -154,14 +172,17 @@ int macr_end(const char* str) {
 }
 
 
-bool create_macr(MacroList* list,char* str) {
+bool create_macr(MacroList* list, const char *str) {
     trim_spaces(&str);
     if (verify_macro(str)) {
         insert_macro_node(list, str);
-        return true;
+        if (global_error.code == NO_ERROR) {
+            return true;
+        }
     }
     return false;
 }
+
 MacroNode* is_macro(MacroList* list, const char* str) {
     MacroNode* current = list->head;
 

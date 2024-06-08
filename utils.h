@@ -1,15 +1,15 @@
-//
-// Created by naomi on 26/05/2024.
-//
+#ifndef UTILS_H
+#define UTILS_H
+#include "general.h"
 
-#ifndef INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_UTILS_H
-#define INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_UTILS_H
-
-/* Function prototypes */
+/* ---------------------------------------------------------------------------------------
+ *                                     Function Prototypes
+ * --------------------------------------------------------------------------------------- */
 int is_space(char c);
-bool is_empty_line(const char* line);
+bool is_empty_line(const char *line);
 bool create_new_file_name(const char* original_filename, char** new_filename ,const char* extension);
-void trim_spaces(char **str);
-void trim_leading_spaces(char **str);
+void trim_spaces(const char **str);
+void trim_leading_spaces(const char **str);
+char* my_strndup(const char* str, size_t size);
 
-#endif //INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_UTILS_H
+#endif /* UTILS_H */

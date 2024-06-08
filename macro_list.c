@@ -1,6 +1,6 @@
-//
-// Created by naomi on 25/05/2024.
-//
+/* ---------------------------------------------------------------------------------------
+ *                                          Includes
+ * --------------------------------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,8 +12,8 @@
 MacroNode* create_macro_node(const char* macro_name) {
     MacroNode* newNode = (MacroNode*)malloc(sizeof(MacroNode));
     if (newNode == NULL) {
-        fprintf(stderr, "Memory allocation error\n");
-        exit(EXIT_FAILURE);
+        set_error(&global_error, MEMORY_ALLOCATION_ERROR,NULL,0);
+        return NULL;
     }
     strncpy(newNode->name, macro_name, sizeof(newNode->name) - 1);
     newNode->name[sizeof(newNode->name) - 1] = '\0'; /* Ensure null-termination */
@@ -31,15 +31,16 @@ void insert_macro_node(MacroList* list, const char* name) {
 
 /* Function to add a line to the value lines of a macro node */
 void add_content_line(MacroList* list, const char* line) {
+    LineNode* newLine = NULL;
     if (list->head == NULL) {
-        fprintf(stderr, "Error: No macro node available to add value lines\n");
+        printf("Error: No macro node available to add value lines\n");
         return;
     }
 
-    LineNode* newLine = (LineNode*)malloc(sizeof(LineNode));
+    newLine = (LineNode*)malloc(sizeof(LineNode));
     if (newLine == NULL) {
-        fprintf(stderr, "Memory allocation error\n");
-        exit(EXIT_FAILURE);
+        set_error(&global_error, MEMORY_ALLOCATION_ERROR,NULL,0);
+        return;
     }
     strncpy(newLine->line, line, sizeof(newLine->line) - 1);
     newLine->line[sizeof(newLine->line) - 1] = '\0'; /* Ensure null-termination */
@@ -60,8 +61,9 @@ void add_content_line(MacroList* list, const char* line) {
 
 /* Function to free a line node */
 void free_line_node(LineNode* node) {
+    LineNode* temp = NULL;
     while (node != NULL) {
-        LineNode* temp = node;
+        temp = node;
         node = node->next;
         free(temp);
     }
@@ -76,20 +78,22 @@ void free_macro_node(MacroNode* node) {
 /* Function to free the entire macro list */
 void free_macro_list(MacroList* list) {
     MacroNode* current = list->head;
+    MacroNode* temp = NULL;
     while (current != NULL) {
-        MacroNode* temp = current;
+        temp = current;
         current = current->next;
         free_macro_node(temp);
     }
     list->head = NULL; /* Set list head to NULL after freeing */
 }
 
-/*Function to print all macros and their values*/
+/* Function to print all macros and their values */
 void print_all_macros(const MacroList* list) {
     const MacroNode* current_macro = list->head;
+    const LineNode* current_line = NULL;
     while (current_macro != NULL) {
         printf("Macro Name: %s\n", current_macro->name);
-        const LineNode* current_line = current_macro->content_lines;
+        current_line = current_macro->content_lines;
         while (current_line != NULL) {
             printf("\tValue Line: %s", current_line->line);
             current_line = current_line->next;
