@@ -14,16 +14,18 @@ Error global_error = {NO_ERROR, "No error"};
 /* Function to get the error message for a given error code */
 const char* get_error_message(ErrorCode code) {
     switch (code) {
-        case NO_ERROR: return "No error\n";
-        case MEMORY_ALLOCATION_ERROR: return "Memory allocation failed\n";
-        case EOF_ERROR: return "End of file reached\n";
-        case NO_ARGUMENTS: return "No arguments were passed\n";
-        case CANNOT_OPEN_FILE: return "Cannot open file\n";
-        case CANNOT_CREATE_FILE: return "Cannot create file\n";
-        case INVALID_MACR: return "Invalid macro name\n";
-        case EXTRA_TXT: return "Extra text after macro define\n";
-        case MULTIPULE_COMMA_ERROR: return "Multiple consecutive commas\n";
-        default: return "An unspecified error occurred\n";
+        case NO_ERROR: return "No error";
+        case MEMORY_ALLOCATION_ERROR: return "Memory allocation failed";
+        case EOF_ERROR: return "End of file reached";
+        case NO_ARGUMENTS: return "No arguments were passed";
+        case CANNOT_OPEN_FILE: return "Cannot open file";
+        case CANNOT_CREATE_FILE: return "Cannot create file";
+        case INVALID_MACR: return "Invalid macro name";
+        case EXTRA_TXT: return "Extra text after macro define";
+        case MULTIPULE_COMMA_ERROR: return "Multiple consecutive commas";
+        case MISSING_COMMA_ERROR: return "Missing comma";
+        case ILLEGAL_COMMA_ERROR: return "Illegal comma";
+        default: return "An unspecified error occurred";
     }
 }
 
@@ -36,7 +38,7 @@ void set_error(Error *error, ErrorCode code, const char *file, int line) {
 
 void print_error(Error *error) {
     if (error->code != NO_ERROR) {
-        printf("\nError: %s\n", error->message);
+        printf("Error: %s | ", error->message);
         printf("Location: file name - %s", error->location.file);
         if (error->location.line > 0)
             printf(", line - %d", error->location.line);

@@ -23,34 +23,47 @@ void setLineType(ASTNode *node, LineType lineType) {
     node->lineType = lineType;
 }
 
-void setLabel(ASTNode *node, const char *label) {
-    if (node->label) free(node->label);
-    node->label = label ? strdup(label) : NULL;
+void setLabel(ASTNode *node, char* label) {
+    node->label = label;
 }
 
-void setOperation(ASTNode *node, const char *operation) {
-    if (node->operation) free(node->operation);
-    node->operation = operation ? strdup(operation) : NULL;
+void setOperation(ASTNode *node, char* operation) {
+    node->operation = operation;
 }
 
-int addOperand(ASTNode *node, const char *operand) {
+int addOperand(ASTNode *node, char *operand) {
     OperandNode *newOperand = (OperandNode *)malloc(sizeof(OperandNode));
     if (newOperand == NULL) {
         set_error(&global_error, MEMORY_ALLOCATION_ERROR,0,0);
         return 0;
     }
-    newOperand->operand = my_strndup(operand, strlen(operand));
-    newOperand->next = node->operands;
-    node->operands = newOperand;
+    newOperand->operand = operand;
+    newOperand->next = NULL;
+
+    /* If the operand list is empty, add the new operand as the first node */
+    if (node->operands == NULL) {
+        node->operands = newOperand;
+    } else {
+        /* Traverse to the end of the list */
+        OperandNode *current = node->operands;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        /* Append the new operand at the end */
+        current->next = newOperand;
+    }
+
+    /* Update the number of operands in AST node */
     node->numOperands++;
     return 1;
 }
 
 void freeASTNode(ASTNode *node) {
+    OperandNode* current = NULL;
     if (node) {
         if (node->label) free(node->label);
         if (node->operation) free(node->operation);
-        OperandNode *current = node->operands;
+        current = node->operands;
         while (current) {
             OperandNode *next = current->next;
             free(current->operand);
@@ -62,7 +75,8 @@ void freeASTNode(ASTNode *node) {
 }
 
 void printASTNode(const ASTNode *node) {
-    const char *lineTypeStr;
+    const char *lineTypeStr = NULL;
+    OperandNode *current = NULL;
     switch (node->lineType) {
         case LINE_EMPTY: lineTypeStr = "Empty"; break;
         case LINE_COMMENT: lineTypeStr = "Comment"; break;
@@ -74,7 +88,7 @@ void printASTNode(const ASTNode *node) {
     if (node->label) printf("Label: %s\n", node->label);
     if (node->operation) printf("Operation: %s\n", node->operation);
     printf("Operands: ");
-    OperandNode *current = node->operands;
+    current = node->operands;
     while (current) {
         printf("%s ", current->operand);
         current = current->next;

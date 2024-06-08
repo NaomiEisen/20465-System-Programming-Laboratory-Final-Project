@@ -42,7 +42,7 @@ typedef struct {
     Location location;
 } Error;
 
-/* ---------------------------- Function Prototypes ---------------------------- */
+/* ---------------------------- Functions Prototypes ---------------------------- */
 void set_error(Error *error, ErrorCode code, const char *file, int line);
 void print_error(Error *error);
 void clear_error (Error *error);

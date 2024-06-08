@@ -24,9 +24,9 @@ typedef struct {
 
 ASTNode* create_empty_ASTNode();
 void setLineType(ASTNode *node, LineType lineType);
-void setLabel(ASTNode *node, const char *label);
-void setOperation(ASTNode *node, const char *operation);
-int addOperand(ASTNode *node, const char *operand);
+void setLabel(ASTNode *node, char *label);
+void setOperation(ASTNode *node, char *operation);
+int addOperand(ASTNode *node, char *operand);
 void freeASTNode(ASTNode *node);
 void printASTNode(const ASTNode *node);
 

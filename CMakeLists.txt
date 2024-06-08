@@ -22,4 +22,5 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         ast.c
         first_phase.h
         first_phase.c
-        parser.h)
+        parser.h
+        semantic_analyzer.h)

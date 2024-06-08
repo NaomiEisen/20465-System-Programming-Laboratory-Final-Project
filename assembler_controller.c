@@ -26,7 +26,7 @@ void controller(int argc, char* argv[]) {
             printf("Could not process file %s \n", argv[i]);
         }
         else {
-            first_phase(file_am);
+            first_phase(file_am, argv[i]);
             /* second step */
         }
         i++;
