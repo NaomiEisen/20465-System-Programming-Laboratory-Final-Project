@@ -11,7 +11,6 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         preprocessor.h
         preprocessor.c
         assembler_controller.h
-        general.h
         macro_list.h
         macro_list.c
         utils.c
@@ -23,4 +22,9 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         first_phase.h
         first_phase.c
         parser.h
-        semantic_analyzer.h)
+        semantic_analyzer.h
+        lable_trie.h
+        hardware.c
+        semantic_analyzer.c
+        lable_trie.c
+        defines.h)

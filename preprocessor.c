@@ -6,7 +6,6 @@
 #include <string.h>
 #include "preprocessor.h"
 #include "errors.h"
-#include "general.h"
 #include "macro_list.h"
 #include "utils.h"
 

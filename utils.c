@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "general.h"
+#include "bool.h"
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
@@ -75,8 +75,6 @@ bool create_new_file_name(const char* original_filename, char** new_filename ,co
     }
     return false;
 }
-
-
 
 char* my_strndup(const char* str, size_t size) {
     char* result;

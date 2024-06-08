@@ -1,15 +1,33 @@
 
-#ifndef INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_HARDWARE_H
-#define INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_HARDWARE_H
+#ifndef HARDWARE_H
+#define HARDWARE_H
+#include <corecrt.h>
 
+#define MEMORY_CAPACITY 4096
+#define WORD_SIZE 15
 
-// Define a structure to hold command information
+typedef struct Word {
+    int address;
+    unsigned short binaryCode; /* Array of 16 bits */
+    struct Word *next;
+} Word;
+
+typedef struct MemoryImage {
+    Word *head;
+    int nodeCount;
+} MemoryImage;
+
+MemoryImage codeImage;
+MemoryImage dataImage;
+
+/* ----------------------------------------------------------------------- */
+/* Define a structure to hold command information */
 typedef struct Command {
     const char *name;
     int numParams;
 } Command;
 
-// Define the command table
+/* Define the command table */
 Command command_table[] = {
         {"mov",  2},
         {"cmp",  1},
@@ -32,6 +50,10 @@ Command command_table[] = {
 };
 const size_t command_table_size = sizeof(command_table) / sizeof(command_table[0]);
 
+const char* declaration_type[] = {
+        "entry","extern"
+};
+
 const char* directive_table[] = {
         "string","data"
 };
@@ -40,4 +62,4 @@ const char* regisrers[] = {
         "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
 };
 
-#endif /*INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_HARDWARE_H*/
+#endif /*HARDWARE_H*/

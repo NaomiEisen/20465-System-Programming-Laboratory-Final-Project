@@ -3,7 +3,7 @@
 #include "ast.h"
 #include "utils.h"
 #include "errors.h"
-#include "general.h"
+#include "bool.h"
 
 
 int check_empty_line (const char** line, ASTNode* node) {
@@ -148,54 +148,3 @@ ASTNode* parseLine(const char *line) {
 
     return node;
 }
-
-
-
-/* ---------------------------------------------------------------------------------------
- *                                          Archive
- * --------------------------------------------------------------------------------------- */
-/**
-* if ((numParams == 2 && (!node->operand1 || !node->operand2)) ||
-        (numParams == 1 && !node->operand1) ||
-        (numParams == 0 && (node->operand1 || node->operand2))) {
-        fprintf(stderr, "Error: invalid number of operands for operation %s.\n", node->operation);
-        freeASTNode(node);
-        return NULL;
-*/
-
-/*  while (*line_ptr && !is_space(*line_ptr)) line_ptr++;
-setOperation(node, my_strndup(start_ptr, line_ptr - start_ptr));
-while (isspace(*line_ptr)) line_ptr++;
-
-*//*  Read the first operand *//*
-start_ptr = line_ptr;
-while (*line_ptr && *line_ptr != ',' && !is_space(*line_ptr)) {
-if (*line_ptr == ',') {
-set_error(&global_error, ILLEGAL_COMMA_ERROR, NULL, 0);
-return NULL;
-}
-line_ptr++;
-}
-setOperand1(node, my_strndup(start_ptr, line_ptr - start_ptr));
-trim_leading_spaces(&line_ptr);
-
-*//* Read the second operand *//*
-start_ptr = line_ptr;
-if (*line_ptr != ',') {
-set_error(&global_error, MISSING_COMMA_ERROR, NULL, 0);
-return NULL;
-}
-while (*line_ptr &&  *line_ptr != ',' && !isspace(*line_ptr)) {
-if (*line_ptr != ','){
-set_error(&global_error, MULTIPULE_COMMA_ERROR, NULL, 0);
-return NULL;
-}
-line_ptr++;
-}
-setOperand2(node, my_strndup(start_ptr, line_ptr - start_ptr));
-trim_leading_spaces(&line_ptr);
-
-if (*line_ptr != '\n') {
-set_error(&global_error, EXTRA_TXT, NULL, 0);
-return NULL;
-}*/

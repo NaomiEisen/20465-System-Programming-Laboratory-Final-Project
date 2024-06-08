@@ -1,6 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
-#include "general.h"
+#include "bool.h"
 
 /* ---------------------------------------------------------------------------------------
  *                                     Function Prototypes

@@ -3,16 +3,11 @@
  * --------------------------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include "preprocessor.h"
 #include "errors.h"
-#include "general.h"
-#include "macro_list.h"
-#include "utils.h"
 #include "first_phase.h"
 #include "ast.h"
 #include "parser.h"
-
+#include "bool.h"
 /* ---------------------------------------------------------------------------------------
  *                               Head Function Of First Phase
  * --------------------------------------------------------------------------------------- */

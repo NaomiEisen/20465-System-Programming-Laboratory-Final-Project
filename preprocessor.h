@@ -2,7 +2,7 @@
 #ifndef PREPROCESSOR_H
 #define PREPROCESSOR_H
 
-#include "general.h"
+#include "bool.h"
 #include "macro_list.h"
 #define MACR_START "macr"
 #define MACR_END "endmacr"
