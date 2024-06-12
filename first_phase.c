@@ -7,24 +7,23 @@
 #include "first_phase.h"
 #include "ast.h"
 #include "parser.h"
-#include "bool.h"
+#include "boolean.h"
 /* ---------------------------------------------------------------------------------------
  *                               Head Function Of First Phase
  * --------------------------------------------------------------------------------------- */
 
-void first_phase(const char* file_am, const char* origin_filename) {
+void first_phase(const char *file_am) {
     FILE* source_file;                  /* the source file (.as) */
-    FILE* output_file;                  /* the output file (.am) */
     char* output_filename = NULL;       /* the output file name */
     int line_count = 0;                 /* line counter */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
-    bool error = false;
+    boolean error = FALSE;
 
     /* -------------------------- Open the am file in read mode -------------------------- */
     if (!(source_file = fopen(file_am, "r"))) {
         /* if the file fails to open, set an error and return */
-        set_error(&global_error, CANNOT_OPEN_FILE, origin_filename, 0);
+        set_general_error(&global_error, CANNOT_OPEN_FILE);
         print_error(&global_error);
         fclose(source_file); /* close the file */
         return;
@@ -34,25 +33,23 @@ void first_phase(const char* file_am, const char* origin_filename) {
     /* ------------------------ Process each line in the source file ------------------------ */
     while (fgets(line, sizeof(line), source_file) != NULL) {
         line_count++; /* Update counter */
-        node = parseLine(line); /* Parse line */
+        node = parseLine(line, file_am, line_count); /* Parse line */
         printASTNode(node); /* TODO FOR ME!! PRINT NODE */
 
 
         if (global_error.code != NO_ERROR) {
-            set_error(&global_error, global_error.code, origin_filename, line_count);
-            print_error(&global_error);
             clear_error(&global_error);
-            error = true;
-            freeASTNode(node);
+            error = TRUE;
+            free_ASTNode(node);
             continue;
         }
 
-        if (error == false) {
+        if (error == FALSE) {
             /* proceed analyzing line */
 
         }
 
-        freeASTNode(node); /* Free AST nodes */
+        free_ASTNode(node); /* Free AST nodes */
 
     }
 

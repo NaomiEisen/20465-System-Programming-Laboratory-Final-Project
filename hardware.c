@@ -1,67 +1,41 @@
 #include "hardware.h"
+#include "code_convert.h"
 #include <stdlib.h>
-#include <stdio.h>
 
-/* Function to create a new node with a specified address */
-Word *createNode(int address) {
-    Word *newNode = (Word *)malloc(sizeof(Word));
-    if (!newNode) {
-        fprintf(stderr, "Memory allocation error\n");
-        exit(EXIT_FAILURE);
-    }
-    newNode->address = address;
-    newNode->binaryCode = 0; /* Initialize binaryCode to 0 */
-    newNode->next = NULL;
-    return newNode;
-}
+/* Define the external arrays */
+MemoryImage code;
+MemoryImage data;
 
-/* Function to insert a new node at the end of the MemoryImage */
-void insertNode(MemoryImage *image, int address) {
-    Word* newNode = createNode(address);
-    Word* current = NULL;
-    if (image->head == NULL) {
-        image->head = newNode;
-    } else {
-        current = image->head;
-        while (current->next != NULL) {
-            current = current->next;
-        }
-        current->next = newNode;
-    }
-    image->nodeCount++;
-}
+/* Directive table */
+const char* directive_table[] = {
+        "string", "data", NULL /* Null-terminate for safety */
+};
 
-/* Function to set a specific bit in the binaryCode of a Word node */
-void setBit(Word *node, int index, int bit) {
-    if (index >= 0 && index < 16) {
-        if (bit) {
-            node->binaryCode |= (1 << index);
-        } else {
-            node->binaryCode &= ~(1 << index);
-        }
-    } else {
-        fprintf(stderr, "Error: Index out of range\n");
-    }
-}
+/* Register table */
+const char* registers[] = {
+        "r0", "r1", "r2", "r3", "r4", "r5",
+        "r6", "r7", NULL /* Null-terminate for safety */
+};
 
-/* Function to print the MemoryImage */
-void printMemoryImage(const MemoryImage *image) {
-    const Word *current = image->head;
-    while (current != NULL) {
-        printf("Address: %d, Binary Code: %04X\n", current->address, current->binaryCode);
-        current = current->next;
-    }
-}
+/* Representing a mapping from a function name to its corresponding function  */
+CommandMapping command_table[] = {
+        {"mov", 2, {1,1,1,1} , {0,1,1,1} },
+        {"cmp", 1, {1,1,1,1} , {1,1,1,1}},
+        {"add", 0, {1,1,1,1} , {0,1,1,1}},
+        {"sub", 1, {1,1,1,1} , {0,1,1,1}},
+        {"lea", 1, {0,1,0,0} , {0,1,1,1}},
+        {"clr", 1,  {0,1,1,1}},
+        {"not", 1,  {0,1,1,1}},
+        {"inc", 1, {0,1,1,1}},
+        {"dec", 1, {0,1,1,1}},
+        {"jmp", 1, {0,1,1,1}},
+        {"bne", 1, {0,1,1,1}},
+        {"red", 1, {0,1,1,1}},
+        {"prn", 1, {0,1,1,1}},
+        {"jsr", 1, {0,1,1,1}},
+        {"rts", 1},
+        {"stop",  0},
+        {"terminator", 0} /* null terminator*/
+};
 
-/* Function to free the MemoryImage */
-void freeMemoryImage(MemoryImage *image) {
-    Word *current = image->head;
-    Word *next;
-    while (current != NULL) {
-        next = current->next;
-        free(current);
-        current = next;
-    }
-    image->head = NULL; /* Set head to NULL after freeing nodes */
-    image->nodeCount = 0; /* Reset node count to 0 */
-}
+size_t command_table_size = sizeof(command_table) / sizeof(command_table[0]);

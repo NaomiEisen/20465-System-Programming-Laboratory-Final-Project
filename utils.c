@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "bool.h"
+#include <ctype.h>
+#include "boolean.h"
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
@@ -54,7 +55,7 @@ void trim_spaces(const char **str) {
 }
 
 /* Function to check if the rest of the line is empty */
-bool is_empty_line(const char *line) {
+boolean is_empty_line(const char *line) {
     /* Trim leading spaces */
     trim_leading_spaces(&line);
 
@@ -62,7 +63,23 @@ bool is_empty_line(const char *line) {
     return *line == '\0';
 }
 
-bool create_new_file_name(const char* original_filename, char** new_filename ,const char* extension) {
+boolean is_valid_integer(const char *str) {
+    if (*str == '-' || *str == '+') {
+        str++;
+    }
+    if (!*str) {
+        return FALSE;
+    }
+    while (*str) {
+        if (!isdigit(*str)) {
+            return TRUE;
+        }
+        str++;
+    }
+    return TRUE;
+}
+
+boolean create_new_file_name(const char* original_filename, char** new_filename , const char* extension) {
 
     /* Allocate memory for the new filename */
     size_t new_filename_length = strlen(original_filename) + strlen(extension) + 1;
@@ -71,9 +88,9 @@ bool create_new_file_name(const char* original_filename, char** new_filename ,co
         /* Copy the original filename and append the new extension */
         strcpy(*new_filename, original_filename);
         strcat(*new_filename, extension);
-        return true;
+        return TRUE;
     }
-    return false;
+    return FALSE;
 }
 
 char* my_strndup(const char* str, size_t size) {

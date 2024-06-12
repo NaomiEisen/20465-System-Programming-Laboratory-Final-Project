@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "assembler_controller.h"
@@ -14,7 +13,7 @@ void controller(int argc, char* argv[]) {
     /* no arguments were passed */
     if (argc < 2 ) {
         /* print error message */
-        set_error(&global_error, NO_ARGUMENTS, "", 0);
+        set_general_error(&global_error, NO_ARGUMENTS);
         print_error(&global_error);
         exit(0); /* return */
     }
@@ -26,7 +25,7 @@ void controller(int argc, char* argv[]) {
             printf("Could not process file %s \n", argv[i]);
         }
         else {
-            first_phase(file_am, argv[i]);
+            first_phase(file_am);
             /* second step */
         }
         i++;

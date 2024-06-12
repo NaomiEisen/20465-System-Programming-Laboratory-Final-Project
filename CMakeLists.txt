@@ -23,8 +23,9 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         first_phase.c
         parser.h
         semantic_analyzer.h
-        lable_trie.h
+        label_trie.h
         hardware.c
         semantic_analyzer.c
-        lable_trie.c
-        defines.h)
+        label_trie.c
+        code_convert.h
+        code_convert.c)

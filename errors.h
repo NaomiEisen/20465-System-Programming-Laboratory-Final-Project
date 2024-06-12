@@ -22,6 +22,16 @@ typedef enum {
     MISSING_COMMA_ERROR,
     ILLEGAL_COMMA_ERROR,
 
+    /* ====== Semantic Errors ====== */
+    COMMAND_NAME_ERROR,
+    INVALID_LABEL,
+    NOT_INTEGER,
+    INVALID_REGISTER,
+    INVALID_PARAM_NUMBER,
+
+    /* ======  Hardware Errors ====== */
+    CPU_MEMORY_FULL,
+
     /* ======= Other ======= */
     OTHER_ERROR,
 
@@ -43,7 +53,8 @@ typedef struct {
 } Error;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
-void set_error(Error *error, ErrorCode code, const char *file, int line);
+void set_error(Error *error, ErrorCode code, Location location);
+void set_general_error(Error *error, ErrorCode code);
 void print_error(Error *error);
 void clear_error (Error *error);
 
