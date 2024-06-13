@@ -108,5 +108,29 @@ char* my_strndup(const char* str, size_t size) {
     return (char*)memcpy(result, str, len);
 }
 
+int my_atoi(const char *str) {
+    int result = 0;
+    int sign = 1;
+    int ptr = 0;
+
+    /* Trim leading spaces */
+    trim_leading_spaces(&str);
+
+    /* Handle optional sign */
+    if (str[ptr] == '-' || str[ptr] == '+') {
+        if (str[ptr] == '-') {
+            sign = -1;
+        }
+        ptr++;
+    }
+
+    /* Convert digits to integer */
+    while (isdigit(str[ptr])) {
+        result = result * 10 + (str[ptr] - '0');
+        ptr++;
+    }
+
+    return sign * result;
+}
 
 

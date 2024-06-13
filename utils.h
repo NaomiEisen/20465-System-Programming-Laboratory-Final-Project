@@ -12,5 +12,6 @@ void trim_spaces(const char **str);
 void trim_leading_spaces(const char **str);
 boolean is_valid_integer(const char *str);
 char* my_strndup(const char* str, size_t size);
+int my_atoi(const char *str);
 
 #endif /* UTILS_H */

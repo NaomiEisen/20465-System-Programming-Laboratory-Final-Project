@@ -1,22 +1,22 @@
 #include "code_convert.h"
-#include "boolean.h"
-#include "hardware.h"
 #include "ast.h"
 #include "errors.h"
+#include "cmp_data.h"
+#include "utils.h"
 
-void code_command_name (int command_code) {
-
-
-}
 
 /* Function to set multiple bits from an integer */
-void set_int_code(int position, int value, LineType type) {
+void set_int_code(int start, int end, int value, MemoryImage *memory_img) {
     int i;
     int bit_per_line = NUM_OF_BYTES * BYTE_SIZE;
 
-    for (i = 0; i < bit_per_line ; i++) {
+    if (end - start + 1 > bit_per_line) {
+        return;
+    }
+
+    for (int i = 0; i <= end - start; i++) {
         if (value & (1 << i)) {
-            set_bit(position + i, type);
+            set_bit(start + i, memory_img);
         }
     }
 }
@@ -25,9 +25,9 @@ void set_int_code(int position, int value, LineType type) {
 /**
  * Function that sets the bit at the specified index to 1 in the relevant memory image.
  * @param i
- * @param type
+ * @param memory_img
  */
-void set_bit(int i, LineType type) {
+void set_bit(int i, MemoryImage *memory_img) {
     char mask;
     int byteIndex = i / BYTE_SIZE;
     int bitOffset = i % BYTE_SIZE;
@@ -38,20 +38,40 @@ void set_bit(int i, LineType type) {
 
     mask = (char)(1 << bitOffset);
 
-    switch (type) {
-        case LINE_OPERATION:
-            if (code.count < MEMORY_CAPACITY) {
-                code.lines[code.count][byteIndex] |= mask;
-                return;
-            }
-            break;
-
-        case LINE_DIRECTIVE:
-            if (data.count < MEMORY_CAPACITY) {
-                data.lines[data.count][byteIndex] |= mask;
-                return;
-            }
-            break;
+    if (memory_img->count < MEMORY_CAPACITY) {
+        memory_img->lines[memory_img->count][byteIndex] |= mask;
+    } else {
+        set_general_error(&global_error, CPU_MEMORY_FULL);
     }
-    set_general_error(&global_error, CPU_MEMORY_FULL);
+
 }
+
+void code_immediate_addr_mode (OperandNode *operand, MemoryImage *memory_img) {
+    int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
+    set_int_code(0, end, my_atoi(operand->operand), memory_img);
+    set_bit(A, memory_img);
+}
+
+void code_direct_addr_mode (OperandNode *operand, CmpData *cmp_data) {
+    LabelType label_type;
+    int address = search_label(&cmp_data->label_table, operand->operand, &label_type);
+    int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
+
+    if (address != -1) {
+        set_int_code(0 , end, address, cmp_data->code);
+    }
+
+    if (label_type == EXTERNAL) {
+        set_bit(E, cmp_data->code);
+    } else {
+        set_bit(R, cmp_data->code);
+    }
+}
+
+void code_register_addr_mode(OperandNode *operand, MemoryImage *memory_img, int position) {
+    int end = position+REGISTER_BIT_SIZE-1;
+
+    set_int_code(position, end, my_atoi(operand->operand), memory_img);
+    set_bit(A, memory_img);
+}
+

@@ -8,6 +8,8 @@
 #include "ast.h"
 #include "parser.h"
 #include "boolean.h"
+#include "cmp_data.h"
+
 /* ---------------------------------------------------------------------------------------
  *                               Head Function Of First Phase
  * --------------------------------------------------------------------------------------- */
@@ -19,6 +21,7 @@ void first_phase(const char *file_am) {
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
     boolean error = FALSE;
+    CmpData cmp_data;
 
     /* -------------------------- Open the am file in read mode -------------------------- */
     if (!(source_file = fopen(file_am, "r"))) {
@@ -29,6 +32,8 @@ void first_phase(const char *file_am) {
         return;
     }
 
+    /* initialize the computer's data */
+    init_cmp_data(&cmp_data);
 
     /* ------------------------ Process each line in the source file ------------------------ */
     while (fgets(line, sizeof(line), source_file) != NULL) {

@@ -28,6 +28,7 @@ typedef enum {
     NOT_INTEGER,
     INVALID_REGISTER,
     INVALID_PARAM_NUMBER,
+    INVALID_PARAM_TYPE,
 
     /* ======  Hardware Errors ====== */
     CPU_MEMORY_FULL,

@@ -2,9 +2,6 @@
 #include "code_convert.h"
 #include <stdlib.h>
 
-/* Define the external arrays */
-MemoryImage code;
-MemoryImage data;
 
 /* Directive table */
 const char* directive_table[] = {

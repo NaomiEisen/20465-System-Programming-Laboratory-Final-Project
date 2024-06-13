@@ -122,12 +122,14 @@ int parse_operands(const char **line, ASTNode *node) {
 }
 
 /* Function to check if a string is a valid register */
-boolean is_valid_register(const char *str) {
+boolean is_valid_register(char *str) {
     int i = 0;
 
     /* iterate through the commandMappings array until a NULL command is found */
     while (registers[i] != NULL) {
         if (strcmp(str, registers[i]) == 0) {
+            /* Convert integer i to string representation in the existing memory */
+            sprintf(str, "%d", i);
             return TRUE;
         }
         i++;

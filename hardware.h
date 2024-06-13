@@ -16,10 +16,10 @@ typedef struct {
     int count;
 } MemoryImage;
 
-/* Declare the external MemoryImage struct variables */
+/* Declare the external MemoryImage struct variables
 extern MemoryImage code;
 extern MemoryImage data;
-
+*/
 
 /* typedef for a function pointer representing a command function */
 typedef boolean (*Function)(ASTNode*);

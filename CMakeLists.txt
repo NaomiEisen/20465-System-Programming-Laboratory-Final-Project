@@ -28,4 +28,6 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         semantic_analyzer.c
         label_trie.c
         code_convert.h
-        code_convert.c)
+        code_convert.c
+        cmp_data.h
+        cmp_data.c)

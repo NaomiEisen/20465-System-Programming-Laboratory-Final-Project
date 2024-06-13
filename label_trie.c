@@ -73,7 +73,7 @@ int search_label(Trie *trie, const char *label, LabelType *label_type) {
     while (*label) {
         int index = get_index(*label);
         if (index == -1) {
-            return -1; // Invalid character
+            return -1; /* Invalid character */
         }
         if (!node->children[index]) {
             return -1; /* Label not found */

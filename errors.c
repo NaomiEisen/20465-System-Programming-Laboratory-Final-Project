@@ -30,6 +30,7 @@ const char* get_error_message(ErrorCode code) {
         case NOT_INTEGER: return "Not an integer";
         case INVALID_REGISTER: return "Invalid register name";
         case INVALID_PARAM_NUMBER: return "Invalid param number";
+        case INVALID_PARAM_TYPE: return "Invalid param type";
         case CPU_MEMORY_FULL: return "CPU memory full";
         default: return "An unspecified error occurred";
     }

@@ -1,11 +1,11 @@
 #include "semantic_analyzer.h"
 #include "ast.h"
-#include "label_trie.h"
-#include "hardware.h"
+#include "cmp_data.h"
 #include "boolean.h"
 #include "code_convert.h"
+#include "utils.h"
 
-boolean analyzeLine(ASTNode *node) {
+boolean analyzeLine(ASTNode *node, CmpData *cmp_data) {
 
     /* Check if line is empty or comment */
     if (node->lineType == LINE_EMPTY || node->lineType == LINE_COMMENT) {
@@ -15,7 +15,7 @@ boolean analyzeLine(ASTNode *node) {
 
     /* Handle operation line */
     if (node->lineType == LINE_OPERATION) {
-        return handle_opeartion(node);
+        return handle_opeartion(node, cmp_data);
     }
 
 
@@ -35,29 +35,34 @@ boolean validate_label(ASTNode *node, int address) {
     }
 }
 
-boolean handle_opeartion(ASTNode *node) {
-    int ic_start = code.count; /* remember starting address */
-    int command;
+boolean handle_opeartion(ASTNode *node, CmpData *cmp_data) {
+    int ic_start = cmp_data->code.count; /* remember starting address */
+    int command_index;
 
-    command = find_command(node->operation);
-
-    if (command == -1){
+    /* Find corresponding command_index */
+    command_index = find_command(node->operation);
+    if (command_index == -1){ /* Invalid command_index name */
         set_error(&global_error, COMMAND_NAME_ERROR, node->location);
         print_error(&global_error);
         return FALSE;
     }
 
-    /* if no error occurred */
-    if (command_table[command].num_params != node->numOperands) {
+    /* Validate number of parameters */
+    if (command_table[command_index].num_params != node->numOperands) {
         set_error(&global_error, INVALID_PARAM_NUMBER, node->location);
         print_error(&global_error);
         return FALSE;
     }
 
-    /* code the operation name */
-    set_int_code(0, command, node->lineType);
+    /* Code first word */
+    if (first_word(node, command_index, &cmp_data->code) == FALSE) {
+        set_error(&global_error, INVALID_PARAM_NUMBER, node->location);
+        print_error(&global_error);
+        return FALSE;
+    }
 
-    /* code the rest of the word */
+    /* Code the second/third word */
+    code_operands(node, cmp_data);
 
     /* insert label if exists */
     if (node->label != NULL){
@@ -67,13 +72,60 @@ boolean handle_opeartion(ASTNode *node) {
     return TRUE;
 }
 
+void code_operands(ASTNode *node, CmpData *cmp_data) {
+    OperandNode *current = node->operands;
+    boolean reg = FALSE;
+    int counter = 0;
+    int reg_pos;
+
+    while (current != NULL) {
+        switch (current->adr_mode) {
+            case 0: code_immediate_addr_mode(current, &cmp_data->code);
+                    break;
+            case 1: code_direct_addr_mode(current,cmp_data);
+                break;
+            case 2:
+            case 3: reg_pos = REGISTER_POS + (3 * counter); /** todo fix this number */
+                code_register_addr_mode(current, &cmp_data->code,reg_pos) ;
+                reg = TRUE;
+                break;
+
+        }
+        counter++;
+    }
+}
+
 boolean handle_directive(ASTNode *node) {
 return TRUE;
 }
 
-boolean code_operands(ASTNode *node) {
+boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
+    OperandNode *current = node->operands;
 
+    /* Code the operation name */
+    set_int_code(0, 3, command_index, code_img);
+
+    /* Code first operand's address mode */
+    if (command_table[command_index].addr_mode_op1[current->adr_mode] == 1) {
+
+        set_bit(7-current->adr_mode, code_img); /** Todo: define number **/
+        current = current->next;
+
+        if (command_table[command_index].addr_mode_op1[current->adr_mode] == 1) {
+            set_bit(11-current->adr_mode, code_img); /** Todo: define number **/
+
+            /* ARE default first word's field */
+            set_bit(A, code_img);
+
+            code_img->count++;
+            return TRUE;
+
+        }
+    }
+    return FALSE;
 }
+
+
 
 /**
  * Finds the corresponding function function for the inputted command name.
