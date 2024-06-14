@@ -3,7 +3,7 @@
 #include "errors.h"
 #include "cmp_data.h"
 #include "utils.h"
-#include "semantic_analyzer.h"
+#include "semantic.h"
 
 
 /* Function to set multiple bits from an integer */

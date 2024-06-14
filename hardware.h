@@ -1,7 +1,7 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 #include "ast.h"
-#include "semantic_analyzer.h"
+#include "semantics.h"
 #include "boolean.h"
 
 /*#define MEMORY_CAPACITY 4096*/

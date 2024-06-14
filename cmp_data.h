@@ -7,14 +7,14 @@
 #define NUM_OF_BYTES 2
 
 
-typedef struct {
+typedef struct MemoryImage{
     char lines[MEMORY_CAPACITY][NUM_OF_BYTES];
     int count;
 } MemoryImage;
 
 
 /* structure containing the sets and their mappings within the program */
-typedef struct {
+typedef struct CmpData{
     MemoryImage code;
     MemoryImage data;
     Trie label_table;
@@ -26,5 +26,6 @@ typedef struct {
  * @param data Pointer to the CmpData structure to be initialized
  */
 void init_cmp_data(CmpData *data);
+
 
 #endif /* CMP_DATA_H */

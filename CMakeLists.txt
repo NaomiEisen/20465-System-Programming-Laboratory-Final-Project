@@ -24,10 +24,11 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         parser.h
         label_trie.h
         hardware.c
-        semantic_analyzer.c
+        semantics.c
         label_trie.c
         code_convert.h
         code_convert.c
         cmp_data.h
         cmp_data.c
-        semantic_analyzer.h)
+        semantics.h
+        semantic.h)

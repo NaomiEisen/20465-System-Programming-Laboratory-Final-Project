@@ -1,10 +1,67 @@
-#include "semantic_analyzer.h"
+#include "semantics.h"
 #include "ast.h"
 #include "cmp_data.h"
 #include "hardware.h"
 #include "boolean.h"
 #include "code_convert.h"
+#include "semantic.h"
 #include "utils.h"
+
+boolean analyzeLine(ASTNode *node, CmpData *cmp_data) {
+
+    /* Check if line is empty or comment */
+    if (node->lineType == LINE_EMPTY || node->lineType == LINE_COMMENT) {
+        return TRUE;
+    }
+
+    /* Handle operation line */
+    if (node->lineType == LINE_OPERATION) {
+        return handle_operation(node, cmp_data);
+    }
+
+    /* Handle directive line */
+
+
+    return TRUE;
+}
+
+
+boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
+    int ic_start = cmp_data->code.count; /* remember starting address */
+    int command_index;
+
+    /* Find corresponding command_index */
+    command_index = find_command(node->operation);
+    if (command_index == -1){ /* Invalid command_index name */
+        set_error(&global_error, COMMAND_NAME_ERROR, node->location);
+        print_error(&global_error);
+        return FALSE;
+    }
+
+    /* Validate number of parameters */
+    if (command_table[command_index].num_params != node->numOperands) {
+        set_error(&global_error, INVALID_PARAM_NUMBER, node->location);
+        print_error(&global_error);
+        return FALSE;
+    }
+
+    /* Code first word */
+    if (first_word(node, command_index, &cmp_data->code) == FALSE) {
+        set_error(&global_error, INVALID_PARAM_NUMBER, node->location);
+        print_error(&global_error);
+        return FALSE;
+    }
+
+    /* Code the second/third word */
+    code_operands(node, cmp_data);
+
+    /* insert label if exists */
+    if (node->label != NULL){
+        return validate_label(node, ic_start);
+    }
+
+    return TRUE;
+}
 
 
 
@@ -107,57 +164,3 @@ int find_command(const char *command) {
 }
 
 
-boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
-    int ic_start = cmp_data->code.count; /* remember starting address */
-    int command_index;
-
-    /* Find corresponding command_index */
-    command_index = find_command(node->operation);
-    if (command_index == -1){ /* Invalid command_index name */
-        set_error(&global_error, COMMAND_NAME_ERROR, node->location);
-        print_error(&global_error);
-        return FALSE;
-    }
-
-    /* Validate number of parameters */
-    if (command_table[command_index].num_params != node->numOperands) {
-        set_error(&global_error, INVALID_PARAM_NUMBER, node->location);
-        print_error(&global_error);
-        return FALSE;
-    }
-
-    /* Code first word */
-    if (first_word(node, command_index, &cmp_data->code) == FALSE) {
-        set_error(&global_error, INVALID_PARAM_NUMBER, node->location);
-        print_error(&global_error);
-        return FALSE;
-    }
-
-    /* Code the second/third word */
-    code_operands(node, cmp_data);
-
-    /* insert label if exists */
-    if (node->label != NULL){
-        return validate_label(node, ic_start);
-    }
-
-    return TRUE;
-}
-
-boolean analyzeLine(ASTNode *node, CmpData *cmp_data) {
-
-    /* Check if line is empty or comment */
-    if (node->lineType == LINE_EMPTY || node->lineType == LINE_COMMENT) {
-        return TRUE;
-    }
-
-    /* Handle operation line */
-    if (node->lineType == LINE_OPERATION) {
-        return handle_operation(node, cmp_data);
-    }
-
-    /* Handle directive line */
-
-
-    return TRUE;
-}
