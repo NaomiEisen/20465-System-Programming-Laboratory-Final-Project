@@ -3,6 +3,7 @@
 #include "errors.h"
 #include "cmp_data.h"
 #include "utils.h"
+#include "semantic_analyzer.h"
 
 
 /* Function to set multiple bits from an integer */
@@ -14,7 +15,7 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img) {
         return;
     }
 
-    for (int i = 0; i <= end - start; i++) {
+    for (i = 0; i <= end - start; i++) {
         if (value & (1 << i)) {
             set_bit(start + i, memory_img);
         }
@@ -58,13 +59,13 @@ void code_direct_addr_mode (OperandNode *operand, CmpData *cmp_data) {
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
 
     if (address != -1) {
-        set_int_code(0 , end, address, cmp_data->code);
+        set_int_code(0 , end, address, &cmp_data->code);
     }
 
     if (label_type == EXTERNAL) {
-        set_bit(E, cmp_data->code);
+        set_bit(E, &cmp_data->code);
     } else {
-        set_bit(R, cmp_data->code);
+        set_bit(R, &cmp_data->code);
     }
 }
 

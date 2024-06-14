@@ -22,7 +22,6 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         first_phase.h
         first_phase.c
         parser.h
-        semantic_analyzer.h
         label_trie.h
         hardware.c
         semantic_analyzer.c
@@ -30,4 +29,5 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         code_convert.h
         code_convert.c
         cmp_data.h
-        cmp_data.c)
+        cmp_data.c
+        semantic_analyzer.h)

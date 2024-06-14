@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "ast.h"
 #include "errors.h"
-#include "utils.h"
 
 
 ASTNode *create_empty_ASTNode(const char* file, int line) {

@@ -1,28 +1,21 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
-#include <corecrt.h>
 #include "ast.h"
 #include "semantic_analyzer.h"
 #include "boolean.h"
 
-#define MEMORY_CAPACITY 4096
+/*#define MEMORY_CAPACITY 4096*/
 #define MAX_COMMAND_CHAR 15
-#define NUM_OF_BYTES 2
 #define ADDRESS_MODES 4
 
 
-typedef struct {
+/*typedef struct MemoryImage {
     char lines[MEMORY_CAPACITY][NUM_OF_BYTES];
     int count;
-} MemoryImage;
+} MemoryImage;*/
 
-/* Declare the external MemoryImage struct variables
-extern MemoryImage code;
-extern MemoryImage data;
-*/
-
-/* typedef for a function pointer representing a command function */
-typedef boolean (*Function)(ASTNode*);
+/* typedef for a function pointer representing a command function
+typedef boolean (*Function)(ASTNode*);*/
 
 /* structure representing command mappings */
 typedef struct {
@@ -32,7 +25,6 @@ typedef struct {
     int addr_mode_op2[ADDRESS_MODES];
 } CommandMapping;
 
-size_t command_table_size;
 
 /* Directive and register tables */
 extern const char* directive_table[];

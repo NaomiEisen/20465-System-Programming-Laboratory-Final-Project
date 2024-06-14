@@ -2,6 +2,7 @@
 #define CODE_CONVERT_H
 
 #include "hardware.h"
+#include "ast.h"
 
 #define BYTE_SIZE 8;
 #define REGISTER_BIT_SIZE 3;

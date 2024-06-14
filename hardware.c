@@ -1,6 +1,4 @@
 #include "hardware.h"
-#include "code_convert.h"
-#include <stdlib.h>
 
 
 /* Directive table */
@@ -34,5 +32,3 @@ CommandMapping command_table[] = {
         {"stop",  0},
         {"terminator", 0} /* null terminator*/
 };
-
-size_t command_table_size = sizeof(command_table) / sizeof(command_table[0]);
