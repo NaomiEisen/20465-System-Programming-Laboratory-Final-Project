@@ -60,6 +60,6 @@ void print_error(Error *error);
 void clear_error (Error *error);
 
 /* Declare the global error variable */
-extern Error global_error;
+extern Error error;
 
 #endif /* ERRORS_H */

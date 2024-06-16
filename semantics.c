@@ -1,11 +1,10 @@
-#include "semantics.h"
 #include "ast.h"
 #include "cmp_data.h"
 #include "hardware.h"
 #include "boolean.h"
 #include "code_convert.h"
 #include "semantic.h"
-#include "utils.h"
+
 
 boolean analyzeLine(ASTNode *node, CmpData *cmp_data) {
 
@@ -33,22 +32,22 @@ boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
     /* Find corresponding command_index */
     command_index = find_command(node->operation);
     if (command_index == -1){ /* Invalid command_index name */
-        set_error(&global_error, COMMAND_NAME_ERROR, node->location);
-        print_error(&global_error);
+        set_error(&error, COMMAND_NAME_ERROR, node->location);
+        print_error(&error);
         return FALSE;
     }
 
     /* Validate number of parameters */
     if (command_table[command_index].num_params != node->numOperands) {
-        set_error(&global_error, INVALID_PARAM_NUMBER, node->location);
-        print_error(&global_error);
+        set_error(&error, INVALID_PARAM_NUMBER, node->location);
+        print_error(&error);
         return FALSE;
     }
 
     /* Code first word */
     if (first_word(node, command_index, &cmp_data->code) == FALSE) {
-        set_error(&global_error, INVALID_PARAM_NUMBER, node->location);
-        print_error(&global_error);
+        set_error(&error, INVALID_PARAM_NUMBER, node->location);
+        print_error(&error);
         return FALSE;
     }
 
@@ -57,7 +56,7 @@ boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
 
     /* insert label if exists */
     if (node->label != NULL){
-        return validate_label(node, ic_start);
+        return validate_label(node, ic_start, cmp_data);
     }
 
     return TRUE;
@@ -65,10 +64,10 @@ boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
 
 
 
-boolean validate_label(ASTNode *node, int address) {
+boolean validate_label(ASTNode *node, int address, CmpData *cmp_data) {
     switch (node->lineType) {
-        case LINE_OPERATION: return insert_label(&trie_label, node->label, address, OPERATION);
-        case LINE_DIRECTIVE: return insert_label(&trie_label, node->label, address, DIRECTIVE);
+        case LINE_OPERATION: return insert_label(&cmp_data->label_table, node->label, address, OPERATION);
+        case LINE_DIRECTIVE: return insert_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
         default: return FALSE;
 
     }
@@ -98,6 +97,7 @@ void code_operands(ASTNode *node, CmpData *cmp_data) {
                 break;
 
         }
+        current = current->next;
         counter++;
         cmp_data->code.count++;
     }
@@ -119,16 +119,21 @@ boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
         set_bit(7-current->adr_mode, code_img); /** Todo: define number **/
         current = current->next;
 
-        if (command_table[command_index].addr_mode_op1[current->adr_mode] == 1) {
-            set_bit(11-current->adr_mode, code_img); /** Todo: define number **/
+        /* if there is second operand */
+        if (current != NULL) {
+            if (command_table[command_index].addr_mode_op1[current->adr_mode] == 1) {
+                set_bit(11 - current->adr_mode, code_img); /** Todo: define number **/
+            }
+        }
 
             /* ARE default first word's field */
             set_bit(A, code_img);
 
             code_img->count++;
+        printf("just updated!\n");
+        print_memory_image(code_img);
             return TRUE;
 
-        }
     }
     return FALSE;
 }
@@ -143,23 +148,18 @@ boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
  * or NULL if no matching command is found
  */
 int find_command(const char *command) {
-    int i = 0; /*index for iterating through the commandMappings array */
+    int i = 0; /* Index for iterating through the commandMappings array */
 
-    /*iterate through the commandMappings array until a NULL command is found */
-    while ((strcmp(command_table[i].command, "terminator") == 0)) {
+
+    /* Iterate through the commandMappings array until an empty string command is found */
+    while (command_table[i].command[0] != '\0') {
         if (strcmp(command_table[i].command, command) == 0) {
             return i;
         }
         i++;
     }
-    /*for (i = 0 ; i < command_table_size ; i++) {
-        if (strcmp(command_table[i].command, command) == 0) {
-            return i;
-        }
-    }*/
 
-
-    /* return -1 if the corresponding command has not been found */
+    /* Return -1 if the corresponding command has not been found */
     return -1;
 }
 

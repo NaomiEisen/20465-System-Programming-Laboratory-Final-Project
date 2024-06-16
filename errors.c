@@ -5,7 +5,7 @@
 #include "errors.h"
 
 /* ------------------------ Initialize the global error variable ------------------------ */
-Error global_error = {NO_ERROR, "No error"};
+Error error = {NO_ERROR, "No error"};
 
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
@@ -81,9 +81,9 @@ void clear_error (Error *error) {
 /* Function to set the global error
 void set_error(ErrorCode code) {
     if (code < ERROR_COUNT) {
-        global_error = errorTable[code];
+        error = errorTable[code];
     } else {
-        global_error = (Error){OTHER_ERROR, "Unknown error"};
+        error = (Error){OTHER_ERROR, "Unknown error"};
     }
 }*/
 

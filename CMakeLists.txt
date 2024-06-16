@@ -30,5 +30,4 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         code_convert.c
         cmp_data.h
         cmp_data.c
-        semantics.h
         semantic.h)

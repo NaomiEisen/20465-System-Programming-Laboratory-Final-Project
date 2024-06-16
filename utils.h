@@ -13,5 +13,6 @@ void trim_leading_spaces(const char **str);
 boolean is_valid_integer(const char *str);
 char* my_strndup(const char* str, size_t size);
 int my_atoi(const char *str);
+boolean strip_first_chars(char **operand, size_t num_chars);
 
 #endif /* UTILS_H */

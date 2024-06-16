@@ -32,8 +32,8 @@ int check_label(const char **line, ASTNode *node) {
         /* Save label in AST node */
         label = my_strndup(start, line_ptr - start);
         if (label == NULL) {
-            set_general_error(&global_error, MEMORY_ALLOCATION_ERROR);
-            print_error(&global_error);
+            set_general_error(&error, MEMORY_ALLOCATION_ERROR);
+            print_error(&error);
             return 0; /* Memory allocation failure */
         }
         set_label(node, label);
@@ -51,8 +51,8 @@ int parse_operation(const char **line, ASTNode *node) {
 
     while (*line_ptr && !is_space(*line_ptr) && *line_ptr != ',') {
         if (*line_ptr == ',') {
-            set_error(&global_error, ILLEGAL_COMMA_ERROR, node->location);
-            print_error(&global_error);
+            set_error(&error, ILLEGAL_COMMA_ERROR, node->location);
+            print_error(&error);
             return 0;
         }
         line_ptr++;
@@ -60,8 +60,8 @@ int parse_operation(const char **line, ASTNode *node) {
 
     operation = my_strndup(start, line_ptr - start);
     if (operation == NULL) {
-        set_error(&global_error, MEMORY_ALLOCATION_ERROR, node->location);
-        print_error(&global_error);
+        set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
+        print_error(&error);
         return 0; /* Memory allocation failure */
     }
     set_operation(node, operation);
@@ -79,16 +79,16 @@ int parse_operands(const char **line, ASTNode *node) {
     while (*line_ptr) {
         if (first_op == TRUE) {
             if (*line_ptr == ',') {
-                set_error(&global_error, ILLEGAL_COMMA_ERROR, node->location);
-                print_error(&global_error);
+                set_error(&error, ILLEGAL_COMMA_ERROR, node->location);
+                print_error(&error);
                 return 0;
             }
         }
 
         if (first_op == FALSE) {
             if (*line_ptr != ',') {
-                set_error(&global_error, MISSING_COMMA_ERROR, node->location);
-                print_error(&global_error);
+                set_error(&error, MISSING_COMMA_ERROR, node->location);
+                print_error(&error);
                 return 0;
             }
             line_ptr++; /* Skip comma */
@@ -98,8 +98,8 @@ int parse_operands(const char **line, ASTNode *node) {
         start = line_ptr;
         while (*line_ptr && *line_ptr != ',' && !isspace(*line_ptr)) {
             if (is_space(*line_ptr)) {
-                set_error(&global_error, MISSING_COMMA_ERROR, node->location);
-                print_error(&global_error);
+                set_error(&error, MISSING_COMMA_ERROR, node->location);
+                print_error(&error);
                 return 0;
             }
             line_ptr++;
@@ -113,8 +113,8 @@ int parse_operands(const char **line, ASTNode *node) {
             trim_leading_spaces(&line_ptr);
         }
         else {
-            set_error(&global_error, EXTRA_TXT, node->location);
-            print_error(&global_error);
+            set_error(&error, EXTRA_TXT, node->location);
+            print_error(&error);
             return 0;
         }
     }
@@ -128,8 +128,6 @@ boolean is_valid_register(char *str) {
     /* iterate through the commandMappings array until a NULL command is found */
     while (registers[i] != NULL) {
         if (strcmp(str, registers[i]) == 0) {
-            /* Convert integer i to string representation in the existing memory */
-            sprintf(str, "%d", i);
             return TRUE;
         }
         i++;
@@ -144,22 +142,34 @@ void determine_operand_adr_modes(ASTNode *node) {
         if (current->operand[0] == '#') {
             /* Validate if the rest of the string is an integer */
             if (is_valid_integer(current->operand + 1)) {
+                if (strip_first_chars(&current->operand, 1) == FALSE) {
+                    set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
+                    print_error(&error);
+                }
                 current->adr_mode = 0;
             }
             else {
-                set_error(&global_error, NOT_INTEGER, node->location);
-                print_error(&global_error);
+                set_error(&error, NOT_INTEGER, node->location);
+                print_error(&error);
             }
         } else if (current->operand[0] == '*') {
             /* Check if the rest of the string is a valid register */
             if (is_valid_register(current->operand + 1)) {
+                if (strip_first_chars(&current->operand, 2) == FALSE) {
+                    set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
+                    print_error(&error);
+                }
                 current->adr_mode = 2;
             }
             else {
-                set_error(&global_error, INVALID_REGISTER, node->location);
-                print_error(&global_error);
+                set_error(&error, INVALID_REGISTER, node->location);
+                print_error(&error);
             }
         } else if (is_valid_register(current->operand)) {
+            if (strip_first_chars(&current->operand, 1) == FALSE) {
+                set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
+                print_error(&error);
+            }
             current->adr_mode = 3;
         } else {
             current->adr_mode = 2;

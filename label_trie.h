@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include "boolean.h"
-#define ALPHABET_SIZE 62 // 26 lowercase + 26 uppercase + 10 digits
+#define ALPHABET_SIZE 62 /* 26 lowercase + 26 uppercase + 10 digits */
 
 /* Enum for label types */
 typedef enum {
@@ -29,9 +29,6 @@ typedef struct Trie {
     int node_count;
 } Trie;
 
-
-/* Global label trie */
-extern Trie trie_label;
 
 /* Function to create a new TrieNode */
 TrieNode* create_trie_node();

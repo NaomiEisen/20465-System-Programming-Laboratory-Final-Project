@@ -8,7 +8,7 @@
 #define E 14
 #define REGISTER_POS 6
 
-boolean validate_label(ASTNode *node, int address);
+boolean validate_label(ASTNode *node, int address, CmpData *cmp_data);
 void code_operands(ASTNode *node, CmpData *cmp_data);
 boolean handle_directive(ASTNode *node);
 boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img);

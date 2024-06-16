@@ -72,7 +72,7 @@ boolean is_valid_integer(const char *str) {
     }
     while (*str) {
         if (!isdigit(*str)) {
-            return TRUE;
+            return FALSE;
         }
         str++;
     }
@@ -106,6 +106,28 @@ char* my_strndup(const char* str, size_t size) {
 
     result[len] = '\0';
     return (char*)memcpy(result, str, len);
+}
+
+/**
+ * Removes the specified number of characters from the operand string and allocates new memory for it.
+ * @param operand - pointer to the original operand string pointer
+ * @param num_chars - number of characters to remove from the beginning
+ * @return - true if successful, false if allocation fails
+ */
+boolean strip_first_chars(char **operand, size_t num_chars) {
+    char *new_operand;
+    size_t len = strlen(*operand);
+    if (num_chars >= len) {
+        return FALSE; /* If num_chars is greater than or equal to the length of the string, fail*/
+    }
+    new_operand = (char *)malloc(len - num_chars + 1); /* Allocate memory for new string */
+    if (new_operand) {
+        strcpy(new_operand, *operand + num_chars); /* Copy the rest of the string */
+        free(*operand);
+        *operand = new_operand;
+        return TRUE;
+    }
+    return FALSE;
 }
 
 int my_atoi(const char *str) {

@@ -15,9 +15,9 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img) {
         return;
     }
 
-    for (i = 0; i <= end - start; i++) {
-        if (value & (1 << i)) {
-            set_bit(start + i, memory_img);
+    for (i = start; i <= end; i++) {
+        if (value & (1 << (i - start))) {
+            set_bit(i, memory_img);
         }
     }
 }
@@ -42,7 +42,7 @@ void set_bit(int i, MemoryImage *memory_img) {
     if (memory_img->count < MEMORY_CAPACITY) {
         memory_img->lines[memory_img->count][byteIndex] |= mask;
     } else {
-        set_general_error(&global_error, CPU_MEMORY_FULL);
+        set_general_error(&error, CPU_MEMORY_FULL);
     }
 
 }

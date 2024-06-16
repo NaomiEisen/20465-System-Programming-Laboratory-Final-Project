@@ -1,6 +1,5 @@
 #ifndef CMP_DATA_H
 #define CMP_DATA_H
-#include "hardware.h"
 #include "label_trie.h"
 
 #define MEMORY_CAPACITY 4096
@@ -26,6 +25,6 @@ typedef struct CmpData{
  * @param data Pointer to the CmpData structure to be initialized
  */
 void init_cmp_data(CmpData *data);
-
+void print_memory_image(const MemoryImage *memory_image);
 
 #endif /* CMP_DATA_H */

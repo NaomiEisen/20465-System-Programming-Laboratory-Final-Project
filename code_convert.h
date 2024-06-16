@@ -1,7 +1,6 @@
 #ifndef CODE_CONVERT_H
 #define CODE_CONVERT_H
-
-#include "hardware.h"
+#include "cmp_data.h"
 #include "ast.h"
 
 #define BYTE_SIZE 8;
