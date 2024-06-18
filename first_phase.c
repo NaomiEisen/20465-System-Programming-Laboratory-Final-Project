@@ -55,13 +55,13 @@ void first_phase(const char *file_am) {
             if (analyzeLine(node, &cmp_data) == FALSE)
                 error_in_file = TRUE;
         }
-
-
-
         free_ASTNode(node); /* Free AST nodes */
     }
     print_trie(cmp_data.label_table.root,"");
+    printf("code image:\n");
     print_memory_image(&cmp_data.code);
+    printf("data image:\n");
+    print_memory_image(&cmp_data.data);
     free_trie(&cmp_data.label_table);
     /* close the file */
     fclose(source_file);

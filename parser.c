@@ -125,7 +125,7 @@ int parse_operands(const char **line, ASTNode *node) {
 boolean is_valid_register(char *str) {
     int i = 0;
 
-    /* iterate through the commandMappings array until a NULL command is found */
+    /* iterate through the commandMappings array until a NULL command_str is found */
     while (registers[i] != NULL) {
         if (strcmp(str, registers[i]) == 0) {
             return TRUE;
@@ -214,6 +214,7 @@ ASTNode *parseLine(const char *line, const char* file_name, int line_num) {
         return node;
     }
 
+    /*  determine operands address mode */
     if (node->lineType == LINE_OPERATION) {
         determine_operand_adr_modes(node);
     }

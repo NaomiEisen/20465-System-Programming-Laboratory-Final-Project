@@ -24,8 +24,10 @@ typedef enum {
 
     /* ====== Semantic Errors ====== */
     COMMAND_NAME_ERROR,
+    DIRECTIVE_NAME_ERROR,
     INVALID_LABEL,
     NOT_INTEGER,
+    INVALID_STRING,
     INVALID_REGISTER,
     INVALID_PARAM_NUMBER,
     INVALID_PARAM_TYPE,

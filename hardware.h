@@ -8,20 +8,26 @@
 #define ADDRESS_MODES 4
 
 
-/* structure representing command mappings */
+/* structure representing command_str mappings */
 typedef struct {
-    char command[MAX_COMMAND_CHAR]; /* command name */
+    char command_str[MAX_COMMAND_CHAR]; /* command_str name */
     int num_params;
     int addr_mode_op1[ADDRESS_MODES];
     int addr_mode_op2[ADDRESS_MODES];
-} CommandMapping;
+} InstructMapping;
+
+typedef enum { DATA, STRING, ENTRY, EXTERN} dirCommand;
+
+typedef struct {
+    char command_str[MAX_COMMAND_CHAR]; /* command_str name */
+    dirCommand dir_command
+} DirectiveMapping;
 
 
 /* Directive and register tables */
-/*extern const char* directive_table[];*/
-extern const char* directive_table[];
+extern DirectiveMapping directive_table[];
 extern const char* registers[];
-extern CommandMapping command_table[];
+extern InstructMapping command_table[];
 
 
 #endif /*HARDWARE_H*/

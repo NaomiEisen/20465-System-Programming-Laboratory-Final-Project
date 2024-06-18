@@ -2,8 +2,12 @@
 #include <stdio.h>
 
 /* Directive table*/
-const char* directive_table[] = {
-        "string", "data", NULL /* Null-terminate for safety*/
+DirectiveMapping directive_table[] = {
+        {"string", STRING},
+        {"data", DATA},
+        {"entry", ENTRY},
+        {"extern", EXTERN},
+        {""} /* Empty string terminator */
 };
 
 /* Register table */
@@ -13,7 +17,7 @@ const char* registers[] = {
 };
 
 /* Representing a mapping from a function name to its corresponding function  */
-CommandMapping command_table[] = {
+InstructMapping command_table[] = {
         {"mov", 2, {1,1,1,1} , {0,1,1,1} },
         {"cmp", 1, {1,1,1,1} , {1,1,1,1}},
         {"add", 0, {1,1,1,1} , {0,1,1,1}},

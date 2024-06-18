@@ -11,12 +11,14 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img) {
     int i;
     int bit_per_line = NUM_OF_BYTES * BYTE_SIZE;
 
-    if (end - start + 1 > bit_per_line) {
+
+    /* Ensure the range is within a single line's limit */
+    if ((end - start + 1) > bit_per_line) {
         return;
     }
 
     for (i = start; i <= end; i++) {
-        if (value & (1 << (i - start))) {
+        if (value & (1 << (end - i))) {
             set_bit(i, memory_img);
         }
     }
@@ -37,14 +39,13 @@ void set_bit(int i, MemoryImage *memory_img) {
         return;
     }
 
-    mask = (char)(1 << bitOffset);
+    mask = (char)(1 << (7 - bitOffset));
 
     if (memory_img->count < MEMORY_CAPACITY) {
         memory_img->lines[memory_img->count][byteIndex] |= mask;
     } else {
         set_general_error(&error, CPU_MEMORY_FULL);
     }
-
 }
 
 void code_immediate_addr_mode (OperandNode *operand, MemoryImage *memory_img) {
@@ -76,3 +77,53 @@ void code_register_addr_mode(OperandNode *operand, MemoryImage *memory_img, int 
     set_bit(A, memory_img);
 }
 
+void set_char_code(char c, MemoryImage *memory_img) {
+    if (memory_img == NULL) {
+        return;
+    }
+
+    /** TODO: fix the numbers */
+    /* ASCII value of the character */
+    int ascii_value = (int)c;
+
+    /* Ensure the ASCII value fits within 15 bits */
+    if (ascii_value > 32767) { // 2^15 - 1
+        return;
+    }
+
+    /* Set the binary code of the ASCII value using set_int_code */
+    set_int_code(0, 14, ascii_value, memory_img);
+    memory_img->count++;
+}
+
+void code_data(ASTNode *node, MemoryImage *memory_image) {
+    OperandNode *current = node->operands;
+    while (current) {
+        /* Validate operand */
+        if (is_valid_integer(current->operand)) { /** todo: define numbers **/
+            set_int_code(0, 14, my_atoi(current->operand), memory_image);
+            memory_image->count++;
+            current = current->next;
+        } else {
+            set_error(&error, NOT_INTEGER, node->location);
+            print_error(&error);
+        }
+    }
+}
+
+void code_string(ASTNode *node, MemoryImage *memory_img) {
+    OperandNode *current = node->operands;
+    char *str;
+    size_t str_length;
+    /** TODO: check allowed num of parameters */
+    while (current) {
+        str = current->operand;
+        str_length = strlen(str);
+        for (int i = 1; i < str_length-1; i++) {
+            set_char_code(str[i], memory_img);
+        }
+        /* Add Null terminator */
+        set_char_code('\0', memory_img);
+        current = current->next;
+    }
+}

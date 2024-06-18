@@ -117,7 +117,7 @@ char* preprocessor(const char* file_origin){
                 copy_macro_to_file(current_macr, output_file);
             }
 
-            /* ============ 6. Regular command line ============ */
+            /* ============ 6. Regular command_str line ============ */
             else {
                 fputs(line_ptr, output_file);
             }
