@@ -65,8 +65,10 @@ void code_direct_addr_mode (OperandNode *operand, CmpData *cmp_data) {
 
     if (label_type == EXTERNAL) {
         set_bit(E, &cmp_data->code);
+        cmp_data->code.count++;
     } else {
         set_bit(R, &cmp_data->code);
+        cmp_data->code.count++;
     }
 }
 
@@ -87,7 +89,7 @@ void set_char_code(char c, MemoryImage *memory_img) {
     int ascii_value = (int)c;
 
     /* Ensure the ASCII value fits within 15 bits */
-    if (ascii_value > 32767) { // 2^15 - 1
+    if (ascii_value > 32767) {
         return;
     }
 
@@ -112,18 +114,15 @@ void code_data(ASTNode *node, MemoryImage *memory_image) {
 }
 
 void code_string(ASTNode *node, MemoryImage *memory_img) {
-    OperandNode *current = node->operands;
     char *str;
     size_t str_length;
-    /** TODO: check allowed num of parameters */
-    while (current) {
-        str = current->operand;
-        str_length = strlen(str);
-        for (int i = 1; i < str_length-1; i++) {
-            set_char_code(str[i], memory_img);
-        }
-        /* Add Null terminator */
-        set_char_code('\0', memory_img);
-        current = current->next;
+    int i;
+
+    str = node->operands->operand;
+    str_length = strlen(str);
+    for (i = 0; i < str_length; i++) {
+        set_char_code(str[i], memory_img);
     }
+    /* Add Null terminator */
+    set_char_code('\0', memory_img);
 }

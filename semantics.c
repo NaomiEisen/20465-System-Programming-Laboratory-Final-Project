@@ -4,7 +4,7 @@
 #include "boolean.h"
 #include "code_convert.h"
 #include "semantic.h"
-
+#include "utils.h"
 
 
 boolean analyzeLine(ASTNode *node, CmpData *cmp_data) {
@@ -63,12 +63,14 @@ boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
 
 
 boolean validate_label(ASTNode *node, int address, CmpData *cmp_data) {
-    switch (node->lineType) {
-        case LINE_OPERATION: return insert_label(&cmp_data->label_table, node->label, address, OPERATION);
-        case LINE_DIRECTIVE: return insert_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
-        default: return FALSE;
-
+    if (reserved_word(node->label) == FALSE) {
+            switch (node->lineType) {
+                case LINE_OPERATION: return insert_label(&cmp_data->label_table, node->label, address, OPERATION);
+                case LINE_DIRECTIVE: return insert_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
+                default: return FALSE;
+            }
     }
+    return FALSE;
 }
 
 
@@ -120,7 +122,6 @@ boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
 
             /* ARE default first word's field */
             set_bit(A, code_img);
-
             code_img->count++;
             return TRUE;
 
@@ -149,17 +150,14 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
             code_data(node, &cmp_data->data);
             break;
         case STRING:
-            if (validate_string_operand(node->operands->operand) == FALSE) {
-                set_error(&error, INVALID_STRING, node->location);
-                print_error(&error);
-                return FALSE;
-            } else {
-                code_string(node, &cmp_data->data);
-            }
+            code_string(node, &cmp_data->data);
             break;
         case ENTRY:
             break;
         case EXTERN:
+            if (handle_extern(node, cmp_data) == FALSE) {
+                return FALSE;
+            }
             break;
     }
     /* insert label if exists */
@@ -176,6 +174,29 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
     return (error.code == NO_ERROR);
 }
 
+boolean handle_extern(ASTNode* node, CmpData* cmpData) {
+    OperandNode *current = node->operands;
+
+    while (current) {
+        if (reserved_word(current->operand) == FALSE) {
+            if (insert_label(&cmpData->label_table, current->operand, 0, EXTERNAL) == FALSE) {
+                set_error(&error, INVALID_LABEL, node->location);
+                break;
+            }
+        } else {
+            set_error(&error, INVALID_LABEL, node->location);
+            break;
+        }
+    }
+
+    if (error.code != NO_ERROR) {
+        print_error(&error);
+        return FALSE;
+    } else {
+        return TRUE;
+    }
+}
+
 /**
  * Finds the corresponding function function for the inputted command_str name.
  *
@@ -185,7 +206,6 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
  */
 int find_command(const char *command) {
     int i = 0; /* Index for iterating through the commandMappings array */
-
 
     /* Iterate through the commandMappings array until an empty string command_str is found */
     while (command_table[i].command_str[0] != '\0') {
@@ -216,14 +236,27 @@ int find_directive(const char *command) {
     return -1;
 }
 
-boolean validate_string_operand(const char *operand) {
+/** TODO delete this!!! */
+boolean validate_string_operand(ASTNode *node) {
+    if (node == NULL) {
+        return FALSE;
+    }
+
+    const char *operand = node->operands->operand;
+    if (node->numOperands != 1) {
+        set_error(&error, INVALID_PARAM_NUMBER, node->location);
+        print_error(&error);
+        return FALSE;
+    }
     if (operand == NULL || strlen(operand) < 2) {
-        return FALSE; // Operand is NULL or too short
+        return FALSE; /* Operand is NULL or too short */
     }
 
-    if (operand[0] == '"' && operand[strlen(operand) - 1] == '"') {
-        return TRUE; // Operand starts and ends with double quotes
+    /* Operand starts and ends with double quotes */
+    if (operand[0] != '"' || operand[strlen(operand) - 1] != '"') {
+        set_error(&error, INVALID_STRING, node->location);
+        print_error(&error);
+        return FALSE;
     }
-
-    return FALSE; // Operand does not meet the criteria
+    return TRUE; /* Operand meet the criteria */
 }

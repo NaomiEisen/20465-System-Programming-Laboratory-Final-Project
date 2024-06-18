@@ -34,6 +34,7 @@ void init_cmp_data(CmpData *data) {
 
 void print_memory_image(const MemoryImage *memory_image) {
     int i, j, k;
+    char bit;
 
     if (memory_image == NULL) {
         printf("Empty memory image.\n");
@@ -51,7 +52,7 @@ void print_memory_image(const MemoryImage *memory_image) {
                 if (j == 1 && k == 0) {
                     continue; /* Skip the last bit */
                 }
-                char bit = (current_char & (1 << k)) ? '1' : '0';
+                bit = (current_char & (1 << k)) ? '1' : '0';
                 printf("%c", bit);
                 if (j == 0 && (k == 4 || k == 0)) { /* Add a space after every 4 bits in the first byte */
                     printf(" ");

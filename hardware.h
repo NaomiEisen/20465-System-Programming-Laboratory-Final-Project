@@ -20,7 +20,7 @@ typedef enum { DATA, STRING, ENTRY, EXTERN} dirCommand;
 
 typedef struct {
     char command_str[MAX_COMMAND_CHAR]; /* command_str name */
-    dirCommand dir_command
+    dirCommand dir_command;
 } DirectiveMapping;
 
 

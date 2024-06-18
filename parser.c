@@ -76,6 +76,22 @@ int parse_operands(const char **line, ASTNode *node) {
     const char *line_ptr = start;
     boolean first_op = TRUE;
 
+    /* Check for string first */
+    if (*line_ptr == '"') {  /* Start of a quoted string */
+        start++;
+        line_ptr = trim_trailing_spaces(line_ptr);
+        if (*line_ptr != '"') {
+            set_error(&error, INVALID_STRING, node->location);
+            print_error(&error);
+            return 0;
+        }
+        if (add_operand(node, my_strndup(start, line_ptr - start)) == 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
     while (*line_ptr) {
         if (first_op == TRUE) {
             if (*line_ptr == ',') {

@@ -6,7 +6,7 @@ TrieNode* create_trie_node() {
     TrieNode *node = (TrieNode *)malloc(sizeof(TrieNode));
     if (node) {
         node->address = -1;
-        node->label_type = DIRECTIVE; /* Default value */
+        node->label_type = DEFAULT; /* Default value */
         node->is_label = false;
         for (i = 0; i < ALPHABET_SIZE; i++) {
             node->children[i] = NULL;

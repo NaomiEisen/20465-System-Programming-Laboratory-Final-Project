@@ -198,7 +198,7 @@ MacroNode* is_macro(MacroList* list, const char* str) {
 
     return NULL; /* No macro with the same name found */
 }
-
+/** TODO : delete! */
 boolean is_reserved_word(const char* str) {
     int i;
     int reserved_words_count = sizeof(reserved_words) / sizeof(reserved_words[0]);

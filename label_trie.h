@@ -12,7 +12,9 @@
 typedef enum {
     DIRECTIVE,
     OPERATION,
-    EXTERNAL
+    EXTERNAL,
+    ENTERNAL,
+    DEFAULT
 } LabelType;
 
 /* Trie node structure */
