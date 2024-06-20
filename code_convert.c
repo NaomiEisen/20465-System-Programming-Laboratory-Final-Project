@@ -74,13 +74,13 @@ void code_immediate_addr_mode (OperandNode *operand, MemoryImage *memory_img) {
 
 void code_direct_addr_mode (OperandNode *operand, CmpData *cmp_data) {
     LabelType label_type;
-    int address = search_label(&cmp_data->label_table, operand->operand, &label_type);
+    int address = get_label_address(&cmp_data->label_table, operand->operand, &label_type);
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
 
     /* Label does not found */
     if (address == -1) {
         /* Mark unfinished line */
-        set_bit(15, &cmp_data->code);
+        mark_word(&cmp_data->code);
         return;
     }
 
@@ -150,4 +150,20 @@ void code_string(ASTNode *node, MemoryImage *memory_img) {
     }
     /* Add Null terminator */
     set_char_code('\0', memory_img);
+}
+
+boolean add_entry(Trie* label_table, OperandNode *operand){
+    OperandNode *current = operand;
+    while (current) {
+    if (set_label_type(label_table, operand->operand, ENTERNAL) == FALSE) {
+        return FALSE;
+    }
+    current = current->next;
+    }
+
+    return TRUE;
+}
+
+void mark_word(MemoryImage *code_img) {
+    set_bit(15,code_img);
 }

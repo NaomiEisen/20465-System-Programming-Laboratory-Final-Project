@@ -17,13 +17,13 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         utils.h
         parser.c
         ast.h
-        hardware.h
+        mappings.h
         ast.c
         first_phase.h
         first_phase.c
         parser.h
         label_trie.h
-        hardware.c
+        mappings.c
         semantics.c
         label_trie.c
         code_convert.h

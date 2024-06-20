@@ -16,9 +16,8 @@
  *                               Head Function Of First Phase
  * --------------------------------------------------------------------------------------- */
 
-void first_phase(const char *file_am) {
+void first_phase(const char *file_am, Mappings *mappings) {
     FILE* source_file;                  /* the source file (.as) */
-    char* output_filename = NULL;       /* the output file name */
     int line_count = 0;                 /* line counter */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
@@ -41,7 +40,7 @@ void first_phase(const char *file_am) {
     /* ------------------------ Process each line in the source file ------------------------ */
     while (fgets(line, sizeof(line), source_file) != NULL) {
         line_count++; /* Update counter */
-        node = parseLine(line, file_am, line_count); /* Parse line */
+        node = parseLine(line, file_am, line_count, mappings); /* Parse line */
         printASTNode(node); /* TODO FOR ME!! PRINT NODE */
 
 
@@ -53,7 +52,7 @@ void first_phase(const char *file_am) {
         }
 
         if (error_in_file == FALSE) {
-            if (analyzeLine(node, &cmp_data) == FALSE)
+            if (analyzeLine(node, &cmp_data, mappings) == FALSE)
                 error_in_file = TRUE;
         }
         free_ASTNode(node); /* Free AST nodes */

@@ -14,7 +14,6 @@ boolean is_valid_integer(const char *str);
 char* my_strndup(const char* str, size_t size);
 int my_atoi(const char *str);
 boolean strip_first_chars(char **operand, size_t num_chars);
-boolean reserved_word(const char *str);
 const char* trim_trailing_spaces(const char *str);
 
 #endif /* UTILS_H */

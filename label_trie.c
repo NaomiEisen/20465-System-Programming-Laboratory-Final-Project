@@ -66,7 +66,7 @@ boolean insert_label(Trie *trie, const char *label, int address, LabelType label
 }
 
 /* Function to search for a label in the trie and return its address */
-int search_label(Trie *trie, const char *label, LabelType *label_type) {
+int get_label_address(Trie *trie, const char *label, LabelType *label_type) {
     TrieNode *node = trie->root;
     while (*label) {
         int index = get_index(*label);
@@ -87,6 +87,32 @@ int search_label(Trie *trie, const char *label, LabelType *label_type) {
     }
     return -1;
 }
+
+/* Function to set the label type for a given label in the Trie */
+boolean set_label_type(Trie *trie, const char *label, LabelType label_type) {
+    TrieNode *current = trie->root;
+    int len = strlen(label);
+    int i;
+
+    for (i = 0; i < len; i++) {
+        int index = label[i] - 'a'; /* Assuming lowercase letters */
+        if (!current->children[index]) {
+            current->children[index] = create_trie_node();
+        }
+        current = current->children[index];
+    }
+
+    /* Check if the label already exists */
+    if (current->is_label) {
+        /* Label already exists, set the label type */
+        current->label_type = label_type;
+        return TRUE; /* Process succeeded */
+    } else {
+        /* Label does not exist */
+        return FALSE; /* Process failed */
+    }
+}
+
 
 /* Function to print all words in the trie */
 void print_trie(TrieNode *node, char *word_so_far) {

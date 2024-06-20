@@ -1,6 +1,7 @@
 #ifndef CMP_DATA_H
 #define CMP_DATA_H
 #include "label_trie.h"
+#include "mappings.h"
 
 #define MEMORY_CAPACITY 4096
 #define NUM_OF_BYTES 2
@@ -16,8 +17,7 @@ typedef struct CmpData{
     MemoryImage code;
     MemoryImage data;
     Trie label_table;
-
-
+    int phase;
 } CmpData;
 
 /**

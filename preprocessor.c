@@ -8,18 +8,13 @@
 #include "errors.h"
 #include "macro_list.h"
 #include "utils.h"
-
-const char* reserved_words[] = {
-        "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
-        "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc",
-        "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop"
-};
+#include "mappings.h"
 
 /* ---------------------------------------------------------------------------------------
  *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
 
-char* preprocessor(const char* file_origin){
+char *preprocessor(const char *file_origin, Mappings *mappings) {
     FILE* source_file;                  /* the source file (.as) */
     FILE* output_file;                  /* the output file (.am) */
     char* source_filename = NULL;       /* the source file name */
@@ -106,7 +101,7 @@ char* preprocessor(const char* file_origin){
             else if (!macr_start(word)) {
                 inside_macro = TRUE; /* set flag */
 
-                if (!create_macr(&macr_list, line_ptr + strlen(word), location)){ /* if macro creation fails */
+                if (!create_macr(&macr_list, line_ptr + strlen(word), location, mappings)){ /* if macro creation fails */
                     clear_error(&error);
                     inside_macro = FALSE; /* no macro was initialized */
                 }
@@ -138,7 +133,7 @@ char* preprocessor(const char* file_origin){
  *                                   Utility Functions
  * --------------------------------------------------------------------------------------- */
 
-boolean verify_macro(const char *str, Location location) {
+boolean verify_macro(const char *str, Location location, Mappings *mappings) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
     /* if macr don't have name */
@@ -146,7 +141,7 @@ boolean verify_macro(const char *str, Location location) {
         return FALSE;
 
     /* macr name is reserved name */
-    if (is_reserved_word(word)) {
+    if (reserved_word(mappings, word)) {
         set_error(&error, INVALID_MACR, location);
         print_error(&error);
         return FALSE;
@@ -175,9 +170,9 @@ int macr_end(const char* str) {
 }
 
 
-boolean create_macr(MacroList *list, const char *str, Location location) {
+boolean create_macr(MacroList *list, const char *str, Location location, Mappings *mappings) {
     trim_spaces(&str);
-    if (verify_macro(str, location)) {
+    if (verify_macro(str, location, mappings)) {
         insert_macro_node(list, str);
         if (error.code == NO_ERROR) {
             return TRUE;
@@ -197,18 +192,6 @@ MacroNode* is_macro(MacroList* list, const char* str) {
     }
 
     return NULL; /* No macro with the same name found */
-}
-/** TODO : delete! */
-boolean is_reserved_word(const char* str) {
-    int i;
-    int reserved_words_count = sizeof(reserved_words) / sizeof(reserved_words[0]);
-
-    for (i = 0 ; i < reserved_words_count ; i++) {
-        if (strcmp(str , reserved_words[i]) == 0) {
-            return TRUE;
-        }
-    }
-    return FALSE;
 }
 
 void copy_macro_to_file(MacroNode* macr, FILE* file) {

@@ -5,7 +5,7 @@
 #include "utils.h"
 #include "errors.h"
 #include "boolean.h"
-#include "hardware.h"
+#include "mappings.h"
 
 
 int check_empty_line (const char** line, ASTNode* node) {
@@ -138,21 +138,21 @@ int parse_operands(const char **line, ASTNode *node) {
 }
 
 /* Function to check if a string is a valid register */
-boolean is_valid_register(char *str) {
+boolean is_valid_register(char *str, Mappings *mappings) {
     int i = 0;
 
     /* iterate through the commandMappings array until a NULL command_str is found */
-    while (registers[i] != NULL) {
-        if (strcmp(str, registers[i]) == 0) {
+    for (i = 0; i < NUM_REGISTERS ; i++) {
+        if (strcmp(mappings->registers[i], str) == 0) {
             return TRUE;
         }
-        i++;
     }
+
     return FALSE;
 }
 
 /* Function to determine and set addressing modes for operands in an ASTNode */
-void determine_operand_adr_modes(ASTNode *node) {
+void determine_operand_adr_modes(ASTNode *node, Mappings *mappings) {
     OperandNode *current = node->operands;
     while (current) {
         if (current->operand[0] == '#') {
@@ -170,7 +170,7 @@ void determine_operand_adr_modes(ASTNode *node) {
             }
         } else if (current->operand[0] == '*') {
             /* Check if the rest of the string is a valid register */
-            if (is_valid_register(current->operand + 1)) {
+            if (is_valid_register(current->operand + 1, mappings)) {
                 if (strip_first_chars(&current->operand, 2) == FALSE) {
                     set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
                     print_error(&error);
@@ -181,7 +181,7 @@ void determine_operand_adr_modes(ASTNode *node) {
                 set_error(&error, INVALID_REGISTER, node->location);
                 print_error(&error);
             }
-        } else if (is_valid_register(current->operand)) {
+        } else if (is_valid_register(current->operand, mappings)) {
             if (strip_first_chars(&current->operand, 1) == FALSE) {
                 set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
                 print_error(&error);
@@ -194,7 +194,7 @@ void determine_operand_adr_modes(ASTNode *node) {
     }
 }
 
-ASTNode *parseLine(const char *line, const char* file_name, int line_num) {
+ASTNode *parseLine(const char *line, const char *file_name, int line_num, Mappings *mappings) {
     ASTNode *node = create_empty_ASTNode(file_name, line_num);
     const char *line_ptr = line;
 
@@ -232,7 +232,7 @@ ASTNode *parseLine(const char *line, const char* file_name, int line_num) {
 
     /*  determine operands address mode */
     if (node->lineType == LINE_OPERATION) {
-        determine_operand_adr_modes(node);
+        determine_operand_adr_modes(node, mappings);
     }
 
     return node;

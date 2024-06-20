@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "boolean.h"
-#include "hardware.h"
+#include "mappings.h"
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
@@ -76,37 +76,6 @@ const char* trim_trailing_spaces(const char *str) {
     return end;
 }
 
-boolean reserved_word(const char *str) {
-    int i = 0; /* Index for iterating through the commandMappings array */
-
-    /* check directive */
-    while (directive_table[i].command_str[0] != '\0') {
-        if (strcmp(directive_table[i].command_str, str) == 0) {
-            return TRUE;
-        }
-        i++;
-    }
-
-    /* check instruction */
-    i = 0;
-    while (command_table[i].command_str[0] != '\0') {
-        if (strcmp(command_table[i].command_str, str) == 0) {
-            return TRUE;
-        }
-        i++;
-    }
-
-    i = 0;
-    /* check register */
-    while (registers[i] != NULL) {
-        if(strcmp(registers[i], str) == 0) {
-            return TRUE;
-        }
-        i++;
-    }
-
-    return FALSE;
-}
 
 boolean is_valid_integer(const char *str) {
     if (*str == '-' || *str == '+') {

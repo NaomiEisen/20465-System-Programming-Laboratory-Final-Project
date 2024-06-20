@@ -8,8 +8,7 @@
  */
 /* Function to initialize CmpData */
 void init_cmp_data(CmpData *data) {
-    int i;
-    int j;
+    int i, j;
 
     /* Initialize code memory */
     for (i = 0; i < MEMORY_CAPACITY; i++) {
@@ -30,6 +29,10 @@ void init_cmp_data(CmpData *data) {
     /* Initialize the label table*/
     data->label_table.root = create_trie_node();
     data->label_table.node_count = 0;
+
+    /* Starting from first phase */
+    data->phase = 1;
+
 }
 
 void print_memory_image(const MemoryImage *memory_image) {

@@ -36,10 +36,10 @@ typedef struct Trie {
 TrieNode* create_trie_node();
 
 /* Function to insert a label and its address into the trie */
-boolean insert_label(Trie *trie, const char *label, int adress, LabelType label_type);
+boolean insert_label(Trie *trie, const char *label, int address, LabelType label_type);
 /* Function to search for a label in the trie and return its address */
-int search_label(Trie *trie, const char *label, LabelType *label_type);
-
+int get_label_address(Trie *trie, const char *label, LabelType *label_type);
+boolean set_label_type(Trie *trie, const char *label, LabelType label_type);
 /* Function to print all nodes in the trie */
 void print_trie(TrieNode *node, char *prefix);
 
