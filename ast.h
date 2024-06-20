@@ -1,5 +1,6 @@
 #ifndef AST_H
 #define AST_H
+#include "errors.h"
 
 typedef enum {
     LINE_EMPTY,
@@ -10,6 +11,7 @@ typedef enum {
 
 typedef struct OperandNode {
     char *operand;
+    int adr_mode; /* Addressing mode */
     struct OperandNode *next;
 } OperandNode;
 
@@ -19,15 +21,17 @@ typedef struct {
     char *operation;
     OperandNode *operands;
     int numOperands;
+    Location location;
 } ASTNode;
 
 
-ASTNode* create_empty_ASTNode();
-void setLineType(ASTNode *node, LineType lineType);
-void setLabel(ASTNode *node, char *label);
-void setOperation(ASTNode *node, char *operation);
-int addOperand(ASTNode *node, char *operand);
-void freeASTNode(ASTNode *node);
+ASTNode *create_empty_ASTNode(const char *file, int line);
+void set_line_type(ASTNode *node, LineType lineType);
+void set_label(ASTNode *node, char *label);
+void set_operation(ASTNode *node, char *operation);
+int add_operand(ASTNode *node, char *operand);
+void set_operand_adr_mode(OperandNode *operand, int adr_mode);
+void free_ASTNode(ASTNode *node);
 void printASTNode(const ASTNode *node);
 
 

@@ -1,43 +1,36 @@
+#ifndef HARDWARE_H
+#define HARDWARE_H
+#include "ast.h"
+#include "boolean.h"
 
-#ifndef INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_HARDWARE_H
-#define INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_HARDWARE_H
+/*#define MEMORY_CAPACITY 4096*/
+#define MAX_COMMAND_CHAR 15
+#define ADDRESS_MODES 4
 
 
-// Define a structure to hold command information
-typedef struct Command {
-    const char *name;
-    int numParams;
-} Command;
+/* structure representing command_str mappings */
+typedef struct {
+    char command_str[MAX_COMMAND_CHAR]; /* command_str name */
+    int num_params;
+    int addr_mode_op1[ADDRESS_MODES];
+    int addr_mode_op2[ADDRESS_MODES];
+} InstructMapping;
 
-// Define the command table
-Command command_table[] = {
-        {"mov",  2},
-        {"cmp",  1},
-        {"add",  0},
-        {"sub",  1},
-        {"lea",  1},
-        {"clr",  1},
-        {"not", 1},
-        {"inc",  1},
-        {"dec", 1},
-        {"jmp", 1},
-        {"bne", 1},
-        {"red", 1},
-        {"prn", 1},
-        {"jsr", 1},
-        {"rts", 1},
-        {"stop",  0},
+typedef enum { DATA, STRING, ENTRY, EXTERN} dirCommand;
 
-        {"terminator", 0}
-};
-const size_t command_table_size = sizeof(command_table) / sizeof(command_table[0]);
+typedef struct {
+    char command_str[MAX_COMMAND_CHAR]; /* command_str name */
+    dirCommand dir_command;
+} DirectiveMapping;
 
-const char* directive_table[] = {
-        "string","data"
-};
 
-const char* regisrers[] = {
-        "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
-};
+/* Directive and register tables */
+extern DirectiveMapping directive_table[];
+extern const char* registers[];
+extern InstructMapping command_table[];
 
-#endif /*INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_HARDWARE_H*/
+
+#endif /*HARDWARE_H*/
+
+/* ----------------------------------------------------------------------- */
+

@@ -1,19 +1,21 @@
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include "ast.h"
 #include "utils.h"
 #include "errors.h"
-#include "general.h"
+#include "boolean.h"
+#include "hardware.h"
 
 
 int check_empty_line (const char** line, ASTNode* node) {
     const char* ptr = *line;
     if (*ptr == '\0') {
-        setLineType(node, LINE_EMPTY);
+        set_line_type(node, LINE_EMPTY);
         return 1;
     }
     if (*ptr == ';') {
-        setLineType(node, LINE_COMMENT);
+        set_line_type(node, LINE_COMMENT);
         return 1;
     }
     return 0;
@@ -30,10 +32,11 @@ int check_label(const char **line, ASTNode *node) {
         /* Save label in AST node */
         label = my_strndup(start, line_ptr - start);
         if (label == NULL) {
-            set_error(&global_error, MEMORY_ALLOCATION_ERROR, NULL, 0);
+            set_general_error(&error, MEMORY_ALLOCATION_ERROR);
+            print_error(&error);
             return 0; /* Memory allocation failure */
         }
-        setLabel(node, label);
+        set_label(node, label);
         line_ptr++;  /* Skip the colon */
         trim_leading_spaces(&line_ptr); /* Skip any whitespace after the label */
         *line = line_ptr;
@@ -48,7 +51,8 @@ int parse_operation(const char **line, ASTNode *node) {
 
     while (*line_ptr && !is_space(*line_ptr) && *line_ptr != ',') {
         if (*line_ptr == ',') {
-            set_error(&global_error, ILLEGAL_COMMA_ERROR, NULL, 0);
+            set_error(&error, ILLEGAL_COMMA_ERROR, node->location);
+            print_error(&error);
             return 0;
         }
         line_ptr++;
@@ -56,10 +60,11 @@ int parse_operation(const char **line, ASTNode *node) {
 
     operation = my_strndup(start, line_ptr - start);
     if (operation == NULL) {
-        set_error(&global_error, MEMORY_ALLOCATION_ERROR, NULL, 0);
+        set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
+        print_error(&error);
         return 0; /* Memory allocation failure */
     }
-    setOperation(node, operation);
+    set_operation(node, operation);
 
     trim_leading_spaces(&line_ptr); /* Skip any whitespace after the operation */
     *line = line_ptr;
@@ -69,19 +74,37 @@ int parse_operation(const char **line, ASTNode *node) {
 int parse_operands(const char **line, ASTNode *node) {
     const char *start = *line;
     const char *line_ptr = start;
-    bool first_op = true;
+    boolean first_op = TRUE;
+
+    /* Check for string first */
+    if (*line_ptr == '"') {  /* Start of a quoted string */
+        start++;
+        line_ptr = trim_trailing_spaces(line_ptr);
+        if (*line_ptr != '"') {
+            set_error(&error, INVALID_STRING, node->location);
+            print_error(&error);
+            return 0;
+        }
+        if (add_operand(node, my_strndup(start, line_ptr - start)) == 0) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
 
     while (*line_ptr) {
-        if (first_op == true) {
+        if (first_op == TRUE) {
             if (*line_ptr == ',') {
-                set_error(&global_error, ILLEGAL_COMMA_ERROR, NULL, 0);
+                set_error(&error, ILLEGAL_COMMA_ERROR, node->location);
+                print_error(&error);
                 return 0;
             }
         }
 
-        if (first_op == false) {
+        if (first_op == FALSE) {
             if (*line_ptr != ',') {
-                set_error(&global_error, MISSING_COMMA_ERROR, NULL, 0);
+                set_error(&error, MISSING_COMMA_ERROR, node->location);
+                print_error(&error);
                 return 0;
             }
             line_ptr++; /* Skip comma */
@@ -91,29 +114,88 @@ int parse_operands(const char **line, ASTNode *node) {
         start = line_ptr;
         while (*line_ptr && *line_ptr != ',' && !isspace(*line_ptr)) {
             if (is_space(*line_ptr)) {
-                set_error(&global_error, MISSING_COMMA_ERROR, NULL, 0);
+                set_error(&error, MISSING_COMMA_ERROR, node->location);
+                print_error(&error);
                 return 0;
             }
             line_ptr++;
         }
 
         if (line_ptr > start) {
-            if ( addOperand(node, my_strndup(start, line_ptr - start)) == 0)
+            if (add_operand(node, my_strndup(start, line_ptr - start)) == 0)
                 return 0;
 
-            first_op = false;
+            first_op = FALSE;
             trim_leading_spaces(&line_ptr);
         }
         else {
-            set_error(&global_error, EXTRA_TXT, NULL, 0);
+            set_error(&error, EXTRA_TXT, node->location);
+            print_error(&error);
             return 0;
         }
     }
     return 1;
 }
 
-ASTNode* parseLine(const char *line) {
-    ASTNode *node = create_empty_ASTNode();
+/* Function to check if a string is a valid register */
+boolean is_valid_register(char *str) {
+    int i = 0;
+
+    /* iterate through the commandMappings array until a NULL command_str is found */
+    while (registers[i] != NULL) {
+        if (strcmp(str, registers[i]) == 0) {
+            return TRUE;
+        }
+        i++;
+    }
+    return FALSE;
+}
+
+/* Function to determine and set addressing modes for operands in an ASTNode */
+void determine_operand_adr_modes(ASTNode *node) {
+    OperandNode *current = node->operands;
+    while (current) {
+        if (current->operand[0] == '#') {
+            /* Validate if the rest of the string is an integer */
+            if (is_valid_integer(current->operand + 1)) {
+                if (strip_first_chars(&current->operand, 1) == FALSE) {
+                    set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
+                    print_error(&error);
+                }
+                current->adr_mode = 0;
+            }
+            else {
+                set_error(&error, NOT_INTEGER, node->location);
+                print_error(&error);
+            }
+        } else if (current->operand[0] == '*') {
+            /* Check if the rest of the string is a valid register */
+            if (is_valid_register(current->operand + 1)) {
+                if (strip_first_chars(&current->operand, 2) == FALSE) {
+                    set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
+                    print_error(&error);
+                }
+                current->adr_mode = 2;
+            }
+            else {
+                set_error(&error, INVALID_REGISTER, node->location);
+                print_error(&error);
+            }
+        } else if (is_valid_register(current->operand)) {
+            if (strip_first_chars(&current->operand, 1) == FALSE) {
+                set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
+                print_error(&error);
+            }
+            current->adr_mode = 3;
+        } else {
+            current->adr_mode = 1;
+        }
+        current = current->next;
+    }
+}
+
+ASTNode *parseLine(const char *line, const char* file_name, int line_num) {
+    ASTNode *node = create_empty_ASTNode(file_name, line_num);
     const char *line_ptr = line;
 
     /* Skip leading whitespace */
@@ -131,10 +213,10 @@ ASTNode* parseLine(const char *line) {
 
     /* determine line type */
     trim_leading_spaces(&line_ptr);
-    setLineType(node, LINE_OPERATION); /* default */
+    set_line_type(node, LINE_OPERATION); /* default */
     if (*line_ptr == '.') {
         /* This is directive */
-        setLineType(node, LINE_DIRECTIVE);
+        set_line_type(node, LINE_DIRECTIVE);
         line_ptr++; /* Skip dot */
     }
 
@@ -144,58 +226,14 @@ ASTNode* parseLine(const char *line) {
     }
 
     /* get operands */
-    parse_operands(&line_ptr, node);
+    if (parse_operands(&line_ptr, node) == 0) {
+        return node;
+    }
+
+    /*  determine operands address mode */
+    if (node->lineType == LINE_OPERATION) {
+        determine_operand_adr_modes(node);
+    }
 
     return node;
 }
-
-
-
-/* ---------------------------------------------------------------------------------------
- *                                          Archive
- * --------------------------------------------------------------------------------------- */
-/**
-* if ((numParams == 2 && (!node->operand1 || !node->operand2)) ||
-        (numParams == 1 && !node->operand1) ||
-        (numParams == 0 && (node->operand1 || node->operand2))) {
-        fprintf(stderr, "Error: invalid number of operands for operation %s.\n", node->operation);
-        freeASTNode(node);
-        return NULL;
-*/
-
-/*  while (*line_ptr && !is_space(*line_ptr)) line_ptr++;
-setOperation(node, my_strndup(start_ptr, line_ptr - start_ptr));
-while (isspace(*line_ptr)) line_ptr++;
-
-*//*  Read the first operand *//*
-start_ptr = line_ptr;
-while (*line_ptr && *line_ptr != ',' && !is_space(*line_ptr)) {
-if (*line_ptr == ',') {
-set_error(&global_error, ILLEGAL_COMMA_ERROR, NULL, 0);
-return NULL;
-}
-line_ptr++;
-}
-setOperand1(node, my_strndup(start_ptr, line_ptr - start_ptr));
-trim_leading_spaces(&line_ptr);
-
-*//* Read the second operand *//*
-start_ptr = line_ptr;
-if (*line_ptr != ',') {
-set_error(&global_error, MISSING_COMMA_ERROR, NULL, 0);
-return NULL;
-}
-while (*line_ptr &&  *line_ptr != ',' && !isspace(*line_ptr)) {
-if (*line_ptr != ','){
-set_error(&global_error, MULTIPULE_COMMA_ERROR, NULL, 0);
-return NULL;
-}
-line_ptr++;
-}
-setOperand2(node, my_strndup(start_ptr, line_ptr - start_ptr));
-trim_leading_spaces(&line_ptr);
-
-if (*line_ptr != '\n') {
-set_error(&global_error, EXTRA_TXT, NULL, 0);
-return NULL;
-}*/

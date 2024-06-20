@@ -2,7 +2,7 @@
 #ifndef MACRO_LIST_H
 #define MACRO_LIST_H
 
-#include "general.h"
+#define MAX_LINE_LENGTH 81
 
 /* Define a structure for a single line in the macro value */
 typedef struct LineNode {
