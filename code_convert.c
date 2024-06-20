@@ -31,7 +31,25 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img) {
  * @param memory_img
  */
 void set_bit(int i, MemoryImage *memory_img) {
+
     char mask;
+    int byteIndex = i / BYTE_SIZE;
+    int bitOffset = i % BYTE_SIZE;
+
+    if (byteIndex >= NUM_OF_BYTES) {
+        return;
+    }
+
+    mask = (char)(1 << (BYTE_SIZE -1 - bitOffset));
+
+    if (memory_img->count < MEMORY_CAPACITY) {
+        memory_img->lines[memory_img->count][byteIndex] |= mask;
+    } else {
+        set_general_error(&error, CPU_MEMORY_FULL);
+    }
+
+
+ /*   char mask;
     int byteIndex = i / BYTE_SIZE;
     int bitOffset = i % BYTE_SIZE;
 
@@ -45,7 +63,7 @@ void set_bit(int i, MemoryImage *memory_img) {
         memory_img->lines[memory_img->count][byteIndex] |= mask;
     } else {
         set_general_error(&error, CPU_MEMORY_FULL);
-    }
+    }*/
 }
 
 void code_immediate_addr_mode (OperandNode *operand, MemoryImage *memory_img) {
@@ -59,9 +77,14 @@ void code_direct_addr_mode (OperandNode *operand, CmpData *cmp_data) {
     int address = search_label(&cmp_data->label_table, operand->operand, &label_type);
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
 
-    if (address != -1) {
-        set_int_code(0 , end, address, &cmp_data->code);
+    /* Label does not found */
+    if (address == -1) {
+        /* Mark unfinished line */
+        set_bit(15, &cmp_data->code);
+        return;
     }
+
+    set_int_code(0 , end, address, &cmp_data->code);
 
     if (label_type == EXTERNAL) {
         set_bit(E, &cmp_data->code);
@@ -80,13 +103,14 @@ void code_register_addr_mode(OperandNode *operand, MemoryImage *memory_img, int 
 }
 
 void set_char_code(char c, MemoryImage *memory_img) {
+    int ascii_value;
     if (memory_img == NULL) {
         return;
     }
 
     /** TODO: fix the numbers */
     /* ASCII value of the character */
-    int ascii_value = (int)c;
+    ascii_value = (int)c;
 
     /* Ensure the ASCII value fits within 15 bits */
     if (ascii_value > 32767) {
@@ -97,6 +121,7 @@ void set_char_code(char c, MemoryImage *memory_img) {
     set_int_code(0, 14, ascii_value, memory_img);
     memory_img->count++;
 }
+
 
 void code_data(ASTNode *node, MemoryImage *memory_image) {
     OperandNode *current = node->operands;

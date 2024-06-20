@@ -99,7 +99,7 @@ boolean reserved_word(const char *str) {
     i = 0;
     /* check register */
     while (registers[i] != NULL) {
-        if( (registers[i], str) == 0) {
+        if(strcmp(registers[i], str) == 0) {
             return TRUE;
         }
         i++;

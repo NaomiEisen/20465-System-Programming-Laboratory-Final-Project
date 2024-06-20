@@ -44,7 +44,7 @@ boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
 
     /* Code first word */
     if (first_word(node, command_index, &cmp_data->code) == FALSE) {
-        set_error(&error, INVALID_PARAM_NUMBER, node->location);
+        set_error(&error, INVALID_PARAM_TYPE, node->location);
         print_error(&error);
         return FALSE;
     }
@@ -107,25 +107,34 @@ boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
     /* Code the operation name */
     set_int_code(0, 3, command_index, code_img);
 
+    /* ARE default first word's field */
+    set_bit(A, code_img);
+
+    /* Check if there is operands to code */
+    if (current == NULL) {
+        code_img->count++;
+        return TRUE;
+    }
+
     /* Code first operand's address mode */
     if (command_table[command_index].addr_mode_op1[current->adr_mode] == 1) {
 
-        set_bit(7-current->adr_mode, code_img); /** Todo: define number **/
+        set_bit(7 - current->adr_mode, code_img); /** Todo: define number **/
         current = current->next;
 
         /* if there is second operand */
         if (current != NULL) {
-            if (command_table[command_index].addr_mode_op1[current->adr_mode] == 1) {
+            if (command_table[command_index].addr_mode_op2[current->adr_mode] == 1) {
                 set_bit(11 - current->adr_mode, code_img); /** Todo: define number **/
+            } else {
+                return FALSE;
             }
         }
 
-            /* ARE default first word's field */
-            set_bit(A, code_img);
-            code_img->count++;
-            return TRUE;
-
+        code_img->count++;
+        return TRUE;
     }
+
     return FALSE;
 }
 
@@ -153,6 +162,7 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
             code_string(node, &cmp_data->data);
             break;
         case ENTRY:
+
             break;
         case EXTERN:
             if (handle_extern(node, cmp_data) == FALSE) {
@@ -236,27 +246,3 @@ int find_directive(const char *command) {
     return -1;
 }
 
-/** TODO delete this!!! */
-boolean validate_string_operand(ASTNode *node) {
-    if (node == NULL) {
-        return FALSE;
-    }
-
-    const char *operand = node->operands->operand;
-    if (node->numOperands != 1) {
-        set_error(&error, INVALID_PARAM_NUMBER, node->location);
-        print_error(&error);
-        return FALSE;
-    }
-    if (operand == NULL || strlen(operand) < 2) {
-        return FALSE; /* Operand is NULL or too short */
-    }
-
-    /* Operand starts and ends with double quotes */
-    if (operand[0] != '"' || operand[strlen(operand) - 1] != '"') {
-        set_error(&error, INVALID_STRING, node->location);
-        print_error(&error);
-        return FALSE;
-    }
-    return TRUE; /* Operand meet the criteria */
-}

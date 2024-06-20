@@ -188,7 +188,7 @@ void determine_operand_adr_modes(ASTNode *node) {
             }
             current->adr_mode = 3;
         } else {
-            current->adr_mode = 2;
+            current->adr_mode = 1;
         }
         current = current->next;
     }

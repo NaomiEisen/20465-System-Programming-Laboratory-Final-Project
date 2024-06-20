@@ -36,6 +36,7 @@ void first_phase(const char *file_am) {
 
     /* initialize the computer's data */
     init_cmp_data(&cmp_data);
+    /*print_ten(&cmp_data.code);*/
 
     /* ------------------------ Process each line in the source file ------------------------ */
     while (fgets(line, sizeof(line), source_file) != NULL) {
@@ -59,9 +60,9 @@ void first_phase(const char *file_am) {
     }
     print_trie(cmp_data.label_table.root,"");
     printf("code image:\n");
-    print_memory_image(&cmp_data.code);
+    print_memory_image_marks(&cmp_data.code);
     printf("data image:\n");
-    print_memory_image(&cmp_data.data);
+    print_memory_image_marks(&cmp_data.data);
     free_trie(&cmp_data.label_table);
     /* close the file */
     fclose(source_file);

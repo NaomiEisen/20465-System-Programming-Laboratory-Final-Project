@@ -12,11 +12,12 @@ typedef struct MemoryImage{
 } MemoryImage;
 
 
-/* structure containing the sets and their mappings within the program */
 typedef struct CmpData{
     MemoryImage code;
     MemoryImage data;
     Trie label_table;
+
+
 } CmpData;
 
 /**
@@ -26,5 +27,7 @@ typedef struct CmpData{
  */
 void init_cmp_data(CmpData *data);
 void print_memory_image(const MemoryImage *memory_image);
+void print_memory_image_marks(const MemoryImage *memory_image);
+void print_ten(const MemoryImage *memory_image);
 
 #endif /* CMP_DATA_H */

@@ -16,7 +16,6 @@ boolean handle_extern(ASTNode* node, CmpData* cmpData);
 int find_command(const char *command);
 int find_directive(const char *command);
 boolean handle_operation(ASTNode *node, CmpData *cmp_data);
-boolean validate_string_operand(ASTNode *node);
 boolean analyzeLine(ASTNode *node, CmpData *cmp_data);
 
 #endif /*INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_SEMANTIC_H*/

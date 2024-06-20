@@ -19,8 +19,8 @@ const char* registers[] = {
 /* Representing a mapping from a function name to its corresponding function  */
 InstructMapping command_table[] = {
         {"mov", 2, {1,1,1,1} , {0,1,1,1} },
-        {"cmp", 1, {1,1,1,1} , {1,1,1,1}},
-        {"add", 0, {1,1,1,1} , {0,1,1,1}},
+        {"cmp", 2, {1,1,1,1} , {1,1,1,1}},
+        {"add", 2, {1,1,1,1} , {0,1,1,1}},
         {"sub", 2, {1,1,1,1} , {0,1,1,1}},
         {"lea", 2, {0,1,0,0} , {0,1,1,1}},
         {"clr", 1,  {0,1,1,1}},
