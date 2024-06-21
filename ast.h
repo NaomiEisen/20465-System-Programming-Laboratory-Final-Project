@@ -2,6 +2,8 @@
 #define AST_H
 #include "errors.h"
 
+#define MAX_LABEL_LENGTH 32
+
 typedef enum {
     LINE_EMPTY,
     LINE_COMMENT,

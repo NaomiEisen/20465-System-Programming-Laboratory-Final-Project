@@ -5,5 +5,5 @@
 #include "mappings.h"
 
 #define MAX_LINE_LENGTH 81
-void first_phase(const char *file_am, Mappings *mappings);
+void first_phase(const char *file_am);
 #endif /* FIRST_PHASE_H */

@@ -21,6 +21,30 @@ int check_empty_line (const char** line, ASTNode* node) {
     return 0;
 }
 
+boolean validate_label(const char* label, ASTNode* node){
+    /* Check if the label is NULL or does not start with an alphabetic character */
+    if (!label || !isalpha(label[0])) {
+        set_error(&error, INVALID_LABEL_NAME, node->location);
+        print_error(&error);
+        return FALSE; /* Return FALSE if the label is invalid */
+    }
+
+    /* Check if the label exceeds the maximum allowed length */
+    if (strlen(label) > MAX_LABEL_LENGTH) {
+        set_error(&error, INVALID_LABEL_LENGTH, node->location);
+        print_error(&error);
+        return FALSE; /* Return FALSE if the label is too long */
+    }
+
+    if (reserved_word(label) == TRUE) {
+        set_error(&error, LABEL_RESERVED_WORD, node->location);
+        print_error(&error);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 int check_label(const char **line, ASTNode *node) {
     const char *start = *line;
     const char *line_ptr = start;
@@ -29,20 +53,29 @@ int check_label(const char **line, ASTNode *node) {
     while (*line_ptr && *line_ptr != ':' && !isspace(*line_ptr)) line_ptr++;
     /* Label found */
     if (*line_ptr == ':') {
-        /* Save label in AST node */
+        /* Save label string */
         label = my_strndup(start, line_ptr - start);
         if (label == NULL) {
             set_general_error(&error, MEMORY_ALLOCATION_ERROR);
             print_error(&error);
             return 0; /* Memory allocation failure */
         }
+
+        /* Save label in AST node */
         set_label(node, label);
         line_ptr++;  /* Skip the colon */
         trim_leading_spaces(&line_ptr); /* Skip any whitespace after the label */
         *line = line_ptr;
+
+        /* Validate label name */
+        if (validate_label(label, node) == FALSE) {
+            return 0; /* Invalid name */
+        }
     }
     return 1; /* Function proceeded successfully */
 }
+
+
 
 int parse_operation(const char **line, ASTNode *node) {
     const char* start = *line;
@@ -137,22 +170,9 @@ int parse_operands(const char **line, ASTNode *node) {
     return 1;
 }
 
-/* Function to check if a string is a valid register */
-boolean is_valid_register(char *str, Mappings *mappings) {
-    int i = 0;
-
-    /* iterate through the commandMappings array until a NULL command_str is found */
-    for (i = 0; i < NUM_REGISTERS ; i++) {
-        if (strcmp(mappings->registers[i], str) == 0) {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
 
 /* Function to determine and set addressing modes for operands in an ASTNode */
-void determine_operand_adr_modes(ASTNode *node, Mappings *mappings) {
+void determine_operand_adr_modes(ASTNode *node) {
     OperandNode *current = node->operands;
     while (current) {
         if (current->operand[0] == '#') {
@@ -170,7 +190,7 @@ void determine_operand_adr_modes(ASTNode *node, Mappings *mappings) {
             }
         } else if (current->operand[0] == '*') {
             /* Check if the rest of the string is a valid register */
-            if (is_valid_register(current->operand + 1, mappings)) {
+            if (get_register_index(current->operand + 1) != -1) {
                 if (strip_first_chars(&current->operand, 2) == FALSE) {
                     set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
                     print_error(&error);
@@ -181,20 +201,21 @@ void determine_operand_adr_modes(ASTNode *node, Mappings *mappings) {
                 set_error(&error, INVALID_REGISTER, node->location);
                 print_error(&error);
             }
-        } else if (is_valid_register(current->operand, mappings)) {
+        } else if (get_register_index(current->operand) != -1) {
             if (strip_first_chars(&current->operand, 1) == FALSE) {
                 set_error(&error, MEMORY_ALLOCATION_ERROR, node->location);
                 print_error(&error);
             }
             current->adr_mode = 3;
-        } else {
+        } else { /* label */
+            validate_label(current->operand, node);
             current->adr_mode = 1;
         }
         current = current->next;
     }
 }
 
-ASTNode *parseLine(const char *line, const char *file_name, int line_num, Mappings *mappings) {
+ASTNode *parseLine(const char *line, const char* file_name, int line_num) {
     ASTNode *node = create_empty_ASTNode(file_name, line_num);
     const char *line_ptr = line;
 
@@ -232,7 +253,7 @@ ASTNode *parseLine(const char *line, const char *file_name, int line_num, Mappin
 
     /*  determine operands address mode */
     if (node->lineType == LINE_OPERATION) {
-        determine_operand_adr_modes(node, mappings);
+        determine_operand_adr_modes(node);
     }
 
     return node;

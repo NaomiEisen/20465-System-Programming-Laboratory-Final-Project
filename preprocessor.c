@@ -14,7 +14,7 @@
  *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
 
-char *preprocessor(const char *file_origin, Mappings *mappings) {
+char* preprocessor(const char* file_origin){
     FILE* source_file;                  /* the source file (.as) */
     FILE* output_file;                  /* the output file (.am) */
     char* source_filename = NULL;       /* the source file name */
@@ -97,22 +97,22 @@ char *preprocessor(const char *file_origin, Mappings *mappings) {
                 add_content_line(&macr_list, line_ptr);
             }
 
-            /* ============ 4. Macro initialization ============ */
+                /* ============ 4. Macro initialization ============ */
             else if (!macr_start(word)) {
                 inside_macro = TRUE; /* set flag */
 
-                if (!create_macr(&macr_list, line_ptr + strlen(word), location, mappings)){ /* if macro creation fails */
+                if (!create_macr(&macr_list, line_ptr + strlen(word), location)){ /* if macro creation fails */
                     clear_error(&error);
                     inside_macro = FALSE; /* no macro was initialized */
                 }
             }
 
-            /* =============== 5. Existing macro =============== */
+                /* =============== 5. Existing macro =============== */
             else if ((current_macr = is_macro(&macr_list, word) )!= NULL) {
                 copy_macro_to_file(current_macr, output_file);
             }
 
-            /* ============ 6. Regular command_str line ============ */
+                /* ============ 6. Regular command_str line ============ */
             else {
                 fputs(line_ptr, output_file);
             }
@@ -133,7 +133,7 @@ char *preprocessor(const char *file_origin, Mappings *mappings) {
  *                                   Utility Functions
  * --------------------------------------------------------------------------------------- */
 
-boolean verify_macro(const char *str, Location location, Mappings *mappings) {
+boolean verify_macro(const char *str, Location location) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
     /* if macr don't have name */
@@ -141,7 +141,7 @@ boolean verify_macro(const char *str, Location location, Mappings *mappings) {
         return FALSE;
 
     /* macr name is reserved name */
-    if (reserved_word(mappings, word)) {
+    if (reserved_word(word)) {
         set_error(&error, INVALID_MACR, location);
         print_error(&error);
         return FALSE;
@@ -170,9 +170,9 @@ int macr_end(const char* str) {
 }
 
 
-boolean create_macr(MacroList *list, const char *str, Location location, Mappings *mappings) {
+boolean create_macr(MacroList *list, const char *str, Location location) {
     trim_spaces(&str);
-    if (verify_macro(str, location, mappings)) {
+    if (verify_macro(str, location)) {
         insert_macro_node(list, str);
         if (error.code == NO_ERROR) {
             return TRUE;

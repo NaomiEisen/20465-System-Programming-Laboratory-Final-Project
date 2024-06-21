@@ -31,13 +31,15 @@ typedef struct {
     const char *registers[NUM_REGISTERS];
 } Mappings;
 
-/* Directive and register tables
-extern DirectiveMapping directive_table[];
-extern const char* registers[];
-extern InstructMapping instruct_table[];*/
 
-void init_mappings(Mappings* mappings);
-boolean reserved_word(Mappings *mappings, const char *str);
+
+int get_num_param(int i);
+int get_instruct_index(const char* str);
+int get_dir_index(const char* str);
+int get_register_index(const char* str);
+boolean reserved_word(const char *str);
+boolean valid_addr_mode(int command_index, int addr_mode, int param);
+dirCommand get_dir_command (int i);
 
 #endif /*HARDWARE_H*/
 

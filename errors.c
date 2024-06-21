@@ -27,7 +27,10 @@ const char* get_error_message(ErrorCode code) {
         case ILLEGAL_COMMA_ERROR: return "Illegal comma";
         case COMMAND_NAME_ERROR: return "Invalid command_str name";
         case DIRECTIVE_NAME_ERROR: return "Invalid directive instruction";
-        case INVALID_LABEL: return "Invalid label name";
+        case INVALID_LABEL_NAME: return "Invalid label name, should start with alphabetic char";
+        case LABEL_RESERVED_WORD: return "Invalid label name, cannot be reserved word";
+        case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars";
+        case MULTIPLE_LABEL: return "Multiple label defenition";
         case NOT_INTEGER: return "Not an integer";
         case INVALID_STRING: return "Invalid string format";
         case INVALID_REGISTER: return "Invalid register name";
