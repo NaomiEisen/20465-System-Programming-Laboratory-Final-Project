@@ -11,8 +11,8 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         preprocessor.h
         preprocessor.c
         assembler_controller.h
-        macro_list.h
-        macro_list.c
+        macro_data.h
+        macro_data.c
         utils.c
         utils.h
         parser.c

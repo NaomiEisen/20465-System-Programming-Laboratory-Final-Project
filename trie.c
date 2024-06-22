@@ -113,6 +113,7 @@ void free_node(TrieNode *node) {
         }
         if (node->data) {
             free_data(node->data);
+            node->data = NULL;
         }
         free(node);
     }

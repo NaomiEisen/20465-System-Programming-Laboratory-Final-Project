@@ -6,7 +6,7 @@
 #include <string.h>
 #include "preprocessor.h"
 #include "errors.h"
-#include "macro_list.h"
+#include "macro_data.h"
 #include "utils.h"
 #include "mappings.h"
 
@@ -14,7 +14,7 @@
  *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
 
-char* preprocessor(const char* file_origin){
+char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
     FILE* source_file;                  /* the source file (.as) */
     FILE* output_file;                  /* the output file (.am) */
     char* source_filename = NULL;       /* the source file name */
@@ -24,8 +24,7 @@ char* preprocessor(const char* file_origin){
     const char* line_ptr = NULL;        /* pointer to go through line */
     int line_count = 0;                 /* line counter */
     boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
-    MacroList macr_list = {NULL};       /* Initialize empty list of macros */
-    MacroNode* current_macr = NULL;
+    TrieNode* macr_usage = NULL;
     Location location = {NULL, 0};
 
     /* ------------- Create the source filename with the specified extension -------------*/
@@ -94,22 +93,22 @@ char* preprocessor(const char* file_origin){
             /* ======== 3. Inside of macro initialization ======== */
             if (inside_macro) {
                 /* copy to macro */
-                add_content_line(&macr_list, line_ptr);
+                add_line_to_last_macro(macro_trie, line_ptr);
             }
 
                 /* ============ 4. Macro initialization ============ */
             else if (!macr_start(word)) {
                 inside_macro = TRUE; /* set flag */
 
-                if (!create_macr(&macr_list, line_ptr + strlen(word), location)){ /* if macro creation fails */
+                if (!create_macr(macro_trie, line_ptr + strlen(word), location)){ /* if macro creation fails */
                     clear_error();
                     inside_macro = FALSE; /* no macro was initialized */
                 }
             }
 
                 /* =============== 5. Existing macro =============== */
-            else if ((current_macr = is_macro(&macr_list, word) )!= NULL) {
-                copy_macro_to_file(current_macr, output_file);
+            else if ((macr_usage = is_macro(macro_trie, word) ) != NULL) {
+                copy_macro_to_file(macr_usage, output_file);
             }
 
                 /* ============ 6. Regular command_str line ============ */
@@ -118,8 +117,8 @@ char* preprocessor(const char* file_origin){
             }
         }
     }
-    print_all_macros(&macr_list);
-    free_macro_list(&macr_list);
+    print_all_macros(&macr_trie);
+    free_macro_list(&macr_trie);
     /* close the file */
     fclose(source_file);
     fclose(output_file);
@@ -170,10 +169,10 @@ int macr_end(const char* str) {
 }
 
 
-boolean create_macr(MacroList *list, const char *str, Location location) {
+boolean create_macr(MacroTrie *macr_trie, const char *str, Location location) {
     trim_spaces(&str);
     if (verify_macro(str, location)) {
-        insert_macro_node(list, str);
+        add_macr(macr_trie, str);
         if (error_stat() == NO_ERROR) {
             return TRUE;
         }
@@ -181,21 +180,13 @@ boolean create_macr(MacroList *list, const char *str, Location location) {
     return FALSE;
 }
 
-MacroNode* is_macro(MacroList* list, const char* str) {
-    MacroNode* current = list->head;
-
-    while (current != NULL) {
-        if (strcmp(current->name, str) == 0) {
-            return current; /* Found a macro with the same name */
-        }
-        current = current->next;
-    }
-
+TrieNode * is_macro(MacroTrie *macro_trie, const char* str) {
+    se
     return NULL; /* No macro with the same name found */
 }
 
 void copy_macro_to_file(MacroNode* macr, FILE* file) {
-    LineNode* current = macr->content_lines;
+    LineNode* current = macr->head;
     while (current != NULL) {
         fputs(current->line, file);
         current = current->next;

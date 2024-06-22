@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include "errors.h"
 #include "first_phase.h"
-#include "mappings.h"
+#include "macro_data.h"
 
-char* preprocessor(const char* file_origin);
+char *preprocessor(const char *file_origin, MacroTrie *macro_trie);
 
 void controller(int argc, char* argv[]) {
     int i = 1; /* index for iterating through loop */
     char* file_am = NULL;
+    MacroTrie macro_trie;
 
     /* no arguments were passed */
     if (argc < 2 ) {
@@ -20,7 +21,8 @@ void controller(int argc, char* argv[]) {
 
     /* read inputted files */
     while (argc > 1) {
-        file_am = preprocessor(argv[i]);
+        init_macr_trie(&macro_trie);
+        file_am = preprocessor(argv[i], &macro_trie);
         if (error_stat() != NO_ERROR) {
             printf("Could not process file %s \n", argv[i]);
         }
