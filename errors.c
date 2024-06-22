@@ -5,7 +5,7 @@
 #include "errors.h"
 
 /* ------------------------ Initialize the global error variable ------------------------ */
-Error error = {NO_ERROR, "No error"};
+static Error error = {NO_ERROR, "No error"};
 
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
@@ -48,32 +48,36 @@ const char* get_error_message(ErrorCode code) {
     error->location.line = line;
 }*/
 
-void set_error(Error *error, ErrorCode code, Location location) {
-    error->code = code;
-    error->message = get_error_message(code);
-    error->location = location;
+void set_error(ErrorCode code, Location location) {
+    error.code = code;
+    error.message = get_error_message(code);
+    error.location = location;
 }
 
-void set_general_error(Error *error, ErrorCode code) {
+void set_general_error(ErrorCode code) {
     Location default_location = {NULL, 0};
-    error->code = code;
-    error->message = get_error_message(code);
-    error->location = default_location;
+    error.code = code;
+    error.message = get_error_message(code);
+    error.location = default_location;
 }
 
-void print_error(Error* error) {
-    if (error->code != NO_ERROR) {
-        printf("Error: %s | ", error->message);
-        printf("Location: file name - %s", error->location.file);
-        if (error->location.line > 0)
-            printf(", line - %d", error->location.line);
+void print_error() {
+    if (error.code != NO_ERROR) {
+        printf("Error: %s | ", error.message);
+        printf("Location: file name - %s", error.location.file);
+        if (error.location.line > 0)
+            printf(", line - %d", error.location.line);
         printf("\n");
     }
 }
 
-void clear_error (Error *error) {
+void clear_error() {
     Location default_location = {NULL, 0};
-    set_error(error, NO_ERROR, default_location);
+    set_error(NO_ERROR, default_location);
+}
+
+ErrorCode error_stat() {
+    return error.code;
 }
 
 

@@ -59,12 +59,10 @@ typedef struct {
 } Error;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
-void set_error(Error *error, ErrorCode code, Location location);
-void set_general_error(Error *error, ErrorCode code);
-void print_error(Error *error);
-void clear_error (Error *error);
-
-/* Declare the global error variable */
-extern Error error;
+void set_error(ErrorCode code, Location location);
+void set_general_error(ErrorCode code);
+void print_error();
+void clear_error();
+ErrorCode error_stat();
 
 #endif /* ERRORS_H */

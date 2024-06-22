@@ -1,4 +1,5 @@
 #include "cmp_data.h"
+#include "label_data.h"
 
 /**
  * Function to initialize the ProgramData structure.
@@ -27,8 +28,9 @@ void init_cmp_data(CmpData *data) {
     data->data.count = 0;
 
     /* Initialize the label table*/
-    data->label_table.root = create_trie_node();
-    data->label_table.node_count = 0;
+   /* data->label_table.root = create_trie_node();
+    data->label_table.node_count = 0;*/
+    init_label_trie(&data->label_table);
 
     /* Starting from first phase */
     data->phase = 1;

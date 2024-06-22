@@ -30,16 +30,16 @@ char* preprocessor(const char* file_origin){
 
     /* ------------- Create the source filename with the specified extension -------------*/
     if (!create_new_file_name(file_origin, &source_filename, ".as")) {
-        set_general_error(&error, MEMORY_ALLOCATION_ERROR);
-        print_error(&error);
+        set_general_error(MEMORY_ALLOCATION_ERROR);
+        print_error();
         return NULL;
     }
 
     /* ----------------------- Open the source file in read mode ----------------------- */
     if (!(source_file = fopen(source_filename, "r"))) {
         /* if the file fails to open, set an error and return */
-        set_general_error(&error, CANNOT_OPEN_FILE);
-        print_error(&error);
+        set_general_error(CANNOT_OPEN_FILE);
+        print_error();
         fclose(source_file); /* close the file */
         free(source_filename);
         return NULL;
@@ -47,16 +47,16 @@ char* preprocessor(const char* file_origin){
 
     /* -------------- Create the output filename with the specified extension --------------*/
     if (!create_new_file_name(file_origin, &output_filename, ".am")) {
-        set_general_error(&error, MEMORY_ALLOCATION_ERROR);
-        print_error(&error);
+        set_general_error(MEMORY_ALLOCATION_ERROR);
+        print_error();
         return NULL;
     }
 
     /* ------------------------ Open the output file in write mode ------------------------ */
     if (!(output_file = fopen(output_filename, "w"))) {
         /* if the file fails to open, set an error and return */
-        set_general_error(&error, CANNOT_CREATE_FILE);
-        print_error(&error);
+        set_general_error(CANNOT_CREATE_FILE);
+        print_error();
         fclose(source_file); /* close the source file */
         fclose(output_file); /* close the output file */
         free(output_filename);
@@ -84,9 +84,9 @@ char* preprocessor(const char* file_origin){
                 inside_macro = FALSE;
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
-                    set_error(&error, error.code, location);
-                    print_error(&error);
-                    clear_error(&error);
+                    set_error(EXTRA_TXT, location);
+                    print_error();
+                    clear_error();
                 }
                 continue;
             }
@@ -102,7 +102,7 @@ char* preprocessor(const char* file_origin){
                 inside_macro = TRUE; /* set flag */
 
                 if (!create_macr(&macr_list, line_ptr + strlen(word), location)){ /* if macro creation fails */
-                    clear_error(&error);
+                    clear_error();
                     inside_macro = FALSE; /* no macro was initialized */
                 }
             }
@@ -142,15 +142,15 @@ boolean verify_macro(const char *str, Location location) {
 
     /* macr name is reserved name */
     if (reserved_word(word)) {
-        set_error(&error, INVALID_MACR, location);
-        print_error(&error);
+        set_error(INVALID_MACR, location);
+        print_error();
         return FALSE;
     }
 
     /* macr initialization line contain extra text */
     if (is_empty_line(str + strlen(word) + 1) == FALSE) {
-        set_error(&error, EXTRA_TXT, location);
-        print_error(&error);
+        set_error(EXTRA_TXT, location);
+        print_error();
         return FALSE;
 
     }
@@ -174,7 +174,7 @@ boolean create_macr(MacroList *list, const char *str, Location location) {
     trim_spaces(&str);
     if (verify_macro(str, location)) {
         insert_macro_node(list, str);
-        if (error.code == NO_ERROR) {
+        if (error_stat() == NO_ERROR) {
             return TRUE;
         }
     }

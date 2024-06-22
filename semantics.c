@@ -4,6 +4,7 @@
 #include "boolean.h"
 #include "code_convert.h"
 #include "semantic.h"
+#include "label_data.h"
 
 
 boolean analyzeLine(ASTNode *node, CmpData *cmp_data) {
@@ -29,22 +30,22 @@ boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
     /* Find corresponding command_index */
     command_index = get_instruct_index(node->operation);
     if (command_index == -1){ /* Invalid command_index name */
-        set_error(&error, COMMAND_NAME_ERROR, node->location);
-        print_error(&error);
+        set_error(COMMAND_NAME_ERROR, node->location);
+        print_error();
         return FALSE;
     }
 
     /* Validate number of parameters */
     if (get_num_param(command_index) != node->numOperands) {
-        set_error(&error, INVALID_PARAM_NUMBER, node->location);
-        print_error(&error);
+        set_error(INVALID_PARAM_NUMBER, node->location);
+        print_error();
         return FALSE;
     }
 
     /* Code first word */
     if (first_word(node, command_index, &cmp_data->code) == FALSE) {
-        set_error(&error, INVALID_PARAM_TYPE, node->location);
-        print_error(&error);
+        set_error(INVALID_PARAM_TYPE, node->location);
+        print_error();
         return FALSE;
     }
 
@@ -54,8 +55,8 @@ boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
     /* insert label if exists */
     if (node->label != NULL){
         if( add_label(node, ic_start, cmp_data) == FALSE) {
-            set_error(&error, MULTIPLE_LABEL, node->location);
-            print_error(&error);
+            set_error(MULTIPLE_LABEL, node->location);
+            print_error();
             return FALSE;
         }
     }
@@ -150,8 +151,8 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
     /* Find corresponding command_index */
     dir_index = get_dir_index(node->operation);
     if (dir_index == -1){ /* Invalid command_index name */
-        set_error(&error, DIRECTIVE_NAME_ERROR, node->location);
-        print_error(&error);
+        set_error(DIRECTIVE_NAME_ERROR, node->location);
+        print_error();
         return FALSE;
     }
 
@@ -179,12 +180,12 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
             printf("WARNING: label before extern/entry is useless"); /* TODO: put in error*/
         } else {
             if (add_label(node, id_start, cmp_data) == FALSE) {
-                set_error(&error, MULTIPLE_LABEL, node->location);
-                print_error(&error);
+                set_error(MULTIPLE_LABEL, node->location);
+                print_error();
             }
         }
     }
-    return (error.code == NO_ERROR);
+    return (error_stat() == NO_ERROR);
 }
 
 boolean handle_extern(ASTNode* node, CmpData* cmpData) {
@@ -192,14 +193,14 @@ boolean handle_extern(ASTNode* node, CmpData* cmpData) {
 
     while (current) {
         if (insert_label(&cmpData->label_table, current->operand, 0, EXTERNAL) == FALSE) {
-            set_error(&error, MULTIPLE_LABEL, node->location);
+            set_error(MULTIPLE_LABEL, node->location);
             break;
         }
         current = current->next;
     }
 
-    if (error.code != NO_ERROR) {
-        print_error(&error);
+    if (error_stat() != NO_ERROR) {
+        print_error();
         return FALSE;
     } else {
         return TRUE;

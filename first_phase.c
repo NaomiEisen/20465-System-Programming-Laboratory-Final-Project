@@ -28,8 +28,8 @@ void first_phase(const char *file_am) {
     /* -------------------------- Open the am file in read mode -------------------------- */
     if (!(source_file = fopen(file_am, "r"))) {
         /* if the file fails to open, set an error_in_file and return */
-        set_general_error(&error, CANNOT_OPEN_FILE);
-        print_error(&error);
+        set_general_error(CANNOT_OPEN_FILE);
+        print_error();
         fclose(source_file); /* close the file */
         return;
     }
@@ -45,8 +45,8 @@ void first_phase(const char *file_am) {
         printASTNode(node); /* TODO FOR ME!! PRINT NODE */
 
 
-        if (error.code != NO_ERROR) {
-            clear_error(&error);
+        if (error_stat() != NO_ERROR) {
+            clear_error();
             error_in_file = TRUE;
             free_ASTNode(node);
             continue;
@@ -63,7 +63,7 @@ void first_phase(const char *file_am) {
     print_memory_image_marks(&cmp_data.code);
     printf("data image:\n");
     print_memory_image_marks(&cmp_data.data);
-    free_trie(&cmp_data.label_table);
+    free_label_tree(&cmp_data.label_table);
     /* close the file */
     fclose(source_file);
 }

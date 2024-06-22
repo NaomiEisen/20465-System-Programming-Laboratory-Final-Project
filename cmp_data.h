@@ -1,6 +1,6 @@
 #ifndef CMP_DATA_H
 #define CMP_DATA_H
-#include "label_trie.h"
+#include "label_data.h"
 #include "mappings.h"
 
 #define MEMORY_CAPACITY 4096
@@ -22,7 +22,7 @@ typedef struct CmpData{
 
 /**
  * Initializes the CmpData structure by setting code and data memory to zeros
- * and initializing the label table with an empty root node.
+ * and initializing the label table with an empty trieNode node.
  * @param data Pointer to the CmpData structure to be initialized
  */
 void init_cmp_data(CmpData *data);

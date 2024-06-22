@@ -45,7 +45,7 @@ void set_bit(int i, MemoryImage *memory_img) {
     if (memory_img->count < MEMORY_CAPACITY) {
         memory_img->lines[memory_img->count][byteIndex] |= mask;
     } else {
-        set_general_error(&error, CPU_MEMORY_FULL);
+        set_general_error(CPU_MEMORY_FULL);
     }
 
 
@@ -132,8 +132,8 @@ void code_data(ASTNode *node, MemoryImage *memory_image) {
             memory_image->count++;
             current = current->next;
         } else {
-            set_error(&error, NOT_INTEGER, node->location);
-            print_error(&error);
+            set_error(NOT_INTEGER, node->location);
+            print_error();
         }
     }
 }

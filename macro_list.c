@@ -12,7 +12,7 @@
 MacroNode* create_macro_node(const char* macro_name) {
     MacroNode* newNode = (MacroNode*)malloc(sizeof(MacroNode));
     if (newNode == NULL) {
-        set_general_error(&error, MEMORY_ALLOCATION_ERROR);
+        set_general_error(MEMORY_ALLOCATION_ERROR);
         return NULL;
     }
     strncpy(newNode->name, macro_name, sizeof(newNode->name) - 1);
@@ -39,7 +39,7 @@ void add_content_line(MacroList* list, const char* line) {
 
     newLine = (LineNode*)malloc(sizeof(LineNode));
     if (newLine == NULL) {
-        set_general_error(&error, MEMORY_ALLOCATION_ERROR);
+        set_general_error(MEMORY_ALLOCATION_ERROR);
         return;
     }
     strncpy(newLine->line, line, sizeof(newLine->line) - 1);

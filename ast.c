@@ -7,7 +7,7 @@
 ASTNode *create_empty_ASTNode(const char* file, int line) {
     ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
     if (node == NULL) {
-        set_general_error(&error, MEMORY_ALLOCATION_ERROR);
+        set_general_error(MEMORY_ALLOCATION_ERROR);
         return NULL;
     }
     node->lineType = LINE_EMPTY;
@@ -35,7 +35,7 @@ void set_operation(ASTNode *node, char* operation) {
 int add_operand(ASTNode *node, char *operand) {
     OperandNode *newOperand = (OperandNode *)malloc(sizeof(OperandNode));
     if (newOperand == NULL) {
-        set_general_error(&error, MEMORY_ALLOCATION_ERROR);
+        set_general_error(MEMORY_ALLOCATION_ERROR);
         return 0;
     }
     newOperand->operand = operand;

@@ -3,7 +3,6 @@
 #include "ast.h"
 #include "boolean.h"
 
-/*#define MEMORY_CAPACITY 4096*/
 #define MAX_COMMAND_CHAR 15
 #define ADDRESS_MODES 4
 #define NUM_INSTRUCTIONS 16
@@ -24,13 +23,6 @@ typedef struct {
     char command_str[MAX_COMMAND_CHAR]; /* command_str name */
     dirCommand dir_command;
 } DirectiveMapping;
-
-typedef struct {
-    InstructMapping instruct_table[NUM_INSTRUCTIONS];
-    DirectiveMapping directive_table[NUM_DIRECTIVES];
-    const char *registers[NUM_REGISTERS];
-} Mappings;
-
 
 
 int get_num_param(int i);

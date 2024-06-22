@@ -30,4 +30,8 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         code_convert.c
         cmp_data.h
         cmp_data.c
-        semantic.h)
+        semantic.h
+        trie.h
+        trie.c
+        label_data.h
+        label_data.c)
