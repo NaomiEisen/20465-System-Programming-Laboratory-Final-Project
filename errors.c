@@ -25,7 +25,7 @@ const char* get_error_message(ErrorCode code) {
         case MULTIPULE_COMMA_ERROR: return "Multiple consecutive commas";
         case MISSING_COMMA_ERROR: return "Missing comma";
         case ILLEGAL_COMMA_ERROR: return "Illegal comma";
-        case COMMAND_NAME_ERROR: return "Invalid command_str name";
+        case COMMAND_NAME_ERROR: return "Invalid command name";
         case DIRECTIVE_NAME_ERROR: return "Invalid directive instruction";
         case INVALID_LABEL_NAME: return "Invalid label name, should start with alphabetic char";
         case LABEL_RESERVED_WORD: return "Invalid label name, cannot be reserved word";

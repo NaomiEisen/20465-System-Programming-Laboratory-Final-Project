@@ -17,11 +17,10 @@ typedef struct {
     int addr_mode_op2[ADDRESS_MODES];
 } InstructMapping;
 
-typedef enum { DATA, STRING, ENTRY, EXTERN} dirCommand;
 
 typedef struct {
     char command_str[MAX_COMMAND_CHAR]; /* command_str name */
-    dirCommand dir_command;
+    DirectiveType dir_command;
 } DirectiveMapping;
 
 
@@ -31,7 +30,7 @@ int get_dir_index(const char* str);
 int get_register_index(const char* str);
 boolean reserved_word(const char *str);
 boolean valid_addr_mode(int command_index, int addr_mode, int param);
-dirCommand get_dir_command (int i);
+DirectiveType get_dir_command (int i);
 
 #endif /*HARDWARE_H*/
 

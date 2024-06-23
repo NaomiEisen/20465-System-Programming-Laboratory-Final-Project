@@ -42,13 +42,17 @@ void first_phase(const char *file_am) {
     while (fgets(line, sizeof(line), source_file) != NULL) {
         line_count++; /* Update counter */
         node = parseLine(line, file_am, line_count); /* Parse line */
-        printASTNode(node); /* TODO FOR ME!! PRINT NODE */
-
+        /*print_AST_node(node);    TODO FOR ME!! PRINT NODE */
 
         if (error_stat() != NO_ERROR) {
             clear_error();
             error_in_file = TRUE;
-            free_ASTNode(node);
+            free_ast_node(node);
+            continue;
+        }
+
+        if (node == NULL) {
+            /* add line to list */
             continue;
         }
 
@@ -56,8 +60,9 @@ void first_phase(const char *file_am) {
             if (analyzeLine(node, &cmp_data) == FALSE)
                 error_in_file = TRUE;
         }
-        free_ASTNode(node); /* Free AST nodes */
+        free_ast_node(node);
     }
+
     print_trie(cmp_data.label_table.root,"");
     printf("code image:\n");
     print_memory_image_marks(&cmp_data.code);

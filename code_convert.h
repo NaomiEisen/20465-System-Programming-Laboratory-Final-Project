@@ -9,12 +9,12 @@
 
 void set_bit(int i, MemoryImage *memory_img);
 void set_int_code(int start, int end, int value, MemoryImage *memory_img);
-void code_immediate_addr_mode (OperandNode *operand, MemoryImage *memory_img);
-void code_direct_addr_mode (OperandNode *operand, CmpData *cmp_data);
-void code_register_addr_mode(OperandNode *operand, MemoryImage *memory_img, int position);
+void code_immediate_addr_mode (int num, MemoryImage *memory_img);
+void code_direct_addr_mode (const char *label, CmpData *cmp_data);
+void code_register_addr_mode(int reg_num, MemoryImage *memory_img, int position);
 void code_data(ASTNode *node, MemoryImage *memory_image);
 void code_string(ASTNode *node, MemoryImage *memory_img);
 void mark_word(MemoryImage *code_img);
-boolean add_entry(Trie* label_table, OperandNode *operand);
+boolean add_entry(Trie* label_table, DirNode *operand);
 
 #endif /* CODE_CONVERT_H */

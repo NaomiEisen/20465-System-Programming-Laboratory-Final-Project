@@ -48,33 +48,17 @@ void set_bit(int i, MemoryImage *memory_img) {
         set_general_error(CPU_MEMORY_FULL);
     }
 
-
- /*   char mask;
-    int byteIndex = i / BYTE_SIZE;
-    int bitOffset = i % BYTE_SIZE;
-
-    if (byteIndex >= NUM_OF_BYTES) {
-        return;
-    }
-
-    mask = (char)(1 << (7 - bitOffset));
-
-    if (memory_img->count < MEMORY_CAPACITY) {
-        memory_img->lines[memory_img->count][byteIndex] |= mask;
-    } else {
-        set_general_error(&error, CPU_MEMORY_FULL);
-    }*/
 }
 
-void code_immediate_addr_mode (OperandNode *operand, MemoryImage *memory_img) {
+void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
-    set_int_code(0, end, my_atoi(operand->operand), memory_img);
+    set_int_code(0, end, num, memory_img);
     set_bit(A, memory_img);
 }
 
-void code_direct_addr_mode (OperandNode *operand, CmpData *cmp_data) {
+void code_direct_addr_mode (const char *label, CmpData *cmp_data) {
     LabelType label_type;
-    int address = get_label_address(&cmp_data->label_table, operand->operand, &label_type);
+    int address = get_label_address(&cmp_data->label_table, label, &label_type);
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
 
     /* Label does not found */
@@ -95,10 +79,10 @@ void code_direct_addr_mode (OperandNode *operand, CmpData *cmp_data) {
     }
 }
 
-void code_register_addr_mode(OperandNode *operand, MemoryImage *memory_img, int position) {
+void code_register_addr_mode(int reg_num, MemoryImage *memory_img, int position) {
     int end = position+REGISTER_BIT_SIZE-1;
 
-    set_int_code(position, end, my_atoi(operand->operand), memory_img);
+    set_int_code(position, end, reg_num, memory_img);
     set_bit(A, memory_img);
 }
 
@@ -124,7 +108,7 @@ void set_char_code(char c, MemoryImage *memory_img) {
 
 
 void code_data(ASTNode *node, MemoryImage *memory_image) {
-    OperandNode *current = node->operands;
+    DirNode *current = node->specifics.directive.operands;
     while (current) {
         /* Validate operand */
         if (is_valid_integer(current->operand)) { /** todo: define numbers **/
@@ -143,7 +127,7 @@ void code_string(ASTNode *node, MemoryImage *memory_img) {
     size_t str_length;
     int i;
 
-    str = node->operands->operand;
+    str = node->specifics.directive.operands->operand;
     str_length = strlen(str);
     for (i = 0; i < str_length; i++) {
         set_char_code(str[i], memory_img);
@@ -152,8 +136,8 @@ void code_string(ASTNode *node, MemoryImage *memory_img) {
     set_char_code('\0', memory_img);
 }
 
-boolean add_entry(Trie* label_table, OperandNode *operand){
-    OperandNode *current = operand;
+boolean add_entry(Trie* label_table, DirNode *operand){
+    DirNode *current = operand;
     while (current) {
     if (set_label_type(label_table, operand->operand, ENTERNAL) == FALSE) {
         return FALSE;

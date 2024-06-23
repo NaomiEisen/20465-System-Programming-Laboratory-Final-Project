@@ -1,4 +1,5 @@
 #include "mappings.h"
+#include "ast.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -91,7 +92,7 @@ int get_dir_index(const char* str) {
     return -1;
 }
 
-dirCommand get_dir_command (int i) {
+DirectiveType get_dir_command (int i) {
     return directive_table[i].dir_command;
 }
 
