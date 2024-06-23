@@ -99,8 +99,6 @@ void free_macr_data(void *data) {
     }
 }
 
-
-
 /* Function to free all data in the trie without freeing the nodes */
 void free_data_recursive(TrieNode* node) {
     int i;
@@ -111,11 +109,71 @@ void free_data_recursive(TrieNode* node) {
             }
         }
         if (node->data) {
-            free_data(node->data);
+            free_macr_data(node->data);
             node->data = NULL;
         }
     }
 }
+
+/* Function to get the character from an index in the trie */
+char get_char(int index) {
+    if (index >= 0 && index < 26) {
+        return 'a' + index;
+    } else if (index >= 26 && index < 52) {
+        return 'A' + (index - 26);
+    } else if (index >= 52 && index < 62) {
+        return '0' + (index - 52);
+    } else if (index == 62) {
+        return '-';
+    } else if (index == 63) {
+        return '_';
+    } else if (index == 64) {
+        return '.';
+    } else {
+        return '\0'; /* Invalid index */
+    }
+}
+
+/* Function to print lines of a macro */
+void print_lines(LineNode* head) {
+    LineNode* current = head;
+    while (current != NULL) {
+        printf("%s\n", current->line);
+        current = current->next;
+    }
+}
+
+/* Recursive function to print the trie */
+void print_trie_recursive(TrieNode* node, char* buffer, int depth) {
+    int i;
+    if (node == NULL) {
+        return;
+    }
+
+    if (node->exist) {
+        buffer[depth] = '\0'; /* Null-terminate the current prefix */
+        printf("Macro: %s\n", buffer);
+        MacroData* macro_data = (MacroData*)node->data;
+        if (macro_data != NULL) {
+            print_lines(macro_data->head);
+        }
+        printf("\n");
+    }
+
+    for (i = 0; i < ALPHABET_SIZE; i++) {
+        if (node->children[i] != NULL) {
+            buffer[depth] = get_char(i);
+            print_trie_recursive(node->children[i], buffer, depth + 1);
+        }
+    }
+}
+
+/* Function to print the entire trie */
+void print_trie_test(MacroTrie* macr_trie) {
+    char buffer[256]; /* Buffer to store the current prefix */
+    print_trie_recursive(macr_trie->trie.root, buffer, 0);
+}
+
 
 /* Function to free all data in the trie without freeing the nodes */
 void free_trie_data(MacroTrie *macr_trie) {

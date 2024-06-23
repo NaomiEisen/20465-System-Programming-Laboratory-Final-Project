@@ -34,16 +34,10 @@ LineNode* get_macr_content(MacroTrie *macr_trie, const char *macr_name);
 /* Add a line to the last added macro */
 boolean add_line_to_last_macro(MacroTrie *macr_trie, const char *line);
 TrieNode* find_macro(MacroTrie *macr_trie, const char *macr_name);
-/* Free a LineNode linked list */
-void free_line_nodes(LineNode *head);
-/* Free the data associated with a Macro Trie node */
-void free_macr_data(void *data);
-/* Function to free all data in the trie without freeing the nodes */
-void free_data_recursive(TrieNode* node);
 /* Function to free all data in the trie without freeing the nodes */
 void free_trie_data(MacroTrie *macr_trie);
 /* Free the entire Macro Trie */
 void free_macr_trie(MacroTrie *macr_trie);
-
+void print_trie_test(MacroTrie* macr_trie);
 
 #endif /* MACRO_LIST_H */

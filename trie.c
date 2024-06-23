@@ -17,16 +17,21 @@ TrieNode* create_trie_node() {
 /* Function to get the index of a character in the trie */
 int get_index(char c) {
     if (c >= 'a' && c <= 'z') {
-        return c - 'a'; /* Lowercase letters */
+        return c - 'a' + LOWERCASE_OFFSET; /* Lowercase letters */
     } else if (c >= 'A' && c <= 'Z') {
-        return c - 'A' + 26; /* Uppercase letters */
+        return c - 'A' + UPPERCASE_OFFSET; /* Uppercase letters */
     } else if (c >= '0' && c <= '9') {
-        return c - '0' + 52; /* Digits */
+        return c - '0' + DIGIT_OFFSET; /* Digits */
+    } else if (c == '-') {
+        return 62; /* Special character: - */
+    } else if (c == '_') {
+        return 63; /* Special character: _ */
+    } else if (c == '.') {
+        return 64; /* Special character: . */
     } else {
         return -1; /* Invalid character */
     }
 }
-
 /* Function to insert a string into the trie with generic data */
 boolean insert_to_trie(Trie *trie, const char *str, void *data) {
     int index;

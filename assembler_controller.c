@@ -23,6 +23,7 @@ void controller(int argc, char* argv[]) {
     while (argc > 1) {
         init_macr_trie(&macro_trie);
         file_am = preprocessor(argv[i], &macro_trie);
+        print_trie_test(&macro_trie);
         if (error_stat() != NO_ERROR) {
             printf("Could not process file %s \n", argv[i]);
         }
@@ -33,5 +34,6 @@ void controller(int argc, char* argv[]) {
         i++;
         argc--;
         free(file_am);
+        free_macr_trie(&macro_trie);
     }
 }

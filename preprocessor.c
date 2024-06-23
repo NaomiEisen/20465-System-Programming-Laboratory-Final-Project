@@ -96,29 +96,30 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
                 add_line_to_last_macro(macro_trie, line_ptr);
             }
 
-                /* ============ 4. Macro initialization ============ */
+            /* ============ 4. Macro initialization ============ */
             else if (!macr_start(word)) {
-                inside_macro = TRUE; /* set flag */
-
-                if (!create_macr(macro_trie, line_ptr + strlen(word), location)){ /* if macro creation fails */
-                    clear_error();
-                    inside_macro = FALSE; /* no macro was initialized */
+                if (create_macr(macro_trie, line_ptr + strlen(word), location) == TRUE){
+                    inside_macro = TRUE; /* set flag */
+                }
+                /* todo : decide if continue check or not */
+                else {
+                    break;
                 }
             }
 
-                /* =============== 5. Existing macro =============== */
-            else if ((macr_usage = is_macro(macro_trie, word) ) != NULL) {
+            /* =============== 5. Existing macro =============== */
+            else if ((macr_usage = find_macro(macro_trie, word) ) != NULL) {
                 copy_macro_to_file(macr_usage, output_file);
             }
 
-                /* ============ 6. Regular command_str line ============ */
+            /* ============ 6. Regular command_str line ============ */
             else {
                 fputs(line_ptr, output_file);
             }
         }
     }
-    print_all_macros(&macr_trie);
-    free_macro_list(&macr_trie);
+    /*print_all_macros(&macr_trie);*/
+    free_trie_data(macro_trie);
     /* close the file */
     fclose(source_file);
     fclose(output_file);
@@ -171,22 +172,16 @@ int macr_end(const char* str) {
 
 boolean create_macr(MacroTrie *macr_trie, const char *str, Location location) {
     trim_spaces(&str);
-    if (verify_macro(str, location)) {
-        add_macr(macr_trie, str);
-        if (error_stat() == NO_ERROR) {
-            return TRUE;
-        }
+    if (verify_macro(str, location) == TRUE) {
+        return add_macr(macr_trie, str);
     }
     return FALSE;
 }
 
-TrieNode * is_macro(MacroTrie *macro_trie, const char* str) {
-    se
-    return NULL; /* No macro with the same name found */
-}
 
-void copy_macro_to_file(MacroNode* macr, FILE* file) {
-    LineNode* current = macr->head;
+void copy_macro_to_file(TrieNode *macr, FILE* file) {
+    MacroData* data = (MacroData*) macr->data;
+    LineNode* current = data->head;
     while (current != NULL) {
         fputs(current->line, file);
         current = current->next;

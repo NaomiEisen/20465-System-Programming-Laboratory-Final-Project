@@ -7,7 +7,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include "boolean.h"
-#define ALPHABET_SIZE 62 /* 26 lowercase + 26 uppercase + 10 digits */
+#define ALPHABET_SIZE 65 /* 26 lowercase + 26 uppercase + 10 digits + 3 special characters */
+
+/* Index offsets */
+#define LOWERCASE_OFFSET 0
+#define UPPERCASE_OFFSET 26
+#define DIGIT_OFFSET 52
+#define SPECIAL_OFFSET 62
 
 
 /* Trie node structure */
