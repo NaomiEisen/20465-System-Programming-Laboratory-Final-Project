@@ -286,7 +286,7 @@ void parse_instruct_operand(ASTNode *node, const char *operand) {
 void parse_int(ASTNode* node, const char *operand) {
     /* Validate if the rest of the string is an integer */
     if (is_valid_integer(operand)) {
-        if ( add_instruct_operand(node, ADDR_MODE_IMMIDIATE, operand, 0) == FALSE) {
+        if ( add_instruct_operand(node, ADDR_MODE_IMMIDIATE, NULL, my_atoi(operand)) == FALSE) {
             set_error(INVALID_PARAM_NUMBER, node->location);
             print_error();
         }

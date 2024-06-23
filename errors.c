@@ -41,12 +41,6 @@ const char* get_error_message(ErrorCode code) {
     }
 }
 
-/*void set_error(Error* error, ErrorCode code, const char* file, int line) {
-    error->code = code;
-    error->message = get_error_message(code);
-    error->location.file = file;
-    error->location.line = line;
-}*/
 
 void set_error(ErrorCode code, Location location) {
     error.code = code;
@@ -78,6 +72,10 @@ void clear_error() {
 
 ErrorCode error_stat() {
     return error.code;
+}
+
+void print_warning() {
+    printf("WARNING: label before extern/entry is useless.");
 }
 
 

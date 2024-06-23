@@ -7,6 +7,8 @@
 #define R 13
 #define E 14
 #define REGISTER_POS 6
+#define OPERAND1_OFFSET 7
+#define OPERAND2_OFFSET 11
 
 boolean add_label(ASTNode *node, int address, CmpData *cmp_data);
 void code_operands(ASTNode *node, CmpData *cmp_data);

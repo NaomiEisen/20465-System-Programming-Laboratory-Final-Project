@@ -64,5 +64,6 @@ void set_general_error(ErrorCode code);
 void print_error();
 void clear_error();
 ErrorCode error_stat();
+void print_warning();
 
 #endif /* ERRORS_H */
