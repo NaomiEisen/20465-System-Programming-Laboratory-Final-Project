@@ -26,15 +26,55 @@ void init_cmp_data(CmpData *data) {
         }
     }
     data->data.count = 0;
+    data->line_list = NULL; /* Initialize unresolved line list line_list to NULL*/
 
-    /* Initialize the label table*/
-   /* data->label_table.root = create_trie_node();
-    data->label_table.node_count = 0;*/
     init_label_trie(&data->label_table);
+}
 
-    /* Starting from first phase */
-    data->phase = 1;
 
+/* Add a line to the unresolved line list */
+boolean add_unresolved_line(CmpData *data, int line) {
+    UnresolvedLineList *newNode = (UnresolvedLineList *)malloc(sizeof(UnresolvedLineList));
+    if (newNode == NULL) {
+        return FALSE; /* Memory allocation failed */
+    }
+    newNode->line = line;
+    newNode->next = NULL;
+
+    if (data->line_list == NULL) {
+        data->line_list = newNode; /* List is empty, new node is the head */
+    } else {
+        UnresolvedLineList *temp = data->line_list;
+        while (temp->next != NULL) {
+            if (temp->line == line) {
+                free(newNode);
+                return TRUE; /* Line already exists */
+            }
+            temp = temp->next;
+        }
+        if (temp->line == line) {
+            free(newNode);
+            return TRUE; /* Check the last node */
+        }
+        temp->next = newNode; /* Add new node at the end */
+    }
+    return TRUE;
+}
+
+/* Get the next unresolved line from the list */
+int get_unresolved_line(CmpData *data) {
+    UnresolvedLineList *temp = NULL;
+    int line;
+
+    if (data->line_list == NULL) {
+        return -1; /* List is empty */
+    }
+
+    temp = data->line_list;
+    line = temp->line;
+    data->line_list = data->line_list->next;
+    free(temp);
+    return line;
 }
 
 void print_memory_image(const MemoryImage *memory_image) {

@@ -1,24 +1,25 @@
 
 #include "label_data.h"
 
+
 boolean init_label_trie(Trie *trie) {
     return init_trie(trie);
 }
 
 /* Insert a label into the trie */
-boolean insert_label(Trie *trie, const char *label, int address, LabelType label_type) {
+boolean insert_single_addr_label(Trie *trie, const char *label, int address, LabelType label_type) {
     LabelData *label_data = (LabelData *)malloc(sizeof(LabelData));
     if (!label_data) {
         return FALSE;
     }
-    label_data->address = address;
+    label_data->address.single_address = address;
     label_data->label_type = label_type;
 
     return insert_to_trie(trie, label, label_data);
 }
 
 /* Get the address of a label from the trie */
-int get_label_address(Trie *trie, const char *label, LabelType *label_type) {
+int get_label_single_addr(Trie *trie, const char *label, LabelType *label_type) {
     TrieNode *node;
     LabelData *label_data;
 
@@ -36,7 +37,50 @@ int get_label_address(Trie *trie, const char *label, LabelType *label_type) {
         *label_type = label_data->label_type;
     }
 
-    return label_data->address;
+    if (label_data->label_type == EXTERNAL) {
+        return 0;
+    }
+
+    return label_data->address.single_address;
+}
+
+/* Insert a label with an empty address list */
+boolean insert_list_addr_label(Trie *trie, const char *label) {
+    LabelData *labelData = (LabelData *)malloc(sizeof(LabelData));
+    if (labelData == NULL) {
+        return FALSE; /* Memory allocation failed */
+    }
+
+    labelData->label_type = EXTERNAL;
+    labelData->address.address_list = NULL; // Initialize with empty address list
+
+    return insert_to_trie(trie, label, labelData);
+}
+
+/* Add an address to an existing label's address list */
+boolean add_addr(Trie *trie, const char *label, int address) {
+    LabelData *labelData;
+    TrieNode *node = search_trie(trie, label);
+    AddressList *newAddress = (AddressList *)malloc(sizeof(AddressList));
+
+    if (newAddress == NULL) {
+        return FALSE; /* Memory allocation failed */
+    }
+
+    if (node == NULL || node->data == NULL) {
+        return FALSE; /* Label not found in trie */
+    }
+
+    labelData = (LabelData *)node->data;
+
+    if (labelData->label_type != EXTERNAL) {
+        return FALSE; /* Label is not of list address type */
+    }
+
+    newAddress->address = address;
+    newAddress->next = labelData->address.address_list;
+    labelData->address.address_list = newAddress;
+    return TRUE;
 }
 
 /* Set the label type for an existing label in the trie */
@@ -66,3 +110,4 @@ void free_label_tree(Trie *trie) {
         trie->node_count = 0;
     }
 }
+

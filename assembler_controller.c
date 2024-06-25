@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "errors.h"
-#include "first_phase.h"
+#include "two_phase_assembler.h"
 #include "macro_data.h"
 
 char *preprocessor(const char *file_origin, MacroTrie *macro_trie);

@@ -12,12 +12,16 @@ typedef struct MemoryImage{
     int count;
 } MemoryImage;
 
+typedef struct UnresolvedLineList{
+    int line;
+    struct UnresolvedLineList *next;
+} UnresolvedLineList;
 
 typedef struct CmpData{
     MemoryImage code;
     MemoryImage data;
     Trie label_table;
-    int phase;
+    UnresolvedLineList *line_list;
 } CmpData;
 
 /**
@@ -29,5 +33,7 @@ void init_cmp_data(CmpData *data);
 void print_memory_image(const MemoryImage *memory_image);
 void print_memory_image_marks(const MemoryImage *memory_image);
 void print_ten(const MemoryImage *memory_image);
+boolean add_unresolved_line(CmpData *data, int line);
+int get_unresolved_line(CmpData *data);
 
 #endif /* CMP_DATA_H */

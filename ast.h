@@ -4,7 +4,7 @@
 #include "boolean.h"
 
 #define MAX_LABEL_LENGTH 32
-#define ADDR_MODE_IMMIDIATE 0
+#define ADDR_MODE_IMMEDIATE 0
 #define ADDR_MODE_DIRECT 1
 #define ADDR_UNDIRECT_REG 2
 #define ADDR_DIRECT_REG 3
@@ -66,22 +66,15 @@ typedef struct {
 
 
 ASTNode *create_empty_ASTnode(const char *file, int line);
-
 void set_ast_label(ASTNode *node, const char *label);
 void set_ast_type(ASTNode *node, LineType lineType);
-
 void set_operation_for_directive(ASTNode *node, DirectiveType operation);
 boolean add_directive_operand(Directive *directive, char *operand);
 void set_operation_for_instruction(ASTNode *node, int operation);
-
 boolean add_instruct_operand(ASTNode *node, int adr_mode, const char *value, int reg);
 InstructionOperand * get_operand(ASTNode *node, int num);
-/* Function to free DirNodes */
 void free_dir_nodes(DirNode *node);
-
-/* Function to free an AST node */
 void free_ast_node(ASTNode *node);
-
 void print_AST_node(ASTNode *node);
 
 

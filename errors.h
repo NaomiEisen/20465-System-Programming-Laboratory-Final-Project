@@ -27,6 +27,7 @@ typedef enum {
     DIRECTIVE_NAME_ERROR,
     INVALID_LABEL_NAME,
     LABEL_RESERVED_WORD,
+    UNRECOGNIZED_LABEL,
     MULTIPLE_LABEL,
     INVALID_LABEL_LENGTH,
     NOT_INTEGER,
@@ -40,9 +41,6 @@ typedef enum {
 
     /* ======= Other ======= */
     OTHER_ERROR,
-
-    /* This will automatically be equal to the number of error codes */
-    ERROR_COUNT
 } ErrorCode;
 
 /* ---------------------------- Location Information ---------------------------- */

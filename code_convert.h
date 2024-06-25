@@ -7,14 +7,15 @@
 #define REGISTER_BIT_SIZE 3
 #define IMMIDIATE_DIRECTIVE_BIT_SIZE 12
 
-void set_bit(int i, MemoryImage *memory_img);
+void set_bit(int i, int value, MemoryImage *memory_img) ;
 void set_int_code(int start, int end, int value, MemoryImage *memory_img);
 void code_immediate_addr_mode (int num, MemoryImage *memory_img);
-void code_direct_addr_mode (const char *label, CmpData *cmp_data);
+boolean code_direct_addr_mode(const char *label, CmpData *cmp_data, int line);
 void code_register_addr_mode(int reg_num, MemoryImage *memory_img, int position);
 void code_data(ASTNode *node, MemoryImage *memory_image);
 void code_string(ASTNode *node, MemoryImage *memory_img);
 void mark_word(MemoryImage *code_img);
-boolean add_entry(Trie* label_table, DirNode *operand);
+void unmark_word(MemoryImage *code_img, int line);
+int get_marked_line(MemoryImage *memory_img);
 
 #endif /* CODE_CONVERT_H */
