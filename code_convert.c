@@ -33,9 +33,9 @@ void set_bit(int i, int value, MemoryImage *memory_img) {
 
     if (memory_img->count < MEMORY_CAPACITY) {
         if (value) {
-            memory_img->lines[memory_img->count][byteIndex] |= mask;  /* Set bit to 1 */
+            memory_img->lines[memory_img->write_ptr][byteIndex] |= mask;  /* Set bit to 1 */
         } else {
-            memory_img->lines[memory_img->count][byteIndex] &= ~mask; /* Clear bit to 0 */
+            memory_img->lines[memory_img->write_ptr][byteIndex] &= ~mask; /* Clear bit to 0 */
         }
     } else {
         set_general_error(CPU_MEMORY_FULL);
@@ -75,28 +75,23 @@ void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
     set_bit(A, 1, memory_img);
 }
 
-boolean code_direct_addr_mode(const char *label, CmpData *cmp_data, int line) {
+boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
     LabelType label_type = get_label_type(&cmp_data->label_table, label);
     int address = get_label_single_addr(&cmp_data->label_table, label);
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
-    int temp_count = cmp_data->code.count;
 
     /* Label does not found */
     if (address == -1) {
         return FALSE;
     }
 
-    cmp_data->code.count = line;
     set_int_code(0 , end, address, &cmp_data->code);
-    cmp_data->code.count = temp_count;
 
     if (label_type == EXTERNAL) {
         set_bit(E,1, &cmp_data->code);
-        write_label(label, cmp_data->code.count+IC_START, cmp_data->extern_file);
-        cmp_data->code.count++;
+        write_label(label, cmp_data->code.write_ptr+IC_START, cmp_data->extern_file);
     } else {
         set_bit(R, 1, &cmp_data->code);
-        cmp_data->code.count++;
     }
 
     return TRUE;
@@ -126,7 +121,7 @@ void set_char_code(char c, MemoryImage *memory_img) {
 
     /* Set the binary code of the ASCII value using set_int_code */
     set_int_code(0, 14, ascii_value, memory_img);
-    memory_img->count++;
+    updt_memory_image_counter(memory_img);
 }
 
 
@@ -136,7 +131,7 @@ void code_data(ASTNode *node, MemoryImage *memory_image) {
         /* Validate operand */
         if (is_valid_integer(current->operand)) { /** todo: define numbers **/
             set_int_code(0, 14, my_atoi(current->operand), memory_image);
-            memory_image->count++;
+            updt_memory_image_counter(memory_image);
             current = (DirNode *) current->next;
         } else {
             set_error(NOT_INTEGER, node->location);
@@ -163,10 +158,8 @@ void mark_word(MemoryImage *code_img) {
 }
 
 void unmark_word(MemoryImage *code_img, int line) {
-    int temp_count = code_img->count;
-    code_img->count = line;
+    code_img->write_ptr = line; /* Set writer to line */
     set_bit(15, 0, code_img);
-    code_img->count = temp_count;
 }
 
 /* Get the first marked line */

@@ -79,7 +79,7 @@ boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
             return FALSE;
         }
     }
-    code_img->count++;
+    updt_memory_image_counter(code_img);
     return TRUE;
 }
 
@@ -112,7 +112,6 @@ void code_operands(ASTNode *node, CmpData *cmp_data) {
             case 1:
                 /* Don't code label in the first phase */
                 mark_word(&cmp_data->code);
-                cmp_data->code.count++;
                 if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
                     set_general_error(MEMORY_ALLOCATION_ERROR);
                     return;
@@ -121,15 +120,16 @@ void code_operands(ASTNode *node, CmpData *cmp_data) {
             case 2:
             case 3:
                 if (reg == TRUE) {
-                    cmp_data->code.count--; /* write on the previous word */
+                    /* write on the previous word */
+                    cmp_data->code.count--;
+                    cmp_data->code.write_ptr = cmp_data->code.count;
                 }
                 /** todo fix this number */
                 code_register_addr_mode(current_opr->value.int_val, &cmp_data->code, REGISTER_POS + (3 * (i - 1)));
                 reg = TRUE;
                 break;
         }
-        cmp_data->code.count++;
-
+        updt_memory_image_counter(&cmp_data->code);
     }
 }
 
@@ -140,9 +140,11 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
     switch (node->specifics.directive.operation) {
         case DATA:
             code_data(node, &cmp_data->data);
+            updt_memory_image_counter(&cmp_data->data);
             break;
         case STRING:
             code_string(node, &cmp_data->data);
+            updt_memory_image_counter(&cmp_data->data);
             break;
         case ENTRY:
             if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {

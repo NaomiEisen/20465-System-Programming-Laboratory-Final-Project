@@ -42,6 +42,7 @@ boolean init_cmp_data(CmpData *data, const char *file_name) {
         }
     }
     data->code.count = 0;
+    data->code.write_ptr = 0;
 
     /* Initialize data memory */
     for (i = 0; i < MEMORY_CAPACITY; i++) {
@@ -49,7 +50,9 @@ boolean init_cmp_data(CmpData *data, const char *file_name) {
             data->data.lines[i][j] = 0;
         }
     }
+
     data->data.count = 0;
+    data->data.write_ptr = 0;
     data->line_list = NULL; /* Initialize unresolved line list line_list to NULL*/
 
     return init_label_trie(&data->label_table);
@@ -117,6 +120,12 @@ void clear_data(CmpData* cmp_data) {
     fclose(cmp_data->extern_file);
     fclose(cmp_data->entry_file);
     free_unresolved_list(cmp_data->line_list);
+}
+
+
+void updt_memory_image_counter(MemoryImage *memory_image) {
+    memory_image->count++;
+    memory_image->write_ptr = memory_image->count;
 }
 
 void print_memory_image(const MemoryImage *memory_image) {

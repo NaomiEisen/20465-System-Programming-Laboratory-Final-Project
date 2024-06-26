@@ -26,9 +26,9 @@ boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
             line = get_marked_line(&cmp_data->code);
             if (line != -1) {
                 unmark_word(&cmp_data->code, line);
-                if (code_direct_addr_mode(current_opr->value.char_val, cmp_data, line) == FALSE) {
+                cmp_data->code.write_ptr = line; /* Set writer to the relevant address */
+                if (code_direct_addr_mode(current_opr->value.char_val, cmp_data) == FALSE) {
                     set_error(UNRECOGNIZED_LABEL, node->location);
-                    print_error();
                     return FALSE;
                 }
             }
@@ -46,7 +46,6 @@ boolean handle_entry(ASTNode *node, CmpData *cmp_data){
         /** todo: maybe you don't need ? */
         if (set_label_type(&cmp_data->label_table, current->operand, ENTERNAL) == FALSE){
             set_error(UNRECOGNIZED_LABEL, node->location);
-            print_error();
             break;
         }
         address = get_label_single_addr(&cmp_data->label_table, current->operand);

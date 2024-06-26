@@ -10,6 +10,7 @@
 typedef struct MemoryImage{
     char lines[MEMORY_CAPACITY][NUM_OF_BYTES];
     int count;
+    int write_ptr;
 } MemoryImage;
 
 typedef struct UnresolvedLineList{
@@ -38,5 +39,6 @@ void print_ten(const MemoryImage *memory_image);
 boolean add_unresolved_line(CmpData *data, int line);
 int get_unresolved_line(CmpData *data);
 void clear_data(CmpData* cmp_data);
+void updt_memory_image_counter(MemoryImage *memory_image);
 
 #endif /* CMP_DATA_H */
