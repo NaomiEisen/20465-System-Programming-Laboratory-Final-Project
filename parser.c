@@ -9,7 +9,7 @@
 #include "mappings.h"
 #include "parser.h"
 
-ASTNode *parseLine(const char *line, const char* file_name, int line_num) {
+ASTNode *parseLine(MacroTrie *macr_trie, const char *file_name, int line_num, const char *line) {
     ASTNode *node = create_empty_ASTnode(file_name, line_num);
     const char *line_ptr = line;
 
@@ -22,7 +22,7 @@ ASTNode *parseLine(const char *line, const char* file_name, int line_num) {
     }
 
     /* ----------------------------- 2. Check for label ----------------------------- */
-    is_label(&line_ptr, node);
+    is_label(&line_ptr, node, macr_trie);
 
 
     /* ------------------------- 3. Read the operation name ------------------------- */
@@ -62,7 +62,7 @@ boolean check_empty_line (const char** line, ASTNode* node) {
 }
 
 
-boolean is_label(const char **line, ASTNode *node) {
+boolean is_label(const char **line, ASTNode *node, MacroTrie *macr_trie) {
     const char *start = *line;
     const char *line_ptr = start;
     char *label;
@@ -73,44 +73,47 @@ boolean is_label(const char **line, ASTNode *node) {
         /* Save label string */
         label = my_strndup(start, line_ptr - start);
 
+        line_ptr++;  /* Skip the colon */
+        trim_leading_spaces(&line_ptr); /* Skip any whitespace after the label */
+        *line = line_ptr;
+
         if (label == NULL) {
             set_general_error(MEMORY_ALLOCATION_ERROR);
-            print_error();
             return FALSE; /* Memory allocation failure */
         }
         /* Validate label name */
-        if (validate_label(label, node) == FALSE) {
+        if (validate_label(label, node, macr_trie) == FALSE) {
             free(label);
             return FALSE; /* Invalid name */
         }
 
         set_ast_label(node, label); /* Save label in AST node */
         free(label); /* Free duplicated label */
-        line_ptr++;  /* Skip the colon */
-        trim_leading_spaces(&line_ptr); /* Skip any whitespace after the label */
-        *line = line_ptr;
+
     }
     return TRUE; /* Function proceeded successfully */
 }
 
-boolean validate_label(const char* label, ASTNode* node){
+boolean validate_label(const char *label, ASTNode *node, MacroTrie *macr_trie) {
     /* Check if the label is NULL or does not start with an alphabetic character */
     if (!label || !isalpha(label[0])) {
         set_error(INVALID_LABEL_NAME, node->location);
-        print_error();
         return FALSE; /* Return FALSE if the label is invalid */
     }
 
     /* Check if the label exceeds the maximum allowed length */
     if (strlen(label) > MAX_LABEL_LENGTH) {
         set_error(INVALID_LABEL_LENGTH, node->location);
-        print_error();
         return FALSE; /* Return FALSE if the label is too long */
     }
 
     if (reserved_word(label) == TRUE) {
         set_error(LABEL_RESERVED_WORD, node->location);
-        print_error();
+        return FALSE;
+    }
+
+    if (find_macro(macr_trie,label) != NULL) {
+        set_error(LABEL_MACR_COLLIDES, node->location);
         return FALSE;
     }
 
@@ -128,7 +131,6 @@ boolean parse_operation(const char **line, ASTNode *node) {
     while (*line_ptr && !is_space(*line_ptr) && *line_ptr != ',') {
         if (*line_ptr == ',') {
             set_error(ILLEGAL_COMMA_ERROR, node->location);
-            print_error();
             return FALSE;
         }
         line_ptr++;
@@ -137,7 +139,6 @@ boolean parse_operation(const char **line, ASTNode *node) {
     operation = my_strndup(start, line_ptr - start);
     if (operation == NULL) {
         set_error(MEMORY_ALLOCATION_ERROR, node->location);
-        print_error();
         return FALSE; /* Memory allocation failure */
     }
 
@@ -168,7 +169,6 @@ boolean validate_operation(const char *operation, ASTNode* node) {
     }
 
     set_error(COMMAND_NAME_ERROR, node->location);
-    print_error();
     return FALSE;
 }
 
@@ -190,7 +190,6 @@ boolean parse_operands(const char **line, ASTNode *node) {
         if (first_op == TRUE) {
             if (*line_ptr == ',') {
                 set_error(ILLEGAL_COMMA_ERROR, node->location);
-                print_error();
                 return FALSE;
             }
         }
@@ -198,7 +197,6 @@ boolean parse_operands(const char **line, ASTNode *node) {
         if (first_op == FALSE) {
             if (*line_ptr != ',') {
                 set_error(MISSING_COMMA_ERROR, node->location);
-                print_error();
                 return FALSE;
             }
             line_ptr++; /* Skip comma */
@@ -209,7 +207,6 @@ boolean parse_operands(const char **line, ASTNode *node) {
         while (*line_ptr && *line_ptr != ',' && !isspace(*line_ptr)) {
             if (is_space(*line_ptr)) {
                 set_error(MISSING_COMMA_ERROR, node->location);
-                print_error();
                 return FALSE;
             }
             line_ptr++;
@@ -219,7 +216,6 @@ boolean parse_operands(const char **line, ASTNode *node) {
             operand = my_strndup(start, line_ptr - start);
             if (operand == NULL) {
                 set_general_error(MEMORY_ALLOCATION_ERROR);
-                print_error();
                 return FALSE;
             }
             if (node->lineType == LINE_DIRECTIVE) {
@@ -234,7 +230,6 @@ boolean parse_operands(const char **line, ASTNode *node) {
         }
         else {
             set_error(EXTRA_TXT, node->location);
-            print_error();
             return FALSE;
         }
     }
@@ -250,7 +245,6 @@ boolean parse_string(const char **line, ASTNode *node) {
         line_ptr = trim_trailing_spaces(line_ptr);
         if (*line_ptr != '"') {
             set_error(INVALID_STRING, node->location);
-            print_error();
             return FALSE;
         }
         return add_directive_operand(&node->specifics.directive, my_strndup(start, line_ptr - start));
@@ -288,11 +282,9 @@ void parse_int(ASTNode* node, const char *operand) {
     if (is_valid_integer(operand)) {
         if (add_instruct_operand(node, ADDR_MODE_IMMEDIATE, NULL, my_atoi(operand)) == FALSE) {
             set_error(INVALID_PARAM_NUMBER, node->location);
-            print_error();
         }
     } else {
         set_error(NOT_INTEGER, node->location);
-        print_error();
     }
 }
 
@@ -306,15 +298,13 @@ void parse_reg(ASTNode* node, const char *operand, int addr_mode) {
         }
     } else {
         set_error(INVALID_REGISTER, node->location);
-        print_error();
     }
 }
 
 void parse_label (ASTNode* node, const char *operand) {
-    if (validate_label(operand, node) == TRUE) {
+    if (validate_label(operand, node, NULL) == TRUE) {
         if (add_instruct_operand(node, ADDR_MODE_DIRECT, operand, 0) == FALSE) {
             set_error(INVALID_PARAM_NUMBER, node->location);
-            print_error();
         }
     }
 }

@@ -4,6 +4,7 @@
 #include "cmp_data.h"
 #include "utils.h"
 #include "first_phase.h"
+#include "output_files.h"
 
 
 /* Function to set multiple bits from an integer */
@@ -75,8 +76,8 @@ void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
 }
 
 boolean code_direct_addr_mode(const char *label, CmpData *cmp_data, int line) {
-    LabelType label_type;
-    int address = get_label_single_addr(&cmp_data->label_table, label, &label_type);
+    LabelType label_type = get_label_type(&cmp_data->label_table, label);
+    int address = get_label_single_addr(&cmp_data->label_table, label);
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
     int temp_count = cmp_data->code.count;
 
@@ -91,6 +92,7 @@ boolean code_direct_addr_mode(const char *label, CmpData *cmp_data, int line) {
 
     if (label_type == EXTERNAL) {
         set_bit(E,1, &cmp_data->code);
+        write_label(label, cmp_data->code.count+IC_START, cmp_data->extern_file);
         cmp_data->code.count++;
     } else {
         set_bit(R, 1, &cmp_data->code);
@@ -135,10 +137,9 @@ void code_data(ASTNode *node, MemoryImage *memory_image) {
         if (is_valid_integer(current->operand)) { /** todo: define numbers **/
             set_int_code(0, 14, my_atoi(current->operand), memory_image);
             memory_image->count++;
-            current = current->next;
+            current = (DirNode *) current->next;
         } else {
             set_error(NOT_INTEGER, node->location);
-            print_error();
         }
     }
 }

@@ -18,7 +18,7 @@
  *                               Head Function Of First Phase
  * --------------------------------------------------------------------------------------- */
 
-void first_phase(const char *file_am) {
+void two_phase_assembler(const char *file_origin, const char *file_am, MacroTrie *macr_trie) {
     FILE* source_file;                  /* the source file (.as) */
     char* output_filename = NULL;       /* the output file name */
     int line_count = 0;                 /* line counter */
@@ -29,6 +29,7 @@ void first_phase(const char *file_am) {
     CmpData cmp_data;
 
     /* -------------------------- Open the am file in read mode -------------------------- */
+
     if (!(source_file = fopen(file_am, "r"))) {
         /* if the file fails to open, set an error_in_file and return */
         set_general_error(CANNOT_OPEN_FILE);
@@ -38,14 +39,14 @@ void first_phase(const char *file_am) {
     }
 
     /* initialize the computer's data */
-    init_cmp_data(&cmp_data);
-    /*print_ten(&cmp_data.code);*/
+    if (init_cmp_data(&cmp_data, file_origin) == FALSE) {
+        return;
+    }
 
-    /* ------------------------ Process each line in the source file ------------------------ */
+    /* -------------------------------------- First phase -------------------------------------- */
     while (fgets(line, sizeof(line), source_file) != NULL) {
         line_count++; /* Update counter */
-        node = parseLine(line, file_am, line_count); /* Parse line */
-        /*print_AST_node(node);    TODO FOR ME!! PRINT NODE */
+        node = parseLine(macr_trie, file_am, line_count, line); /* Parse line */
 
         if (error_stat() != NO_ERROR) {
             clear_error();
@@ -58,15 +59,19 @@ void first_phase(const char *file_am) {
             if (first_phase_analyzer(node, &cmp_data) == FALSE)
                 error_in_file = TRUE;
         }
-
         free_ast_node(node);
     }
 
+    /* Update directive address */
+    updt_dir_addr(cmp_data.label_table.root, cmp_data.code.count+IC_START-1);
+
     /* Reset the file pointer to the beginning */
     fseek(source_file, 0, SEEK_SET);
+
+    /* Set line counters */
     line_count = 1;
     unresolved_line = get_unresolved_line(&cmp_data);
-    /* ------------------------ Second phase ------------------------ */
+    /* -------------------------------------- Second phase -------------------------------------- */
 
     while (error_in_file == FALSE && fgets(line, sizeof(line), source_file) != NULL) {
         if (line_count != unresolved_line) {
@@ -74,20 +79,19 @@ void first_phase(const char *file_am) {
             continue;
         }
         /* Parse only unresolved lines */
-        node = parseLine(line, file_am, line_count);
+        node = parseLine(NULL, file_am, line_count, line);
 
         if (second_phase_analyzer(node, &cmp_data) == FALSE){
                 error_in_file = TRUE;
             }
 
         line_count++;
+        unresolved_line = get_unresolved_line(&cmp_data);
         free_ast_node(node);
     }
 
 
-    print_error();
-
-    /*print_trie(cmp_data.label_table.root,"");*/
+    print_trie(cmp_data.label_table.root,"");
     printf("code image:\n");
     print_memory_image_marks(&cmp_data.code);
     printf("data image:\n");
@@ -95,4 +99,5 @@ void first_phase(const char *file_am) {
     free_label_tree(&cmp_data.label_table);
     /* close the file */
     fclose(source_file);
+    clear_data(&cmp_data);
 }

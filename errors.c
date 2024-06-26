@@ -29,6 +29,7 @@ const char* get_error_message(ErrorCode code) {
         case DIRECTIVE_NAME_ERROR: return "Invalid directive instruction";
         case INVALID_LABEL_NAME: return "Invalid label name, should start with alphabetic char";
         case LABEL_RESERVED_WORD: return "Invalid label name, cannot be reserved word";
+        case LABEL_MACR_COLLIDES: return "label and macro's name are collides";
         case UNRECOGNIZED_LABEL: return "Unrecognized label";
         case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars";
         case MULTIPLE_LABEL: return "Multiple label defenition";
@@ -47,6 +48,7 @@ void set_error(ErrorCode code, Location location) {
     error.code = code;
     error.message = get_error_message(code);
     error.location = location;
+    print_error();
 }
 
 void set_general_error(ErrorCode code) {
@@ -54,6 +56,7 @@ void set_general_error(ErrorCode code) {
     error.code = code;
     error.message = get_error_message(code);
     error.location = default_location;
+    print_error();
 }
 
 void print_error() {

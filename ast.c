@@ -131,18 +131,19 @@ void print_instruction_node(ASTNode *node) {
 }
 
 void print_directive_node(ASTNode *node) {
+    DirNode *operand;
     if (node->lineType != LINE_DIRECTIVE) {
         return;
     }
     printf("Directive Node: label=%s, operation=%d\n", node->label, node->specifics.directive.operation);
-    DirNode *operand = node->specifics.directive.operands;
+    operand = node->specifics.directive.operands;
     while (operand) {
         printf("  Operand: %s\n", operand->operand);
-        operand = operand->next;
+        operand = (DirNode *) operand->next;
     }
 }
 
-void print_AST_node(ASTNode *node) {
+/*void print_AST_node(ASTNode *node) {
     printf("Line Type: %d\n", node->lineType);
     printf("Label: %s\n", node->label);
 
@@ -169,4 +170,4 @@ void print_AST_node(ASTNode *node) {
             current = current->next;
         }
     }
-}
+}*/

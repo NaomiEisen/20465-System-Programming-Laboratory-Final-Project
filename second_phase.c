@@ -4,6 +4,7 @@
 #include "cmp_data.h"
 #include "label_data.h"
 #include "code_convert.h"
+#include "output_files.h"
 
 boolean second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
     /* Handle operation line */
@@ -39,13 +40,17 @@ boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
 
 boolean handle_entry(ASTNode *node, CmpData *cmp_data){
     DirNode *current = node->specifics.directive.operands;
+    int address;
 
     while (current) {
+        /** todo: maybe you don't need ? */
         if (set_label_type(&cmp_data->label_table, current->operand, ENTERNAL) == FALSE){
             set_error(UNRECOGNIZED_LABEL, node->location);
             print_error();
             break;
         }
+        address = get_label_single_addr(&cmp_data->label_table, current->operand);
+        write_label(current->operand, address, cmp_data->entry_file);
         current = (DirNode *) current->next;
     }
     return error_stat() == NO_ERROR;

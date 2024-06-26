@@ -112,8 +112,6 @@ int get_register_index(const char* str) {
 }
 
 boolean reserved_word(const char *str) {
-    int i; /* Index for iterating through the commandMappings array */
-
     /* check instructions */
     if (get_instruct_index(str) != -1) {
         return TRUE;

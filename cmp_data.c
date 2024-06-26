@@ -1,5 +1,6 @@
 #include "cmp_data.h"
 #include "label_data.h"
+#include "utils.h"
 
 /**
  * Function to initialize the ProgramData structure.
@@ -8,8 +9,31 @@
  * @param data Pointer to the ProgramData to be initialized
  */
 /* Function to initialize CmpData */
-void init_cmp_data(CmpData *data) {
+boolean init_cmp_data(CmpData *data, const char *file_name) {
     int i, j;
+    char* extern_file = NULL;
+    char* entry_file= NULL;
+
+    /* Create and open a file for writing */
+    create_new_file_name(file_name, &entry_file, ".ent");
+    create_new_file_name(file_name, &extern_file, ".ext");
+
+    /* todo: do you really need to check this? */
+    if (entry_file == NULL || extern_file == NULL) {
+        return FALSE;
+    }
+
+    data->entry_file = fopen(entry_file, "w");
+    data->extern_file = fopen(extern_file, "w");
+
+   if (data->extern_file == NULL || data->entry_file == NULL) {
+        free(extern_file);
+        free(entry_file);
+        return FALSE;
+    }
+
+    free(extern_file);
+    free(entry_file);
 
     /* Initialize code memory */
     for (i = 0; i < MEMORY_CAPACITY; i++) {
@@ -28,7 +52,7 @@ void init_cmp_data(CmpData *data) {
     data->data.count = 0;
     data->line_list = NULL; /* Initialize unresolved line list line_list to NULL*/
 
-    init_label_trie(&data->label_table);
+    return init_label_trie(&data->label_table);
 }
 
 
@@ -75,6 +99,24 @@ int get_unresolved_line(CmpData *data) {
     data->line_list = data->line_list->next;
     free(temp);
     return line;
+}
+
+/* Function to free the entire linked list */
+void free_unresolved_list(UnresolvedLineList *head) {
+    UnresolvedLineList *current = head;
+    UnresolvedLineList *next;
+
+    while (current != NULL) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
+void clear_data(CmpData* cmp_data) {
+    fclose(cmp_data->extern_file);
+    fclose(cmp_data->entry_file);
+    free_unresolved_list(cmp_data->line_list);
 }
 
 void print_memory_image(const MemoryImage *memory_image) {

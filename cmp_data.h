@@ -22,6 +22,8 @@ typedef struct CmpData{
     MemoryImage data;
     Trie label_table;
     UnresolvedLineList *line_list;
+    FILE* extern_file;
+    FILE* entry_file;
 } CmpData;
 
 /**
@@ -29,11 +31,12 @@ typedef struct CmpData{
  * and initializing the label table with an empty trieNode node.
  * @param data Pointer to the CmpData structure to be initialized
  */
-void init_cmp_data(CmpData *data);
+boolean init_cmp_data(CmpData *data, const char *file_name);
 void print_memory_image(const MemoryImage *memory_image);
 void print_memory_image_marks(const MemoryImage *memory_image);
 void print_ten(const MemoryImage *memory_image);
 boolean add_unresolved_line(CmpData *data, int line);
 int get_unresolved_line(CmpData *data);
+void clear_data(CmpData* cmp_data);
 
 #endif /* CMP_DATA_H */

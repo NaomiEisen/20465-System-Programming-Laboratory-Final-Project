@@ -51,12 +51,14 @@ LineNode* get_macr_content(MacroTrie *macr_trie, const char *macr_name) {
 
 /* Add a line to the last added macro */
 boolean add_line_to_last_macro(MacroTrie *macr_trie, const char *line) {
+    MacroData *macr_data = NULL;
+    LineNode *new_line_node = NULL;
     if (macr_trie->last_added_node == NULL) {
         return FALSE;
     }
 
-    MacroData *macr_data = (MacroData *)macr_trie->last_added_node->data;
-    LineNode *new_line_node = (LineNode *)malloc(sizeof(LineNode));
+    macr_data = (MacroData *)macr_trie->last_added_node->data;
+    new_line_node = (LineNode *)malloc(sizeof(LineNode));
     if (!new_line_node) {
         return FALSE;
     }
@@ -92,8 +94,9 @@ void free_line_nodes(LineNode *head) {
 
 /* Free the data associated with a Macro Trie node */
 void free_macr_data(void *data) {
+    MacroData *macro_data = NULL;
     if (data) {
-        MacroData *macro_data = (MacroData *)data;
+        macro_data = (MacroData *)data;
         free_line_nodes(macro_data->head);
         free(macro_data);
     }
@@ -145,6 +148,7 @@ void print_lines(LineNode* head) {
 
 /* Recursive function to print the trie */
 void print_trie_recursive(TrieNode* node, char* buffer, int depth) {
+    MacroData* macro_data = NULL;
     int i;
     if (node == NULL) {
         return;
@@ -153,7 +157,7 @@ void print_trie_recursive(TrieNode* node, char* buffer, int depth) {
     if (node->exist) {
         buffer[depth] = '\0'; /* Null-terminate the current prefix */
         printf("Macro: %s\n", buffer);
-        MacroData* macro_data = (MacroData*)node->data;
+        macro_data = (MacroData*)node->data;
         if (macro_data != NULL) {
             print_lines(macro_data->head);
         }

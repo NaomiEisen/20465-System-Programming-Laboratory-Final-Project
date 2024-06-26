@@ -15,7 +15,6 @@ void controller(int argc, char* argv[]) {
     if (argc < 2 ) {
         /* print error message */
         set_general_error(NO_ARGUMENTS);
-        print_error();
         exit(0); /* return */
     }
 
@@ -24,12 +23,14 @@ void controller(int argc, char* argv[]) {
         init_macr_trie(&macro_trie);
         file_am = preprocessor(argv[i], &macro_trie);
         print_trie_test(&macro_trie);
+        /*free_trie_data(&macro_trie);*/
+
         if (error_stat() != NO_ERROR) {
             printf("Could not process file %s \n", argv[i]);
         }
+
         else {
-            first_phase(file_am);
-            /* second step */
+            two_phase_assembler(argv[i], file_am, &macro_trie);
         }
         i++;
         argc--;

@@ -34,4 +34,6 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         label_data.h
         label_data.c
         second_phase.h
-        second_phase.c)
+        second_phase.c
+        output_files.h
+        output_files.c)

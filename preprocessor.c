@@ -22,7 +22,6 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     const char* line_ptr = NULL;        /* pointer to go through line */
-    int line_count = 0;                 /* line counter */
     boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
     TrieNode* macr_usage = NULL;
     Location location = {NULL, 0};
@@ -30,7 +29,6 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
     /* ------------- Create the source filename with the specified extension -------------*/
     if (!create_new_file_name(file_origin, &source_filename, ".as")) {
         set_general_error(MEMORY_ALLOCATION_ERROR);
-        print_error();
         return NULL;
     }
 
@@ -38,7 +36,6 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
     if (!(source_file = fopen(source_filename, "r"))) {
         /* if the file fails to open, set an error and return */
         set_general_error(CANNOT_OPEN_FILE);
-        print_error();
         fclose(source_file); /* close the file */
         free(source_filename);
         return NULL;
@@ -47,7 +44,6 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
     /* -------------- Create the output filename with the specified extension --------------*/
     if (!create_new_file_name(file_origin, &output_filename, ".am")) {
         set_general_error(MEMORY_ALLOCATION_ERROR);
-        print_error();
         return NULL;
     }
 
@@ -55,7 +51,6 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
     if (!(output_file = fopen(output_filename, "w"))) {
         /* if the file fails to open, set an error and return */
         set_general_error(CANNOT_CREATE_FILE);
-        print_error();
         fclose(source_file); /* close the source file */
         fclose(output_file); /* close the output file */
         free(output_filename);
@@ -84,7 +79,6 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
                     set_error(EXTRA_TXT, location);
-                    print_error();
                     clear_error();
                 }
                 continue;
@@ -143,14 +137,12 @@ boolean verify_macro(const char *str, Location location) {
     /* macr name is reserved name */
     if (reserved_word(word)) {
         set_error(INVALID_MACR, location);
-        print_error();
         return FALSE;
     }
 
     /* macr initialization line contain extra text */
     if (is_empty_line(str + strlen(word) + 1) == FALSE) {
         set_error(EXTRA_TXT, location);
-        print_error();
         return FALSE;
 
     }

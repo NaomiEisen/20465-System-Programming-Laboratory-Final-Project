@@ -59,7 +59,12 @@ boolean insert_to_trie(Trie *trie, const char *str, void *data) {
 
 /* Function to search for a node in the trie */
 TrieNode* search_trie(Trie *trie, const char *label) {
-    TrieNode *node = trie->root;
+    TrieNode *node;
+    if (trie == NULL) {
+        return NULL;
+    }
+
+    node = trie->root;
     while (*label) {
         int index = get_index(*label);
         if (index == -1 || !node->children[index]) {

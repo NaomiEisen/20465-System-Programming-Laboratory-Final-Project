@@ -14,27 +14,25 @@ boolean first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
     }
     /* Handle operation line */
     if (node->lineType == LINE_INSTRUCTION) {
-        return handle_operation(node, cmp_data);
+        return handle_instruction(node, cmp_data);
     }
     /* Handle directive line */
     return handle_directive(node, cmp_data);
 }
 
-boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
+boolean handle_instruction(ASTNode *node, CmpData *cmp_data) {
     int ic_start = cmp_data->code.count; /* remember starting address */
     int command_index = node->specifics.instruction.operation;
 
     /* Validate number of parameters */
     if (get_num_param(command_index) != node->specifics.instruction.num_operands) {
         set_error(INVALID_PARAM_NUMBER, node->location);
-        print_error();
         return FALSE;
     }
 
     /* Code first word */
     if (first_word(node, command_index, &cmp_data->code) == FALSE) {
         set_error(INVALID_PARAM_TYPE, node->location);
-        print_error();
         return FALSE;
     }
 
@@ -43,9 +41,8 @@ boolean handle_operation(ASTNode *node, CmpData *cmp_data) {
 
     /* insert label if exists */
     if (node->label[0] != '\0' ){
-        if( add_label(node, ic_start, cmp_data) == FALSE) {
+        if( add_label(node, ic_start+IC_START, cmp_data) == FALSE) {
             set_error(MULTIPLE_LABEL, node->location);
-            print_error();
             return FALSE;
         }
     }
@@ -118,7 +115,6 @@ void code_operands(ASTNode *node, CmpData *cmp_data) {
                 cmp_data->code.count++;
                 if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
                     set_general_error(MEMORY_ALLOCATION_ERROR);
-                    print_error();
                     return;
                 }
                 break;
@@ -151,7 +147,6 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
         case ENTRY:
             if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
                 set_general_error(MEMORY_ALLOCATION_ERROR);
-                print_error();
                 return FALSE;
             }
             break;
@@ -170,7 +165,6 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
         } else {
             if (add_label(node, id_start, cmp_data) == FALSE) {
                 set_error(MULTIPLE_LABEL, node->location);
-                print_error();
             }
         }
     }
@@ -181,10 +175,9 @@ boolean handle_extern(ASTNode* node, CmpData* cmp_data) {
     DirNode *current = node->specifics.directive.operands;
 
     while (current) {
-        if (insert_list_addr_label(&cmp_data->label_table, current->operand) == FALSE) {
+        if (insert_single_addr_label(&cmp_data->label_table,current->operand, 0, EXTERNAL) == FALSE) {
             set_error(MULTIPLE_LABEL, node->location);
-            print_error();
-            break;
+            return FALSE;
         }
         current = (DirNode *) current->next;
     }

@@ -3,7 +3,8 @@
 #define FIRST_PHASE_H
 
 #include "mappings.h"
+#include "macro_data.h"
 
 #define MAX_LINE_LENGTH 81
-void first_phase(const char *file_am);
+void two_phase_assembler(const char *file_origin, const char *file_am, MacroTrie *macr_trie);
 #endif /* FIRST_PHASE_H */

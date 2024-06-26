@@ -27,6 +27,7 @@ typedef enum {
     DIRECTIVE_NAME_ERROR,
     INVALID_LABEL_NAME,
     LABEL_RESERVED_WORD,
+    LABEL_MACR_COLLIDES,
     UNRECOGNIZED_LABEL,
     MULTIPLE_LABEL,
     INVALID_LABEL_LENGTH,
@@ -40,7 +41,7 @@ typedef enum {
     CPU_MEMORY_FULL,
 
     /* ======= Other ======= */
-    OTHER_ERROR,
+    OTHER_ERROR
 } ErrorCode;
 
 /* ---------------------------- Location Information ---------------------------- */
