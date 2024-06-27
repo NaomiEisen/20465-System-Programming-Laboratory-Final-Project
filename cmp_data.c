@@ -197,31 +197,3 @@ void print_memory_image_marks(const MemoryImage *memory_image) {
         printf("\n");
     }
 }
-
-void print_ten(const MemoryImage *memory_image) {
-    int i, j, k;
-    char bit;
-
-
-    for (i = 0; i < 10; i++) {
-        printf("%04d    ", i); /* Print the line number */
-
-        for (j = 0; j < NUM_OF_BYTES; j++) {
-            char current_char = memory_image->lines[i][j];
-            for (k = 7; k >= 0; k--) {
-                if (j == 1 && k == 0) {
-                    continue; /* Skip the last bit */
-                }
-                bit = (current_char & (1 << k)) ? '1' : '0';
-                printf("%c", bit);
-                if (j == 0 && (k == 4 || k == 0)) { /* Add a space after every 4 bits in the first byte */
-                    printf(" ");
-                }
-                if (j == 1 && k == 4) { /* Add a space after 4 bits in the second byte */
-                    printf(" ");
-                }
-            }
-        }
-        printf("\n");
-    }
-}
