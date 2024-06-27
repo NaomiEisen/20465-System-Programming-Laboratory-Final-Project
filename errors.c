@@ -20,6 +20,7 @@ const char* get_error_message(ErrorCode code) {
         case NO_ARGUMENTS: return "No arguments were passed";
         case CANNOT_OPEN_FILE: return "Cannot open file";
         case CANNOT_CREATE_FILE: return "Cannot create file";
+        case LINE_TOO_LONG: return "Command line is too long. Should be 81 chars at max";
         case INVALID_MACR: return "Invalid macro name";
         case EXTRA_TXT: return "Extra text after macro define";
         case MULTIPULE_COMMA_ERROR: return "Multiple consecutive commas";
@@ -61,10 +62,10 @@ void set_general_error(ErrorCode code) {
 
 void print_error() {
     if (error.code != NO_ERROR) {
-        printf("Error: %s | ", error.message);
-        printf("Location: file name - %s", error.location.file);
-        if (error.location.line > 0)
-            printf(", line - %d", error.location.line);
+        printf("Error: %s ", error.message);
+        if (error.location.line > 0) {
+            printf(" Location: file name - %s, line - %d", error.location.file, error.location.line);
+        }
         printf("\n");
     }
 }

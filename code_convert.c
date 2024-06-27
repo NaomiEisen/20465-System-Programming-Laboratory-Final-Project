@@ -42,7 +42,17 @@ void set_bit(int i, int value, MemoryImage *memory_img) {
     }
 }
 
-
+/* Function to convert a 15-bit word to octal */
+unsigned int convert_to_octal(char *word) {
+    unsigned int value = 0;
+    int i;
+    for (i = 0; i < 15; i++) {
+        int byteIndex = i / BYTE_SIZE;
+        int bitOffset = i % BYTE_SIZE;
+        value = (value << 1) | ((word[byteIndex] >> (BYTE_SIZE - 1 - bitOffset)) & 1);
+    }
+    return value;
+}
 
 /**
  * Function that sets the bit at the specified index to 1 in the relevant memory image.

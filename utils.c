@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "boolean.h"
-#include "mappings.h"
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
@@ -29,12 +28,12 @@ void trim_leading_spaces(const char** str) {
 }
 
 
-void trim_spaces(const char **str) {
+void trim_spaces(char **str) {
     char *end;
-    const char *start = *str;
+    char *start = *str;
 
     /* Trim leading spaces */
-    trim_leading_spaces(&start);
+    trim_leading_spaces((const char **) &start);
 
     /* If all spaces */
     if (*start == 0) {

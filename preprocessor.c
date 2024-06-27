@@ -14,16 +14,11 @@
  *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
 
-char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
+char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
     FILE* source_file;                  /* the source file (.as) */
     FILE* output_file;                  /* the output file (.am) */
     char* source_filename = NULL;       /* the source file name */
     char* output_filename = NULL;       /* the output file name */
-    char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
-    char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    const char* line_ptr = NULL;        /* pointer to go through line */
-    boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
-    TrieNode* macr_usage = NULL;
     Location location = {NULL, 0};
 
     /* ------------- Create the source filename with the specified extension -------------*/
@@ -60,20 +55,45 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
 
     /* ------------------------ Process each line in the source file ------------------------ */
     location.file = source_filename;
+    process_line(source_file, output_file, macro_trie, location);
+
+    /* ------------------------------------- Free memory ------------------------------------- */
+    free_trie_data(macro_trie);
+    /* close the file */
+    fclose(source_file);
+    fclose(output_file);
+    free(source_filename);
+    return output_filename;
+}
+
+void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location) {
+    char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
+    char line[MAX_LINE_LENGTH+1] = {0}; /* string to hold the read line */
+    const char* line_ptr = NULL;        /* pointer to go through line */
+    int ch;                             /* variable to skip too long lines */
+    boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
+    TrieNode* macr_usage = NULL;        /* node to hold macro's data in case of usage */
+
     while (fgets(line, sizeof(line), source_file) != NULL) {
-        location.line++; /* Update counter */
-        /*line_count++;  Update counter */
-        line_ptr = line;  /* Set line pointer to line start */
+        location.line++;                    /* Update counter */
+        line_ptr = line;                    /* Set line pointer to line start */
         trim_leading_spaces(&line_ptr); /* Skip leading spaces */
+
+        /* Check if the line is too long */
+        if (validate_line_length(line, location) == FALSE) {
+            /* Skip the rest of the overly long line */
+            while ((ch = fgetc(source_file)) != '\n' && ch != EOF) {}
+            continue; /* Skip processing this line*/
+        }
 
         /* If line is not empty - process the line */
         if (sscanf(line_ptr, "%s", word) == 1) {
 
-            /* ============ 1. Ignore comment line ============ */
+            /* ______ 1. Ignore comment line ______ */
             if (is_comment(word))
                 continue;
 
-            /* ======== 2. End of macro initialization ======== */
+            /* ______ 2. End of macro initialization ______ */
             if (!macr_end(word)) {
                 inside_macro = FALSE;
                 /* verify end */
@@ -84,48 +104,47 @@ char *preprocessor(const char *file_origin, MacroTrie *macro_trie) {
                 continue;
             }
 
-            /* ======== 3. Inside of macro initialization ======== */
-            if (inside_macro) {
-                /* copy to macro */
+            /* ______ 3. Inside of macro initialization ______ */
+            if (inside_macro) {/* copy to macro */
                 add_line_to_last_macro(macro_trie, line_ptr);
             }
 
-            /* ============ 4. Macro initialization ============ */
+            /* ______ 4. Macro initialization ______ */
             else if (!macr_start(word)) {
                 if (create_macr(macro_trie, line_ptr + strlen(word), location) == TRUE){
                     inside_macro = TRUE; /* set flag */
                 }
-                /* todo : decide if continue check or not */
+                    /* todo : decide if continue check or not */
                 else {
                     break;
                 }
             }
 
-            /* =============== 5. Existing macro =============== */
+            /* ______ 5. Existing macro ______ */
             else if ((macr_usage = find_macro(macro_trie, word) ) != NULL) {
                 copy_macro_to_file(macr_usage, output_file);
             }
 
-            /* ============ 6. Regular command_str line ============ */
+            /* ______ 6. Regular command line ______ */
             else {
                 fputs(line_ptr, output_file);
             }
         }
     }
-    /*print_all_macros(&macr_trie);*/
-    free_trie_data(macro_trie);
-    /* close the file */
-    fclose(source_file);
-    fclose(output_file);
-    /*free(output_filename);*/
-    free(source_filename);
-
-    return output_filename;
 }
 
 /* ---------------------------------------------------------------------------------------
  *                                   Utility Functions
  * --------------------------------------------------------------------------------------- */
+
+
+boolean validate_line_length(const char *line, Location location) {
+    if (strlen(line) >= MAX_LINE_LENGTH) {
+        set_error(LINE_TOO_LONG, location);
+        return FALSE;
+    }
+    return TRUE;
+}
 
 boolean verify_macro(const char *str, Location location) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */

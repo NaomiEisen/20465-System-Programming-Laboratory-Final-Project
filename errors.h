@@ -13,6 +13,9 @@ typedef enum {
     CANNOT_OPEN_FILE,
     CANNOT_CREATE_FILE,
 
+    /* ======== Line Errors ======= */
+    LINE_TOO_LONG,
+
     /* ======= Macro Errors ======= */
     INVALID_MACR,
     EXTRA_TXT,
