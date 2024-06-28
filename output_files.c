@@ -12,13 +12,13 @@ void print_memory_images(FILE *output_file, CmpData *data) {
 
     /* Print code image */
     for (i = 0; i < data->code.count; i++) {
-        fprintf(output_file, "%04d   %05o\n", 100 + i, convert_to_octal(data->code.lines[i]));
+        fprintf(output_file, "%04d   %05o\n", IC_START + i, convert_to_octal(data->code.lines[i]));
         fflush(output_file);  /* Flush the output stream after each line */
     }
 
     /* Print data image */
     for (i = 0; i < data->data.count; i++) {
-        fprintf(output_file, "%04d   %05o\n", data->code.count + i, convert_to_octal(data->data.lines[i]));
+        fprintf(output_file, "%04d   %05o\n", data->code.count +IC_START+ i, convert_to_octal(data->data.lines[i]));
         fflush(output_file);  /* Flush the output stream after each line */
     }
     fclose(output_file);

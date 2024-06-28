@@ -99,7 +99,7 @@ boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
 
     if (label_type == EXTERNAL) {
         set_bit(E,1, &cmp_data->code);
-        write_label(label, cmp_data->code.write_ptr+IC_START, cmp_data->extern_file);
+        write_label(label, cmp_data->code.write_ptr+IC_START, cmp_data->extern_file.file);
     } else {
         set_bit(R, 1, &cmp_data->code);
     }

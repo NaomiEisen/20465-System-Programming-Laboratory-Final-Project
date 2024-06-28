@@ -168,7 +168,7 @@ boolean validate_operation(const char *operation, ASTNode* node) {
         }
     }
 
-    set_error(COMMAND_NAME_ERROR, node->location);
+    set_error(INSTRUCATION_NAME_ERROR, node->location);
     return FALSE;
 }
 
@@ -179,6 +179,7 @@ boolean parse_operands(const char **line, ASTNode *node) {
     const char *line_ptr = start;
     boolean first_op = TRUE;
     char* operand = NULL;
+    int operand_counter = 0;
 
     if (node->lineType == LINE_DIRECTIVE) {
         if (node->directive.operation == STRING) {
@@ -201,6 +202,10 @@ boolean parse_operands(const char **line, ASTNode *node) {
             }
             line_ptr++; /* Skip comma */
             trim_leading_spaces(&line_ptr); /* Skip spaces */
+            if (*line_ptr == ',') {
+                set_error(CONSECUTIVE_COMMA_ERROR, node->location);
+                return FALSE;
+            }
         }
 
         start = line_ptr;
@@ -222,7 +227,13 @@ boolean parse_operands(const char **line, ASTNode *node) {
                 add_directive_operand(&node->directive, operand);
 
             } else { /* instruct type */
+                if (operand_counter >= 2) {
+                    set_general_error(INVALID_PARAM_NUMBER);
+                    free(operand);
+                    return FALSE;
+                }
                 parse_instruct_operand(node, operand);
+                operand_counter++;
                 free(operand);
             }
             first_op = FALSE;

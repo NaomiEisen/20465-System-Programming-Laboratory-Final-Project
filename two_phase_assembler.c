@@ -20,122 +20,142 @@
  *                               Head Function Of Two Phase Assembler
  * --------------------------------------------------------------------------------------- */
 
-void two_phase_assembler(const char *file_origin, const char *file_am, MacroTrie *macr_trie) {
-    FILE* source_file;                  /* the source file (.as) */
-    FILE* object_file;                  /* the object file (.ob) */
-    char* file_ob = NULL;              /* the object file name */
-    int line_count = 0;                 /* line counter */
-    int unresolved_line;
-    char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    ASTNode* node = NULL;
-    boolean error_in_file = FALSE;
+void two_phase_assembler(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
+    FILE* file_am;                  /* the source file (.am) */
     CmpData cmp_data;
 
-    /* -------------------------- Open the am file in read mode -------------------------- */
-
-    if (!(source_file = fopen(file_am, "r"))) {
+    /* Open the am file in read mode */
+    if (!(file_am = fopen(file_name_am, "r"))) {
         /* if the file fails to open, set an error_in_file and return */
-        set_general_error(CANNOT_OPEN_FILE);
-        print_error();
-        fclose(source_file); /* close the file */
+        set_general_error(FAILED_OPEN_FILE);
+        fclose(file_am); /* close the file */
         return;
     }
 
     /* initialize the computer's data */
-    if (init_cmp_data(&cmp_data, file_origin) == FALSE) {
+    if (init_cmp_data(&cmp_data, origin_file_name) == FALSE) {
         return;
     }
 
     /* -------------------------------------- First phase -------------------------------------- */
-    while (fgets(line, sizeof(line), source_file) != NULL) {
-        line_count++; /* Update counter */
-        node = parseLine(macr_trie, file_am, line_count, line); /* Parse line */
-
-        if (error_stat() != NO_ERROR) {
-            clear_error(); /* Enable processing the rest of the lines */
-            error_in_file = TRUE;
-            free_ast_node(node);
-            continue;
-        }
-
-        if (error_in_file == FALSE) {
-            if (first_phase_analyzer(node, &cmp_data) == FALSE)
-                error_in_file = TRUE;
-        }
-        free_ast_node(node);
+    if (first_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
+        delete_files(&cmp_data);
+        free_program_data(&cmp_data, file_am);
+        return;
     }
 
-    /* Update directive address */
-    updt_dir_addr(cmp_data.label_table.root, cmp_data.code.count+IC_START-1);
-
-    /* Reset the file pointer to the beginning */
-    fseek(source_file, 0, SEEK_SET);
-
-    /* Set line counters */
-    line_count = 1;
-    unresolved_line = get_unresolved_line(&cmp_data);
+    /* Update address */
+    updt_addr(cmp_data.label_table.root, IC_START, INSTRUCTION);
+    updt_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START - 1, DIRECTIVE);
 
     /* -------------------------------------- Second phase -------------------------------------- */
 
-    while (error_in_file == FALSE && fgets(line, sizeof(line), source_file) != NULL) {
-        if (line_count != unresolved_line) {
-            line_count++;
-            continue;
-        }
-        /* Parse only unresolved lines */
-        node = parseLine(NULL, file_am, line_count, line);
-
-        if (second_phase_analyzer(node, &cmp_data) == FALSE){
-                error_in_file = TRUE;
-            }
-
-        line_count++;
-        unresolved_line = get_unresolved_line(&cmp_data);
-        free_ast_node(node);
+    if (second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
+        delete_files(&cmp_data); /* delete files */
+        free_program_data(&cmp_data, file_am);
+        return;
     }
 
-    if (error_in_file == TRUE && error_stat() != NO_ERROR) {
-        /* delete files */
-    } else {
-
-        /* ------------- Create the source filename with the specified extension -------------*/
-        if (!create_new_file_name(file_origin, &file_ob, ".ob")) {
-            set_general_error(MEMORY_ALLOCATION_ERROR);
-            /* close and free */
-            free_label_tree(&cmp_data.label_table);
-            /* close the file */
-            fclose(source_file);
-            clear_data(&cmp_data);
-            return;
-        }
-
-        /* ----------------------- Open the source file in read mode ----------------------- */
-        if (!(object_file = fopen(file_ob, "w"))) {
-            /* if the file fails to open, set an error and return */
-            set_general_error(CANNOT_OPEN_FILE);
-            fclose(source_file); /* close the file */
-            free(file_ob);
-        }
-        else {
-            print_memory_images(object_file, &cmp_data);
-        }
+    /* ------------------------------------ Create object file ----------------------------------- */
+    if (create_obj_file(origin_file_name, &cmp_data) == FALSE) {
+        delete_files(&cmp_data);
     }
 
-    /* todo FOR ME !! */
+    /* todo FOR ME !! ------------------------------------------*/
     print_trie(cmp_data.label_table.root,"");
     printf("code image:\n");
     print_memory_image_marks(&cmp_data.code);
     printf("data image:\n");
     print_memory_image_marks(&cmp_data.data);
+    /*--------------------------------------------------------------*/
 
-    /* close and free */
-    free_label_tree(&cmp_data.label_table);
-    free(file_ob);
+    free_program_data(&cmp_data, file_am);
     /* close the file */
-    fclose(source_file);
-    clear_data(&cmp_data);
+    fclose(file_am);
 }
 
-/*boolean first_phase_controller(const char *file_am, MacroTrie *macr_trie, CmpData *cmp_data) {
+boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
+    int line_count = 0;                 /* line counter */
+    char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
+    ASTNode* node = NULL;
+    boolean no_error = TRUE;
 
-}*/
+    while (fgets(line, sizeof(line), file_am) != NULL) {
+        line_count++; /* Update counter */
+        node = parseLine(macr_trie, file_name, line_count, line); /* Parse line */
+
+        if (error_stat() != NO_ERROR) {
+            clear_error(); /* Enable processing the rest of the lines */
+            no_error = FALSE;
+            free_ast_node(node);
+            continue;
+        }
+
+        if (no_error == TRUE) {
+            if (first_phase_analyzer(node, cmp_data) == FALSE)
+                no_error = FALSE;
+        }
+        free_ast_node(node);
+    }
+
+    /* Reset the file pointer to the beginning */
+    fseek(file_am, 0, SEEK_SET);
+    return no_error;
+}
+
+boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
+    char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
+    ASTNode* node = NULL;
+    int line_count = 1;                 /* line counter */
+    int unresolved_line = get_unresolved_line(cmp_data);
+    boolean no_error = TRUE;
+
+    while (fgets(line, sizeof(line), file_am) != NULL) {
+        if (line_count != unresolved_line) {
+            line_count++;
+            continue;
+        }
+        /* Parse only unresolved lines */
+        node = parseLine(NULL, file_name, line_count, line);
+
+        if (second_phase_analyzer(node, cmp_data) == FALSE){
+            no_error = FALSE;
+        }
+
+        line_count++;
+        unresolved_line = get_unresolved_line(cmp_data);
+        free_ast_node(node);
+    }
+    return no_error;
+}
+
+boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) {
+    char* file_ob = NULL;              /* the object file name */
+    FILE* object_file;                 /* the object file (.ob) */
+
+
+    /* ------------- Create the source filename with the specified extension -------------*/
+    if (!create_new_file_name(source_file_name, &file_ob, ".ob")) {
+        set_general_error(MEMORY_ALLOCATION_ERROR);
+        return FALSE;
+    }
+
+    /* ----------------------- Open the source file in read mode ----------------------- */
+    if (!(object_file = fopen(file_ob, "w"))) {
+        /* if the file fails to open, set an error and return */
+        set_general_error(FAILED_OPEN_FILE);
+        fclose(object_file); /* close the file */
+        free(file_ob);
+        return FALSE;
+    }
+    else {
+        print_memory_images(object_file, cmp_data);
+        return TRUE;
+    }
+}
+
+void free_program_data(CmpData* cmp_data, FILE* source_file) {
+    free_label_tree(&cmp_data->label_table);
+    fclose(source_file);
+    free_cmp_data(cmp_data);
+}

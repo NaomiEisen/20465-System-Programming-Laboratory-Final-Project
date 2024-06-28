@@ -10,24 +10,27 @@ typedef enum {
 
     /* ======= File Errors ======= */
     NO_ARGUMENTS,
-    CANNOT_OPEN_FILE,
-    CANNOT_CREATE_FILE,
+    FAILED_OPEN_FILE,
+    FAILED_CREATE_FILE,
+    FAILED_CLOSE_FILE,
+    FAILED_DELETE_FILE,
 
     /* ======== Line Errors ======= */
     LINE_TOO_LONG,
 
     /* ======= Macro Errors ======= */
     INVALID_MACR,
-    EXTRA_TXT,
+    EXTRA_TXT_MACR,
 
     /* ======= Comma Errors ======= */
-    MULTIPULE_COMMA_ERROR,
+    CONSECUTIVE_COMMA_ERROR,
     MISSING_COMMA_ERROR,
     ILLEGAL_COMMA_ERROR,
 
     /* ====== Semantic Errors ====== */
-    COMMAND_NAME_ERROR,
+    INSTRUCATION_NAME_ERROR,
     DIRECTIVE_NAME_ERROR,
+    EXTRA_TXT,
     INVALID_LABEL_NAME,
     LABEL_RESERVED_WORD,
     LABEL_MACR_COLLIDES,

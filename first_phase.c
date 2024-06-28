@@ -86,7 +86,7 @@ boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
 boolean add_label(ASTNode *node, int address, CmpData *cmp_data) {
     switch (node->lineType) {
         case LINE_INSTRUCTION:
-            return insert_single_addr_label(&cmp_data->label_table, node->label, address, OPERATION);
+            return insert_single_addr_label(&cmp_data->label_table, node->label, address, INSTRUCTION);
         case LINE_DIRECTIVE:
             return insert_single_addr_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
         default:

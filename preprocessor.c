@@ -30,7 +30,7 @@ char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
     /* ----------------------- Open the source file in read mode ----------------------- */
     if (!(source_file = fopen(source_filename, "r"))) {
         /* if the file fails to open, set an error and return */
-        set_general_error(CANNOT_OPEN_FILE);
+        set_general_error(FAILED_OPEN_FILE);
         fclose(source_file); /* close the file */
         free(source_filename);
         return NULL;
@@ -45,7 +45,7 @@ char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
     /* ------------------------ Open the output file in write mode ------------------------ */
     if (!(output_file = fopen(output_filename, "w"))) {
         /* if the file fails to open, set an error and return */
-        set_general_error(CANNOT_CREATE_FILE);
+        set_general_error(FAILED_CREATE_FILE);
         fclose(source_file); /* close the source file */
         fclose(output_file); /* close the output file */
         free(output_filename);
@@ -98,7 +98,7 @@ void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, L
                 inside_macro = FALSE;
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
-                    set_error(EXTRA_TXT, location);
+                    set_error(EXTRA_TXT_MACR, location);
                     clear_error();
                 }
                 continue;
@@ -161,7 +161,7 @@ boolean verify_macro(const char *str, Location location) {
 
     /* macr initialization line contain extra text */
     if (is_empty_line(str + strlen(word) + 1) == FALSE) {
-        set_error(EXTRA_TXT, location);
+        set_error(EXTRA_TXT_MACR, location);
         return FALSE;
 
     }

@@ -5,7 +5,7 @@
 
 #define MEMORY_CAPACITY 4096
 #define NUM_OF_BYTES 2
-
+#define IC_START 100
 
 typedef struct MemoryImage{
     char lines[MEMORY_CAPACITY][NUM_OF_BYTES];
@@ -18,13 +18,18 @@ typedef struct UnresolvedLineList{
     struct UnresolvedLineList *next;
 } UnresolvedLineList;
 
+typedef struct File{
+    FILE* file;
+    char* file_name;
+} File;
+
 typedef struct CmpData{
     MemoryImage code;
     MemoryImage data;
     Trie label_table;
     UnresolvedLineList *line_list;
-    FILE* extern_file;
-    FILE* entry_file;
+    File extern_file;
+    File entry_file;
 } CmpData;
 
 /**
@@ -38,7 +43,8 @@ void print_memory_image_marks(const MemoryImage *memory_image);
 void print_ten(const MemoryImage *memory_image);
 boolean add_unresolved_line(CmpData *data, int line);
 int get_unresolved_line(CmpData *data);
-void clear_data(CmpData* cmp_data);
+void free_cmp_data(CmpData* cmp_data);
 void updt_memory_image_counter(MemoryImage *memory_image);
+void delete_files(CmpData* cmp_data);
 
 #endif /* CMP_DATA_H */

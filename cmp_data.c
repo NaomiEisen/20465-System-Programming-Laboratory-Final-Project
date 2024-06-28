@@ -23,17 +23,17 @@ boolean init_cmp_data(CmpData *data, const char *file_name) {
         return FALSE;
     }
 
-    data->entry_file = fopen(entry_file, "w");
-    data->extern_file = fopen(extern_file, "w");
+    data->entry_file.file = fopen(entry_file, "w");
+    data->extern_file.file = fopen(extern_file, "w");
 
-   if (data->extern_file == NULL || data->entry_file == NULL) {
+   if (data->extern_file.file == NULL || data->entry_file.file == NULL) {
         free(extern_file);
         free(entry_file);
         return FALSE;
     }
 
-    free(extern_file);
-    free(entry_file);
+    data->entry_file.file_name = entry_file;
+   data->extern_file.file_name = extern_file;
 
     /* Initialize code memory */
     for (i = 0; i < MEMORY_CAPACITY; i++) {
@@ -116,16 +116,55 @@ void free_unresolved_list(UnresolvedLineList *head) {
     }
 }
 
-void clear_data(CmpData* cmp_data) {
-    fclose(cmp_data->extern_file);
-    fclose(cmp_data->entry_file);
-    free_unresolved_list(cmp_data->line_list);
-}
-
-
 void updt_memory_image_counter(MemoryImage *memory_image) {
     memory_image->count++;
     memory_image->write_ptr = memory_image->count;
+}
+
+void free_cmp_data(CmpData* cmp_data) {
+    if (cmp_data->entry_file.file_name != NULL) {
+        fclose(cmp_data->entry_file.file);
+        free(cmp_data->entry_file.file_name);
+    }
+
+    if (cmp_data->extern_file.file_name != NULL) {
+        fclose(cmp_data->extern_file.file);
+        free(cmp_data->extern_file.file_name);
+    }
+
+    free_unresolved_list(cmp_data->line_list);
+}
+
+void delete_files(CmpData* cmp_data) {
+    /* Close files if they are open */
+    if (cmp_data->entry_file.file != NULL) {
+        if (fclose(cmp_data->entry_file.file) != 0) {
+            set_general_error(FAILED_CLOSE_FILE);
+        }
+        cmp_data->entry_file.file = NULL; /* Reset the file pointer to NULL */
+    }
+    if (cmp_data->extern_file.file != NULL) {
+        if (fclose(cmp_data->extern_file.file) != 0) {
+            set_general_error(FAILED_CLOSE_FILE);
+        }
+        cmp_data->extern_file.file = NULL; /* Reset the file pointer to NULL */
+    }
+
+    /* Delete files */
+    if (remove(cmp_data->entry_file.file_name) != 0) {
+        set_general_error(FAILED_DELETE_FILE);
+        printf("The file name: %s\n", cmp_data->entry_file.file_name);
+    }
+    if (remove(cmp_data->extern_file.file_name) != 0) {
+        set_general_error(FAILED_DELETE_FILE);
+        printf("The file name: %s\n", cmp_data->extern_file.file_name);
+    }
+
+    /* Free allocated file names */
+    free(cmp_data->entry_file.file_name);
+    cmp_data->entry_file.file_name = NULL;
+    free(cmp_data->extern_file.file_name);
+    cmp_data->extern_file.file_name = NULL;
 }
 
 void print_memory_image(const MemoryImage *memory_image) {

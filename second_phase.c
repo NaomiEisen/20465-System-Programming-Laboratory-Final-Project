@@ -49,7 +49,7 @@ boolean handle_entry(ASTNode *node, CmpData *cmp_data){
             break;
         }
         address = get_label_single_addr(&cmp_data->label_table, current->operand);
-        write_label(current->operand, address, cmp_data->entry_file);
+        write_label(current->operand, address, cmp_data->entry_file.file);
         current = (DirNode *) current->next;
     }
     return error_stat() == NO_ERROR;

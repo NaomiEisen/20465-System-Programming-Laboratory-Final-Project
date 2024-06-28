@@ -6,7 +6,7 @@
 /* Enum for label types */
 typedef enum {
     DIRECTIVE,
-    OPERATION,
+    INSTRUCTION,
     EXTERNAL,
     ENTERNAL
 } LabelType;
@@ -35,6 +35,6 @@ int get_label_single_addr(Trie *trie, const char *label);
 boolean set_label_type(Trie *trie, const char *label, LabelType label_type);
 void free_label_tree(Trie *trie);
 LabelType get_label_type(Trie *trie, const char *label);
-void updt_dir_addr(TrieNode *node, int increment);
+void updt_addr(TrieNode *node, int increment, LabelType type);
 
 #endif /* LABEL_DATA_H */

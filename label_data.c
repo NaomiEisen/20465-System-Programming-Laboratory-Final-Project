@@ -75,20 +75,20 @@ boolean set_label_type(Trie *trie, const char *label, LabelType label_type) {
 }
 
 /* Function to update addresses of nodes of type DIRECTIVE */
-void updt_dir_addr(TrieNode *node, int increment) {
+void updt_addr(TrieNode *node, int increment, LabelType type) {
     int i;
     LabelData *data;
     if (node == NULL) return;
 
     data = (LabelData *)node->data;
-    if (data && data->label_type == DIRECTIVE) {
+    if (data && data->label_type == type) {
         data->address += increment;
     }
 
     /* Recursively update child nodes */
     for (i = 0; i < ALPHABET_SIZE; ++i) {
         if (node->children[i] != NULL) {
-            updt_dir_addr(node->children[i], increment);
+            updt_addr(node->children[i], increment, type);
         }
     }
 }
