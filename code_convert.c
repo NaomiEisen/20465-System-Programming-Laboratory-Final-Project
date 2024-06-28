@@ -136,7 +136,7 @@ void set_char_code(char c, MemoryImage *memory_img) {
 
 
 void code_data(ASTNode *node, MemoryImage *memory_image) {
-    DirNode *current = node->specifics.directive.operands;
+    DirNode *current = node->directive.operands;
     while (current) {
         /* Validate operand */
         if (is_valid_integer(current->operand)) { /** todo: define numbers **/
@@ -154,7 +154,7 @@ void code_string(ASTNode *node, MemoryImage *memory_img) {
     size_t str_length;
     int i;
 
-    str = node->specifics.directive.operands->operand;
+    str = node->directive.operands->operand;
     str_length = strlen(str);
     for (i = 0; i < str_length; i++) {
         set_char_code(str[i], memory_img);

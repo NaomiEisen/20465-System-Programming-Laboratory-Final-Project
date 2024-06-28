@@ -10,13 +10,12 @@ ASTNode *create_empty_ASTnode(const char *file, int line) {
     if (node) {
         node->lineType = LINE_EMPTY;
         node->label[0] = '\0';  /* Empty label */
-        memset(&node->specifics, 0, sizeof(LineTypeSpecific));  /* Initialize specifics to 0 */
+        memset(&(node->instruction), 0, sizeof(Instruction));  /* Initialize instruction to 0 */
         node->location.file = file;
         node->location.line = line;
     }
     return node;
 }
-
 void set_ast_label(ASTNode *node, const char *label) {
     if (node) {
         strncpy(node->label, label, MAX_LABEL_LENGTH-2);  /* Copy label into node with a maximum length of 80 characters */
@@ -32,39 +31,39 @@ void set_ast_type(ASTNode *node, LineType lineType) {
 
 void set_operation_for_directive(ASTNode *node, DirectiveType operation) {
     if (node && node->lineType == LINE_DIRECTIVE) {
-        node->specifics.directive.operation = operation;
+        node->directive.operation = operation;
     }
 }
 
 void set_operation_for_instruction(ASTNode *node, int operation) {
     if (node && node->lineType == LINE_INSTRUCTION) {
-        node->specifics.instruction.operation = operation;
+        node->instruction.operation = operation;
     }
 }
 
 InstructionOperand* get_operand(ASTNode *node, int num) {
     if (num == 2) {
-        return &node->specifics.instruction.operand2;
+        return &node->instruction.operand2;
     }
     else {
-        return &node->specifics.instruction.operand1;
+        return &node->instruction.operand1;
     }
 }
 
 boolean add_instruct_operand(ASTNode *node, int adr_mode, const char *value, int reg) {
-    InstructionOperand* instruct_op = get_operand(node, node->specifics.instruction.num_operands + 1);
+    InstructionOperand* instruct_op = get_operand(node, node->instruction.num_operands + 1);
     switch (adr_mode) {
         case 1:
             strcpy(instruct_op->value.char_val, value);
             instruct_op->adr_mode = adr_mode;
-            node->specifics.instruction.num_operands++;
+            node->instruction.num_operands++;
             break;
         case 0:
         case 2:
         case 3:
             instruct_op->value.int_val = reg;
             instruct_op->adr_mode = adr_mode;
-            node->specifics.instruction.num_operands++;
+            node->instruction.num_operands++;
             break;
         default:
             return FALSE;
@@ -115,7 +114,7 @@ void free_ast_node(ASTNode *node) {
         return;
     }
     if (node->lineType == LINE_DIRECTIVE) {
-        free_dir_nodes(node->specifics.directive.operands);
+        free_dir_nodes(node->directive.operands);
     }
     free(node);
 }
@@ -125,9 +124,9 @@ void print_instruction_node(ASTNode *node) {
         return;
     }
     printf("Instruction Node: label=%s, operation=%d, operand1(int)=%d, operand2(char)=%s\n",
-           node->label, node->specifics.instruction.operation,
-           node->specifics.instruction.operand1.value.int_val,
-           node->specifics.instruction.operand2.value.char_val);
+           node->label, node->instruction.operation,
+           node->instruction.operand1.value.int_val,
+           node->instruction.operand2.value.char_val);
 }
 
 void print_directive_node(ASTNode *node) {
@@ -135,8 +134,8 @@ void print_directive_node(ASTNode *node) {
     if (node->lineType != LINE_DIRECTIVE) {
         return;
     }
-    printf("Directive Node: label=%s, operation=%d\n", node->label, node->specifics.directive.operation);
-    operand = node->specifics.directive.operands;
+    printf("Directive Node: label=%s, operation=%d\n", node->label, node->directive.operation);
+    operand = node->directive.operands;
     while (operand) {
         printf("  Operand: %s\n", operand->operand);
         operand = (DirNode *) operand->next;

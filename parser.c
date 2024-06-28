@@ -181,7 +181,7 @@ boolean parse_operands(const char **line, ASTNode *node) {
     char* operand = NULL;
 
     if (node->lineType == LINE_DIRECTIVE) {
-        if (node->specifics.directive.operation == STRING) {
+        if (node->directive.operation == STRING) {
             return parse_string(line, node);
         }
     }
@@ -219,7 +219,7 @@ boolean parse_operands(const char **line, ASTNode *node) {
                 return FALSE;
             }
             if (node->lineType == LINE_DIRECTIVE) {
-                add_directive_operand(&node->specifics.directive, operand);
+                add_directive_operand(&node->directive, operand);
 
             } else { /* instruct type */
                 parse_instruct_operand(node, operand);
@@ -247,7 +247,7 @@ boolean parse_string(const char **line, ASTNode *node) {
             set_error(INVALID_STRING, node->location);
             return FALSE;
         }
-        return add_directive_operand(&node->specifics.directive, my_strndup(start, line_ptr - start));
+        return add_directive_operand(&node->directive, my_strndup(start, line_ptr - start));
     }
     return FALSE;
 }

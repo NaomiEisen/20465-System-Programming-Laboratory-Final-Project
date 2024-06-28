@@ -22,10 +22,10 @@ boolean first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
 
 boolean handle_instruction(ASTNode *node, CmpData *cmp_data) {
     int ic_start = cmp_data->code.count; /* remember starting address */
-    int command_index = node->specifics.instruction.operation;
+    int command_index = node->instruction.operation;
 
     /* Validate number of parameters */
-    if (get_num_param(command_index) != node->specifics.instruction.num_operands) {
+    if (get_num_param(command_index) != node->instruction.num_operands) {
         set_error(INVALID_PARAM_NUMBER, node->location);
         return FALSE;
     }
@@ -52,7 +52,7 @@ boolean handle_instruction(ASTNode *node, CmpData *cmp_data) {
 
 boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
     int opr_addr;
-    int num_operands = node->specifics.instruction.num_operands;
+    int num_operands = node->instruction.num_operands;
 
     /* Code the operation name */
     set_int_code(0, 3, command_index, code_img);
@@ -63,12 +63,12 @@ boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
 
     /* Check if there is operands to code */
     if (num_operands > 0) {
-        opr_addr = node->specifics.instruction.operand1.adr_mode;
+        opr_addr = node->instruction.operand1.adr_mode;
         if (valid_addr_mode(command_index, opr_addr, 1) == TRUE) {
             set_bit(OPERAND1_OFFSET - opr_addr, 1, code_img);
             num_operands--;
             if (num_operands > 0) {
-                opr_addr = node->specifics.instruction.operand2.adr_mode;
+                opr_addr = node->instruction.operand2.adr_mode;
                 if (valid_addr_mode(command_index, opr_addr, 2) == TRUE) {
                     set_bit(OPERAND2_OFFSET - opr_addr, 1, code_img);
                 } else {
@@ -101,7 +101,7 @@ void code_operands(ASTNode *node, CmpData *cmp_data) {
     int current_addr;
     int i;
 
-    for (i = 1; i <= node->specifics.instruction.num_operands; i++) {
+    for (i = 1; i <= node->instruction.num_operands; i++) {
         current_opr = get_operand(node, i);
         current_addr = current_opr->adr_mode;
 
@@ -137,7 +137,7 @@ void code_operands(ASTNode *node, CmpData *cmp_data) {
 boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
     int id_start = cmp_data->data.count; /* remember starting address */
 
-    switch (node->specifics.directive.operation) {
+    switch (node->directive.operation) {
         case DATA:
             code_data(node, &cmp_data->data);
             updt_memory_image_counter(&cmp_data->data);
@@ -161,8 +161,8 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
 
     /* insert label if exists */
     if (node->label[0] != '\0'){
-        if (node->specifics.directive.operation == EXTERN ||
-        node->specifics.directive.operation == ENTRY) {
+        if (node->directive.operation == EXTERN ||
+        node->directive.operation == ENTRY) {
             print_warning();
         } else {
             if (add_label(node, id_start, cmp_data) == FALSE) {
@@ -174,7 +174,7 @@ boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
 }
 
 boolean handle_extern(ASTNode* node, CmpData* cmp_data) {
-    DirNode *current = node->specifics.directive.operands;
+    DirNode *current = node->directive.operands;
 
     while (current) {
         if (insert_single_addr_label(&cmp_data->label_table,current->operand, 0, EXTERNAL) == FALSE) {

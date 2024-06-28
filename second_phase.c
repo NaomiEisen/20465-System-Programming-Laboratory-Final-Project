@@ -20,7 +20,7 @@ boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
     int i;
     int line;
 
-    for (i = 1; i <= node->specifics.instruction.num_operands; i++) {
+    for (i = 1; i <= node->instruction.num_operands; i++) {
         current_opr = get_operand(node, i);
         if (current_opr->adr_mode == ADDR_MODE_DIRECT) {
             line = get_marked_line(&cmp_data->code);
@@ -39,7 +39,7 @@ boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
 }
 
 boolean handle_entry(ASTNode *node, CmpData *cmp_data){
-    DirNode *current = node->specifics.directive.operands;
+    DirNode *current = node->directive.operands;
     int address;
 
     while (current) {

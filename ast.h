@@ -51,20 +51,25 @@ typedef struct {
     DirNode *operands;
 } Directive;
 
-typedef union {
-    Instruction instruction;
-    Directive directive;
-} LineTypeSpecific;
-
 typedef struct {
     LineType lineType;
     char label[MAX_LABEL_LENGTH];
-    LineTypeSpecific specifics;
+    union {
+        Instruction instruction;
+        Directive directive;
+    };
     Location location;
 } ASTNode;
 
 
 
+
+
+
+typedef union {
+    Instruction instruction;
+    Directive directive;
+} LineTypeSpecific;
 ASTNode *create_empty_ASTnode(const char *file, int line);
 void set_ast_label(ASTNode *node, const char *label);
 void set_ast_type(ASTNode *node, LineType lineType);
