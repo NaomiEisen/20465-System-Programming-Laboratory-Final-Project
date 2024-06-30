@@ -10,7 +10,7 @@
 
 
 /* Initialize the Macro Trie */
-boolean init_macr_trie(MacroTrie *macr_trie) {
+Boolean init_macr_trie(MacroTrie *macr_trie) {
     if (init_trie(&macr_trie->trie) == TRUE) {
         macr_trie->last_added_node = NULL;
         return TRUE;
@@ -19,7 +19,7 @@ boolean init_macr_trie(MacroTrie *macr_trie) {
 }
 
 /* Insert a macro name into the Macro Trie */
-boolean add_macr(MacroTrie *macr_trie, const char *macr_name) {
+Boolean add_macr(MacroTrie *macr_trie, const char *macr_name) {
     MacroData *macr_data = (MacroData *)malloc(sizeof(MacroData));
     if (!macr_data) {
         return FALSE;
@@ -50,7 +50,7 @@ LineNode* get_macr_content(MacroTrie *macr_trie, const char *macr_name) {
 
 
 /* Add a line to the last added macro */
-boolean add_line_to_last_macro(MacroTrie *macr_trie, const char *line) {
+Boolean add_line_to_last_macro(MacroTrie *macr_trie, const char *line) {
     MacroData *macr_data = NULL;
     LineNode *new_line_node = NULL;
     if (macr_trie->last_added_node == NULL) {

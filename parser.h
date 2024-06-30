@@ -4,13 +4,13 @@
 #include "macro_data.h"
 
 
-boolean check_empty_line (const char** line, ASTNode* node);
-boolean validate_label(const char *label, ASTNode *node, MacroTrie *macr_trie);
-boolean is_label(const char **line, ASTNode *node, MacroTrie *macr_trie);
-boolean parse_operation(const char **line, ASTNode *node);
-boolean validate_operation(const char *operation, ASTNode* node);
-boolean parse_string(const char **line, ASTNode *node);
-boolean parse_operands(const char **line, ASTNode *node);
+Boolean check_empty_line (const char** line, ASTNode* node);
+Boolean validate_label(const char *label, ASTNode *node, MacroTrie *macr_trie);
+Boolean is_label(const char **line, ASTNode *node, MacroTrie *macr_trie);
+Boolean parse_operation(const char **line, ASTNode *node);
+Boolean validate_operation(const char *operation, ASTNode* node);
+Boolean parse_string(const char **line, ASTNode *node);
+Boolean parse_operands(const char **line, ASTNode *node);
 void parse_instruct_operand(ASTNode *node, const char *operand);
 ASTNode *parseLine(MacroTrie *macr_trie, const char *file_name, int line_num, const char *line);
 void parse_int(ASTNode* node, const char *operand);

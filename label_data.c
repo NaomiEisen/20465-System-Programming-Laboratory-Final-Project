@@ -2,12 +2,12 @@
 #include "label_data.h"
 
 
-boolean init_label_trie(Trie *trie) {
+Boolean init_label_trie(Trie *trie) {
     return init_trie(trie);
 }
 
 /* Insert a label into the trie */
-boolean insert_single_addr_label(Trie *trie, const char *label, int address, LabelType label_type) {
+Boolean insert_single_addr_label(Trie *trie, const char *label, int address, LabelType label_type) {
     LabelData *label_data = (LabelData *)malloc(sizeof(LabelData));
     if (!label_data) {
         return FALSE;
@@ -56,7 +56,7 @@ LabelType get_label_type(Trie *trie, const char *label) {
 
 
 /* Set the label type for an existing label in the trie */
-boolean set_label_type(Trie *trie, const char *label, LabelType label_type) {
+Boolean set_label_type(Trie *trie, const char *label, LabelType label_type) {
     TrieNode *node;
     LabelData *label_data;
 

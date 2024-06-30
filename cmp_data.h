@@ -37,14 +37,16 @@ typedef struct CmpData{
  * and initializing the label table with an empty trieNode node.
  * @param data Pointer to the CmpData structure to be initialized
  */
-boolean init_cmp_data(CmpData *data, const char *file_name);
+Boolean init_cmp_data(CmpData *data, const char *file_name);
 void print_memory_image(const MemoryImage *memory_image);
 void print_memory_image_marks(const MemoryImage *memory_image);
 void print_ten(const MemoryImage *memory_image);
-boolean add_unresolved_line(CmpData *data, int line);
+Boolean add_unresolved_line(CmpData *data, int line);
 int get_unresolved_line(CmpData *data);
-void free_cmp_data(CmpData* cmp_data);
+void free_cmp_data(CmpData *cmp_data, Boolean delete);
 void updt_memory_image_counter(MemoryImage *memory_image);
 void delete_files(CmpData* cmp_data);
+void close_files(CmpData* cmp_data);
+void free_file_names(CmpData* cmp_data);
 
 #endif /* CMP_DATA_H */

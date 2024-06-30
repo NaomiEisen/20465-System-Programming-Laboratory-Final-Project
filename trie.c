@@ -33,7 +33,7 @@ int get_index(char c) {
     }
 }
 /* Function to insert a string into the trie with generic data */
-boolean insert_to_trie(Trie *trie, const char *str, void *data) {
+Boolean insert_to_trie(Trie *trie, const char *str, void *data) {
     int index;
     TrieNode *node = trie->root;
 
@@ -136,7 +136,7 @@ void free_data(void *data) {
 }
 
 /* Example usage */
-boolean init_trie(Trie* trie) {
+Boolean init_trie(Trie* trie) {
     trie->root = create_trie_node();
 
     if (trie->root == NULL) {

@@ -43,7 +43,7 @@ void set_bit(int i, int value, MemoryImage *memory_img) {
 }
 
 /* Function to convert a 15-bit word to octal */
-unsigned int convert_to_octal(char *word) {
+unsigned int convert_to_octal(const char *word) {
     unsigned int value = 0;
     int i;
     for (i = 0; i < 15; i++) {
@@ -85,7 +85,7 @@ void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
     set_bit(A, 1, memory_img);
 }
 
-boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
+Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
     LabelType label_type = get_label_type(&cmp_data->label_table, label);
     int address = get_label_single_addr(&cmp_data->label_table, label);
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
@@ -136,7 +136,7 @@ void set_char_code(char c, MemoryImage *memory_img) {
 
 
 void code_data(ASTNode *node, MemoryImage *memory_image) {
-    DirNode *current = node->directive.operands;
+    DirNode *current = node->specific.directive.operands;
     while (current) {
         /* Validate operand */
         if (is_valid_integer(current->operand)) { /** todo: define numbers **/
@@ -154,13 +154,13 @@ void code_string(ASTNode *node, MemoryImage *memory_img) {
     size_t str_length;
     int i;
 
-    str = node->directive.operands->operand;
+    str = node->specific.directive.operands->operand;
     str_length = strlen(str);
-    for (i = 0; i < str_length; i++) {
+    for (i = 0; i <= str_length; i++) {
         set_char_code(str[i], memory_img);
     }
     /* Add Null terminator */
-    set_char_code('\0', memory_img);
+    /*set_char_code('\0', memory_img);*/
 }
 
 void mark_word(MemoryImage *code_img) {

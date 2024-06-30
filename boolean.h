@@ -2,6 +2,6 @@
 #define BOOL_H
 
 /* Define a Boolean Type */
-typedef enum { FALSE, TRUE } boolean;
+typedef enum { FALSE, TRUE } Boolean;
 
 #endif /* BOOL_H */

@@ -26,13 +26,13 @@ typedef struct MacroTrie {
 
 /* Function prototypes */
 /* Initialize the Macro Trie */
-boolean init_macr_trie(MacroTrie *macr_trie);
+Boolean init_macr_trie(MacroTrie *macr_trie);
 /* Insert a macro name into the Macro Trie */
-boolean add_macr(MacroTrie *macr_trie, const char *macr_name);
+Boolean add_macr(MacroTrie *macr_trie, const char *macr_name);
 /* Get the content of a macro  */
 LineNode* get_macr_content(MacroTrie *macr_trie, const char *macr_name);
 /* Add a line to the last added macro */
-boolean add_line_to_last_macro(MacroTrie *macr_trie, const char *line);
+Boolean add_line_to_last_macro(MacroTrie *macr_trie, const char *line);
 TrieNode* find_macro(MacroTrie *macr_trie, const char *macr_name);
 /* Function to free all data in the trie without freeing the nodes */
 void free_trie_data(MacroTrie *macr_trie);

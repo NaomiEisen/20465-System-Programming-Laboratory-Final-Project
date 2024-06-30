@@ -48,7 +48,7 @@ ASTNode *parseLine(MacroTrie *macr_trie, const char *file_name, int line_num, co
     return node;
 }
 
-boolean check_empty_line (const char** line, ASTNode* node) {
+Boolean check_empty_line (const char** line, ASTNode* node) {
     const char* ptr = *line;
     if (*ptr == '\0') {
         set_ast_type(node, LINE_EMPTY);
@@ -62,7 +62,7 @@ boolean check_empty_line (const char** line, ASTNode* node) {
 }
 
 
-boolean is_label(const char **line, ASTNode *node, MacroTrie *macr_trie) {
+Boolean is_label(const char **line, ASTNode *node, MacroTrie *macr_trie) {
     const char *start = *line;
     const char *line_ptr = start;
     char *label;
@@ -94,7 +94,7 @@ boolean is_label(const char **line, ASTNode *node, MacroTrie *macr_trie) {
     return TRUE; /* Function proceeded successfully */
 }
 
-boolean validate_label(const char *label, ASTNode *node, MacroTrie *macr_trie) {
+Boolean validate_label(const char *label, ASTNode *node, MacroTrie *macr_trie) {
     /* Check if the label is NULL or does not start with an alphabetic character */
     if (!label || !isalpha(label[0])) {
         set_error(INVALID_LABEL_NAME, node->location);
@@ -121,11 +121,11 @@ boolean validate_label(const char *label, ASTNode *node, MacroTrie *macr_trie) {
 }
 
 
-boolean parse_operation(const char **line, ASTNode *node) {
+Boolean parse_operation(const char **line, ASTNode *node) {
     const char* start = *line;
     const char* line_ptr = start;
     char* operation = NULL;
-    boolean result;
+    Boolean result;
 
 
     while (*line_ptr && !is_space(*line_ptr) && *line_ptr != ',') {
@@ -150,7 +150,7 @@ boolean parse_operation(const char **line, ASTNode *node) {
     return result;
 }
 
-boolean validate_operation(const char *operation, ASTNode* node) {
+Boolean validate_operation(const char *operation, ASTNode* node) {
     int command_index;
 
     if (node->lineType == LINE_INSTRUCTION) {
@@ -174,15 +174,15 @@ boolean validate_operation(const char *operation, ASTNode* node) {
 
 
 
-boolean parse_operands(const char **line, ASTNode *node) {
+Boolean parse_operands(const char **line, ASTNode *node) {
     const char *start = *line;
     const char *line_ptr = start;
-    boolean first_op = TRUE;
+    Boolean first_op = TRUE;
     char* operand = NULL;
     int operand_counter = 0;
 
     if (node->lineType == LINE_DIRECTIVE) {
-        if (node->directive.operation == STRING) {
+        if (node->specific.directive.operation == STRING) {
             return parse_string(line, node);
         }
     }
@@ -224,7 +224,7 @@ boolean parse_operands(const char **line, ASTNode *node) {
                 return FALSE;
             }
             if (node->lineType == LINE_DIRECTIVE) {
-                add_directive_operand(&node->directive, operand);
+                add_directive_operand(&node->specific.directive, operand);
 
             } else { /* instruct type */
                 if (operand_counter >= 2) {
@@ -247,7 +247,7 @@ boolean parse_operands(const char **line, ASTNode *node) {
     return TRUE;
 }
 
-boolean parse_string(const char **line, ASTNode *node) {
+Boolean parse_string(const char **line, ASTNode *node) {
     const char *start = *line;
     const char *line_ptr = start;
 
@@ -258,7 +258,7 @@ boolean parse_string(const char **line, ASTNode *node) {
             set_error(INVALID_STRING, node->location);
             return FALSE;
         }
-        return add_directive_operand(&node->directive, my_strndup(start, line_ptr - start));
+        return add_directive_operand(&node->specific.directive, my_strndup(start, line_ptr - start));
     }
     return FALSE;
 }

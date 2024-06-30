@@ -60,7 +60,7 @@ int get_instruct_index(const char* str) {
     return -1;
 }
 
-boolean valid_addr_mode(int command_index, int addr_mode, int param) {
+Boolean valid_addr_mode(int command_index, int addr_mode, int param) {
     if (param == 1) {
         if (instruct_table[command_index].addr_mode_op1[addr_mode] == 1 ) {
             return TRUE;
@@ -111,7 +111,7 @@ int get_register_index(const char* str) {
     return -1;
 }
 
-boolean reserved_word(const char *str) {
+Boolean reserved_word(const char *str) {
     /* check instructions */
     if (get_instruct_index(str) != -1) {
         return TRUE;

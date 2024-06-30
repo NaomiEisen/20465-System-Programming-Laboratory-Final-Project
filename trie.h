@@ -19,7 +19,7 @@
 /* Trie node structure */
 typedef struct TrieNode {
     struct TrieNode *children[ALPHABET_SIZE];
-    boolean exist;
+    Boolean exist;
     void *data;  /* Generic pointer to store additional data */
 } TrieNode;
 
@@ -32,12 +32,12 @@ typedef struct Trie {
 /* Function Prototypes */
 TrieNode* create_trie_node();
 int get_index(char c);
-boolean insert_to_trie(Trie *trie, const char *str, void *data);
+Boolean insert_to_trie(Trie *trie, const char *str, void *data);
 TrieNode* search_trie(Trie *trie, const char *label);
 void print_trie(TrieNode *node, char *word_so_far);
 void free_node(TrieNode *node);
 void free_data(void *data);
-boolean init_trie(Trie* trie);
+Boolean init_trie(Trie* trie);
 
 
 #endif /* TRIE_H */

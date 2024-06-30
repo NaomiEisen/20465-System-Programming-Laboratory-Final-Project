@@ -39,26 +39,26 @@ void two_phase_assembler(const char *origin_file_name, const char *file_name_am,
 
     /* -------------------------------------- First phase -------------------------------------- */
     if (first_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
-        delete_files(&cmp_data);
-        free_program_data(&cmp_data, file_am);
+        free_program_data(&cmp_data, file_am, TRUE);
         return;
     }
 
     /* Update address */
-    updt_addr(cmp_data.label_table.root, IC_START, INSTRUCTION);
+    /*updt_addr(cmp_data.label_table.root, IC_START, INSTRUCTION);*/
     updt_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START - 1, DIRECTIVE);
 
     /* -------------------------------------- Second phase -------------------------------------- */
 
     if (second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
-        delete_files(&cmp_data); /* delete files */
-        free_program_data(&cmp_data, file_am);
+        free_program_data(&cmp_data, file_am, TRUE);
         return;
     }
 
     /* ------------------------------------ Create object file ----------------------------------- */
     if (create_obj_file(origin_file_name, &cmp_data) == FALSE) {
-        delete_files(&cmp_data);
+        free_program_data(&cmp_data, file_am, TRUE);
+    } else {
+        free_program_data(&cmp_data, file_am, FALSE);
     }
 
     /* todo FOR ME !! ------------------------------------------*/
@@ -68,17 +68,13 @@ void two_phase_assembler(const char *origin_file_name, const char *file_name_am,
     printf("data image:\n");
     print_memory_image_marks(&cmp_data.data);
     /*--------------------------------------------------------------*/
-
-    free_program_data(&cmp_data, file_am);
-    /* close the file */
-    fclose(file_am);
 }
 
-boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
+Boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
     int line_count = 0;                 /* line counter */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
-    boolean no_error = TRUE;
+    Boolean no_error = TRUE;
 
     while (fgets(line, sizeof(line), file_am) != NULL) {
         line_count++; /* Update counter */
@@ -103,12 +99,12 @@ boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *
     return no_error;
 }
 
-boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
+Boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
     int line_count = 1;                 /* line counter */
     int unresolved_line = get_unresolved_line(cmp_data);
-    boolean no_error = TRUE;
+    Boolean no_error = TRUE;
 
     while (fgets(line, sizeof(line), file_am) != NULL) {
         if (line_count != unresolved_line) {
@@ -116,7 +112,7 @@ boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie 
             continue;
         }
         /* Parse only unresolved lines */
-        node = parseLine(NULL, file_name, line_count, line);
+        node = parseLine(macr_trie, file_name, line_count, line);
 
         if (second_phase_analyzer(node, cmp_data) == FALSE){
             no_error = FALSE;
@@ -129,7 +125,7 @@ boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie 
     return no_error;
 }
 
-boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) {
+Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) {
     char* file_ob = NULL;              /* the object file name */
     FILE* object_file;                 /* the object file (.ob) */
 
@@ -144,18 +140,20 @@ boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) {
     if (!(object_file = fopen(file_ob, "w"))) {
         /* if the file fails to open, set an error and return */
         set_general_error(FAILED_OPEN_FILE);
-        fclose(object_file); /* close the file */
+        /*fclose(object_file);  close the file */
         free(file_ob);
         return FALSE;
     }
     else {
         print_memory_images(object_file, cmp_data);
+        fclose(object_file); /* close the file */
+        free(file_ob);
         return TRUE;
     }
 }
 
-void free_program_data(CmpData* cmp_data, FILE* source_file) {
+void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean delete) {
     free_label_tree(&cmp_data->label_table);
     fclose(source_file);
-    free_cmp_data(cmp_data);
+    free_cmp_data(cmp_data, delete);
 }

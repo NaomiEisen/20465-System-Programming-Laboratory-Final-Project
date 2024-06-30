@@ -71,7 +71,7 @@ void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, L
     char line[MAX_LINE_LENGTH+1] = {0}; /* string to hold the read line */
     const char* line_ptr = NULL;        /* pointer to go through line */
     int ch;                             /* variable to skip too long lines */
-    boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
+    Boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
     TrieNode* macr_usage = NULL;        /* node to hold macro's data in case of usage */
 
     while (fgets(line, sizeof(line), source_file) != NULL) {
@@ -138,7 +138,7 @@ void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, L
  * --------------------------------------------------------------------------------------- */
 
 
-boolean validate_line_length(const char *line, Location location) {
+Boolean validate_line_length(const char *line, Location location) {
     if (strlen(line) >= MAX_LINE_LENGTH) {
         set_error(LINE_TOO_LONG, location);
         return FALSE;
@@ -146,7 +146,7 @@ boolean validate_line_length(const char *line, Location location) {
     return TRUE;
 }
 
-boolean verify_macro(const char *str, Location location) {
+Boolean verify_macro(const char *str, Location location) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
     /* if macr don't have name */
@@ -181,7 +181,7 @@ int macr_end(const char* str) {
 }
 
 
-boolean create_macr(MacroTrie *macr_trie, const char *str, Location location) {
+Boolean create_macr(MacroTrie *macr_trie, const char *str, Location location) {
     trim_spaces(&str);
     if (verify_macro(str, location) == TRUE) {
         return add_macr(macr_trie, str);

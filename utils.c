@@ -55,7 +55,7 @@ void trim_spaces(char **str) {
 }
 
 /* Function to check if the rest of the line is empty */
-boolean is_empty_line(const char *line) {
+Boolean is_empty_line(const char *line) {
     /* Trim leading spaces */
     trim_leading_spaces(&line);
 
@@ -76,7 +76,7 @@ const char* trim_trailing_spaces(const char *str) {
 }
 
 
-boolean is_valid_integer(const char *str) {
+Boolean is_valid_integer(const char *str) {
     if (*str == '-' || *str == '+') {
         str++;
     }
@@ -92,7 +92,7 @@ boolean is_valid_integer(const char *str) {
     return TRUE;
 }
 
-boolean create_new_file_name(const char* original_filename, char** new_filename , const char* extension) {
+Boolean create_new_file_name(const char* original_filename, char** new_filename , const char* extension) {
 
     /* Allocate memory for the new filename */
     size_t new_filename_length = strlen(original_filename) + strlen(extension) + 1;
@@ -127,7 +127,7 @@ char* my_strndup(const char* str, size_t size) {
  * @param num_chars - number of characters to remove from the beginning
  * @return - true if successful, false if allocation fails
  */
-boolean strip_first_chars(char **operand, size_t num_chars) {
+Boolean strip_first_chars(char **operand, size_t num_chars) {
     char *new_operand;
     size_t len = strlen(*operand);
     if (num_chars >= len) {

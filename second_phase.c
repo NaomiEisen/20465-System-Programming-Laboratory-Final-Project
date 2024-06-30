@@ -6,7 +6,7 @@
 #include "code_convert.h"
 #include "output_files.h"
 
-boolean second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
+Boolean second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
     /* Handle operation line */
     if (node->lineType == LINE_INSTRUCTION) {
         return code_label_operands(node, cmp_data);
@@ -15,12 +15,12 @@ boolean second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
     return handle_entry(node, cmp_data);
 }
 
-boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
+Boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
     InstructionOperand *current_opr;
     int i;
     int line;
 
-    for (i = 1; i <= node->instruction.num_operands; i++) {
+    for (i = 1; i <= node->specific.instruction.num_operands; i++) {
         current_opr = get_operand(node, i);
         if (current_opr->adr_mode == ADDR_MODE_DIRECT) {
             line = get_marked_line(&cmp_data->code);
@@ -38,8 +38,8 @@ boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
     return TRUE;
 }
 
-boolean handle_entry(ASTNode *node, CmpData *cmp_data){
-    DirNode *current = node->directive.operands;
+Boolean handle_entry(ASTNode *node, CmpData *cmp_data){
+    DirNode *current = node->specific.directive.operands;
     int address;
 
     while (current) {

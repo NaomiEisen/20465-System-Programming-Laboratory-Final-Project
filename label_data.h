@@ -24,15 +24,15 @@ typedef struct LabelData {
 } LabelData;
 
 
-boolean init_label_trie(Trie *trie);
+Boolean init_label_trie(Trie *trie);
 
 /* Insert a label into the trie */
-boolean insert_single_addr_label(Trie *trie, const char *label, int address, LabelType label_type);
+Boolean insert_single_addr_label(Trie *trie, const char *label, int address, LabelType label_type);
 
 /* Get the address of a label from the trie */
 int get_label_single_addr(Trie *trie, const char *label);
 /* Set the label type for an existing label in the trie */
-boolean set_label_type(Trie *trie, const char *label, LabelType label_type);
+Boolean set_label_type(Trie *trie, const char *label, LabelType label_type);
 void free_label_tree(Trie *trie);
 LabelType get_label_type(Trie *trie, const char *label);
 void updt_addr(TrieNode *node, int increment, LabelType type);
