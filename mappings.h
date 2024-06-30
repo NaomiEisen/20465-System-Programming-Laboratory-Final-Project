@@ -3,10 +3,11 @@
 #include "ast.h"
 #include "boolean.h"
 
-/*#define MEMORY_CAPACITY 4096*/
 #define MAX_COMMAND_CHAR 15
 #define ADDRESS_MODES 4
-
+#define NUM_INSTRUCTIONS 16
+#define NUM_DIRECTIVES 4
+#define NUM_REGISTERS 8
 
 /* structure representing command_str mappings */
 typedef struct {
@@ -16,19 +17,20 @@ typedef struct {
     int addr_mode_op2[ADDRESS_MODES];
 } InstructMapping;
 
-typedef enum { DATA, STRING, ENTRY, EXTERN} dirCommand;
 
 typedef struct {
     char command_str[MAX_COMMAND_CHAR]; /* command_str name */
-    dirCommand dir_command;
+    DirectiveType dir_command;
 } DirectiveMapping;
 
 
-/* Directive and register tables */
-extern DirectiveMapping directive_table[];
-extern const char* registers[];
-extern InstructMapping command_table[];
-
+int get_num_param(int i);
+int get_instruct_index(const char* str);
+int get_dir_index(const char* str);
+int get_register_index(const char* str);
+Boolean reserved_word(const char *str);
+Boolean valid_addr_mode(int command_index, int addr_mode, int param);
+DirectiveType get_dir_command (int i);
 
 #endif /*HARDWARE_H*/
 

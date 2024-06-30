@@ -10,22 +10,33 @@ typedef enum {
 
     /* ======= File Errors ======= */
     NO_ARGUMENTS,
-    CANNOT_OPEN_FILE,
-    CANNOT_CREATE_FILE,
+    FAILED_OPEN_FILE,
+    FAILED_CREATE_FILE,
+    FAILED_CLOSE_FILE,
+    FAILED_DELETE_FILE,
+
+    /* ======== Line Errors ======= */
+    LINE_TOO_LONG,
 
     /* ======= Macro Errors ======= */
     INVALID_MACR,
-    EXTRA_TXT,
+    EXTRA_TXT_MACR,
 
     /* ======= Comma Errors ======= */
-    MULTIPULE_COMMA_ERROR,
+    CONSECUTIVE_COMMA_ERROR,
     MISSING_COMMA_ERROR,
     ILLEGAL_COMMA_ERROR,
 
     /* ====== Semantic Errors ====== */
-    COMMAND_NAME_ERROR,
+    INSTRUCATION_NAME_ERROR,
     DIRECTIVE_NAME_ERROR,
-    INVALID_LABEL,
+    EXTRA_TXT,
+    INVALID_LABEL_NAME,
+    LABEL_RESERVED_WORD,
+    LABEL_MACR_COLLIDES,
+    UNRECOGNIZED_LABEL,
+    MULTIPLE_LABEL,
+    INVALID_LABEL_LENGTH,
     NOT_INTEGER,
     INVALID_STRING,
     INVALID_REGISTER,
@@ -36,10 +47,7 @@ typedef enum {
     CPU_MEMORY_FULL,
 
     /* ======= Other ======= */
-    OTHER_ERROR,
-
-    /* This will automatically be equal to the number of error codes */
-    ERROR_COUNT
+    OTHER_ERROR
 } ErrorCode;
 
 /* ---------------------------- Location Information ---------------------------- */
@@ -56,12 +64,11 @@ typedef struct {
 } Error;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
-void set_error(Error *error, ErrorCode code, Location location);
-void set_general_error(Error *error, ErrorCode code);
-void print_error(Error *error);
-void clear_error (Error *error);
-
-/* Declare the global error variable */
-extern Error error;
+void set_error(ErrorCode code, Location location);
+void set_general_error(ErrorCode code);
+void print_error();
+void clear_error();
+ErrorCode error_stat();
+void print_warning();
 
 #endif /* ERRORS_H */

@@ -6,45 +6,31 @@
 #include <string.h>
 #include "preprocessor.h"
 #include "errors.h"
-#include "macro_list.h"
+#include "macro_data.h"
 #include "utils.h"
-
-const char* reserved_words[] = {
-        "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7",
-        "mov", "cmp", "add", "sub", "lea", "clr", "not", "inc",
-        "dec", "jmp", "bne", "red", "prn", "jsr", "rts", "stop"
-};
+#include "mappings.h"
 
 /* ---------------------------------------------------------------------------------------
  *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
 
-char* preprocessor(const char* file_origin){
+char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
     FILE* source_file;                  /* the source file (.as) */
     FILE* output_file;                  /* the output file (.am) */
     char* source_filename = NULL;       /* the source file name */
     char* output_filename = NULL;       /* the output file name */
-    char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
-    char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    const char* line_ptr = NULL;        /* pointer to go through line */
-    int line_count = 0;                 /* line counter */
-    boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
-    MacroList macr_list = {NULL};       /* Initialize empty list of macros */
-    MacroNode* current_macr = NULL;
     Location location = {NULL, 0};
 
     /* ------------- Create the source filename with the specified extension -------------*/
     if (!create_new_file_name(file_origin, &source_filename, ".as")) {
-        set_general_error(&error, MEMORY_ALLOCATION_ERROR);
-        print_error(&error);
+        set_general_error(MEMORY_ALLOCATION_ERROR);
         return NULL;
     }
 
     /* ----------------------- Open the source file in read mode ----------------------- */
     if (!(source_file = fopen(source_filename, "r"))) {
         /* if the file fails to open, set an error and return */
-        set_general_error(&error, CANNOT_OPEN_FILE);
-        print_error(&error);
+        set_general_error(FAILED_OPEN_FILE);
         fclose(source_file); /* close the file */
         free(source_filename);
         return NULL;
@@ -52,16 +38,14 @@ char* preprocessor(const char* file_origin){
 
     /* -------------- Create the output filename with the specified extension --------------*/
     if (!create_new_file_name(file_origin, &output_filename, ".am")) {
-        set_general_error(&error, MEMORY_ALLOCATION_ERROR);
-        print_error(&error);
+        set_general_error(MEMORY_ALLOCATION_ERROR);
         return NULL;
     }
 
     /* ------------------------ Open the output file in write mode ------------------------ */
     if (!(output_file = fopen(output_filename, "w"))) {
         /* if the file fails to open, set an error and return */
-        set_general_error(&error, CANNOT_CREATE_FILE);
-        print_error(&error);
+        set_general_error(FAILED_CREATE_FILE);
         fclose(source_file); /* close the source file */
         fclose(output_file); /* close the output file */
         free(output_filename);
@@ -71,74 +55,98 @@ char* preprocessor(const char* file_origin){
 
     /* ------------------------ Process each line in the source file ------------------------ */
     location.file = source_filename;
+    process_line(source_file, output_file, macro_trie, location);
+
+    /* ------------------------------------- Free memory ------------------------------------- */
+    free_trie_data(macro_trie);
+    /* close the file */
+    fclose(source_file);
+    fclose(output_file);
+    free(source_filename);
+    return output_filename;
+}
+
+void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location) {
+    char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
+    char line[MAX_LINE_LENGTH+1] = {0}; /* string to hold the read line */
+    const char* line_ptr = NULL;        /* pointer to go through line */
+    int ch;                             /* variable to skip too long lines */
+    Boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
+    TrieNode* macr_usage = NULL;        /* node to hold macro's data in case of usage */
+
     while (fgets(line, sizeof(line), source_file) != NULL) {
-        location.line++; /* Update counter */
-        /*line_count++;  Update counter */
-        line_ptr = line;  /* Set line pointer to line start */
+        location.line++;                    /* Update counter */
+        line_ptr = line;                    /* Set line pointer to line start */
         trim_leading_spaces(&line_ptr); /* Skip leading spaces */
+
+        /* Check if the line is too long */
+        if (validate_line_length(line, location) == FALSE) {
+            /* Skip the rest of the overly long line */
+            while ((ch = fgetc(source_file)) != '\n' && ch != EOF) {}
+            continue; /* Skip processing this line*/
+        }
 
         /* If line is not empty - process the line */
         if (sscanf(line_ptr, "%s", word) == 1) {
 
-            /* ============ 1. Ignore comment line ============ */
+            /* ______ 1. Ignore comment line ______ */
             if (is_comment(word))
                 continue;
 
-            /* ======== 2. End of macro initialization ======== */
+            /* ______ 2. End of macro initialization ______ */
             if (!macr_end(word)) {
                 inside_macro = FALSE;
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
-                    set_error(&error, error.code, location);
-                    print_error(&error);
-                    clear_error(&error);
+                    set_error(EXTRA_TXT_MACR, location);
+                    clear_error();
                 }
                 continue;
             }
 
-            /* ======== 3. Inside of macro initialization ======== */
-            if (inside_macro) {
-                /* copy to macro */
-                add_content_line(&macr_list, line_ptr);
+            /* ______ 3. Inside of macro initialization ______ */
+            if (inside_macro) {/* copy to macro */
+                add_line_to_last_macro(macro_trie, line_ptr);
             }
 
-            /* ============ 4. Macro initialization ============ */
+            /* ______ 4. Macro initialization ______ */
             else if (!macr_start(word)) {
-                inside_macro = TRUE; /* set flag */
-
-                if (!create_macr(&macr_list, line_ptr + strlen(word), location)){ /* if macro creation fails */
-                    clear_error(&error);
-                    inside_macro = FALSE; /* no macro was initialized */
+                if (create_macr(macro_trie, line_ptr + strlen(word), location) == TRUE){
+                    inside_macro = TRUE; /* set flag */
+                }
+                    /* todo : decide if continue check or not */
+                else {
+                    break;
                 }
             }
 
-            /* =============== 5. Existing macro =============== */
-            else if ((current_macr = is_macro(&macr_list, word) )!= NULL) {
-                copy_macro_to_file(current_macr, output_file);
+            /* ______ 5. Existing macro ______ */
+            else if ((macr_usage = find_macro(macro_trie, word) ) != NULL) {
+                copy_macro_to_file(macr_usage, output_file);
             }
 
-            /* ============ 6. Regular command_str line ============ */
+            /* ______ 6. Regular command line ______ */
             else {
                 fputs(line_ptr, output_file);
             }
         }
     }
-    print_all_macros(&macr_list);
-    free_macro_list(&macr_list);
-    /* close the file */
-    fclose(source_file);
-    fclose(output_file);
-    /*free(output_filename);*/
-    free(source_filename);
-
-    return output_filename;
 }
 
 /* ---------------------------------------------------------------------------------------
  *                                   Utility Functions
  * --------------------------------------------------------------------------------------- */
 
-boolean verify_macro(const char *str, Location location) {
+
+Boolean validate_line_length(const char *line, Location location) {
+    if (strlen(line) >= MAX_LINE_LENGTH) {
+        set_error(LINE_TOO_LONG, location);
+        return FALSE;
+    }
+    return TRUE;
+}
+
+Boolean verify_macro(const char *str, Location location) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
     /* if macr don't have name */
@@ -146,16 +154,14 @@ boolean verify_macro(const char *str, Location location) {
         return FALSE;
 
     /* macr name is reserved name */
-    if (is_reserved_word(word)) {
-        set_error(&error, INVALID_MACR, location);
-        print_error(&error);
+    if (reserved_word(word)) {
+        set_error(INVALID_MACR, location);
         return FALSE;
     }
 
     /* macr initialization line contain extra text */
     if (is_empty_line(str + strlen(word) + 1) == FALSE) {
-        set_error(&error, EXTRA_TXT, location);
-        print_error(&error);
+        set_error(EXTRA_TXT_MACR, location);
         return FALSE;
 
     }
@@ -175,44 +181,18 @@ int macr_end(const char* str) {
 }
 
 
-boolean create_macr(MacroList *list, const char *str, Location location) {
+Boolean create_macr(MacroTrie *macr_trie, const char *str, Location location) {
     trim_spaces(&str);
-    if (verify_macro(str, location)) {
-        insert_macro_node(list, str);
-        if (error.code == NO_ERROR) {
-            return TRUE;
-        }
+    if (verify_macro(str, location) == TRUE) {
+        return add_macr(macr_trie, str);
     }
     return FALSE;
 }
 
-MacroNode* is_macro(MacroList* list, const char* str) {
-    MacroNode* current = list->head;
 
-    while (current != NULL) {
-        if (strcmp(current->name, str) == 0) {
-            return current; /* Found a macro with the same name */
-        }
-        current = current->next;
-    }
-
-    return NULL; /* No macro with the same name found */
-}
-/** TODO : delete! */
-boolean is_reserved_word(const char* str) {
-    int i;
-    int reserved_words_count = sizeof(reserved_words) / sizeof(reserved_words[0]);
-
-    for (i = 0 ; i < reserved_words_count ; i++) {
-        if (strcmp(str , reserved_words[i]) == 0) {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-void copy_macro_to_file(MacroNode* macr, FILE* file) {
-    LineNode* current = macr->content_lines;
+void copy_macro_to_file(TrieNode *macr, FILE* file) {
+    MacroData* data = (MacroData*) macr->data;
+    LineNode* current = data->head;
     while (current != NULL) {
         fputs(current->line, file);
         current = current->next;

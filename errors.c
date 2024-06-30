@@ -5,7 +5,7 @@
 #include "errors.h"
 
 /* ------------------------ Initialize the global error variable ------------------------ */
-Error error = {NO_ERROR, "No error"};
+static Error error = {NO_ERROR, "No error"};
 
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
@@ -18,16 +18,25 @@ const char* get_error_message(ErrorCode code) {
         case MEMORY_ALLOCATION_ERROR: return "Memory allocation failed";
         case EOF_ERROR: return "End of file reached";
         case NO_ARGUMENTS: return "No arguments were passed";
-        case CANNOT_OPEN_FILE: return "Cannot open file";
-        case CANNOT_CREATE_FILE: return "Cannot create file";
+        case FAILED_OPEN_FILE: return "Cannot open file";
+        case FAILED_CREATE_FILE: return "Cannot create file";
+        case FAILED_CLOSE_FILE: return "Failed to close file";
+        case FAILED_DELETE_FILE: return "Failed to delete file";
+        case LINE_TOO_LONG: return "Command line is too long. Should be 81 chars at max";
         case INVALID_MACR: return "Invalid macro name";
-        case EXTRA_TXT: return "Extra text after macro define";
-        case MULTIPULE_COMMA_ERROR: return "Multiple consecutive commas";
+        case EXTRA_TXT_MACR: return "Extra text after macro define";
+        case CONSECUTIVE_COMMA_ERROR: return "Multiple consecutive commas";
         case MISSING_COMMA_ERROR: return "Missing comma";
         case ILLEGAL_COMMA_ERROR: return "Illegal comma";
-        case COMMAND_NAME_ERROR: return "Invalid command_str name";
+        case INSTRUCATION_NAME_ERROR: return "Invalid command name";
         case DIRECTIVE_NAME_ERROR: return "Invalid directive instruction";
-        case INVALID_LABEL: return "Invalid label name";
+        case INVALID_LABEL_NAME: return "Invalid label name, should start with alphabetic char";
+        case EXTRA_TXT: return "Extra text after command";
+        case LABEL_RESERVED_WORD: return "Invalid label name, cannot be reserved word";
+        case LABEL_MACR_COLLIDES: return "label and macro's name are collides";
+        case UNRECOGNIZED_LABEL: return "Unrecognized label";
+        case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars";
+        case MULTIPLE_LABEL: return "Multiple label defenition";
         case NOT_INTEGER: return "Not an integer";
         case INVALID_STRING: return "Invalid string format";
         case INVALID_REGISTER: return "Invalid register name";
@@ -38,39 +47,43 @@ const char* get_error_message(ErrorCode code) {
     }
 }
 
-/*void set_error(Error* error, ErrorCode code, const char* file, int line) {
-    error->code = code;
-    error->message = get_error_message(code);
-    error->location.file = file;
-    error->location.line = line;
-}*/
 
-void set_error(Error *error, ErrorCode code, Location location) {
-    error->code = code;
-    error->message = get_error_message(code);
-    error->location = location;
+void set_error(ErrorCode code, Location location) {
+    error.code = code;
+    error.message = get_error_message(code);
+    error.location = location;
+    print_error();
 }
 
-void set_general_error(Error *error, ErrorCode code) {
+void set_general_error(ErrorCode code) {
     Location default_location = {NULL, 0};
-    error->code = code;
-    error->message = get_error_message(code);
-    error->location = default_location;
+    error.code = code;
+    error.message = get_error_message(code);
+    error.location = default_location;
+    print_error();
 }
 
-void print_error(Error* error) {
-    if (error->code != NO_ERROR) {
-        printf("Error: %s | ", error->message);
-        printf("Location: file name - %s", error->location.file);
-        if (error->location.line > 0)
-            printf(", line - %d", error->location.line);
+void print_error() {
+    if (error.code != NO_ERROR) {
+        printf("Error: %s ", error.message);
+        if (error.location.line > 0) {
+            printf(" Location: file name - %s, line - %d", error.location.file, error.location.line);
+        }
         printf("\n");
     }
 }
 
-void clear_error (Error *error) {
+void clear_error() {
     Location default_location = {NULL, 0};
-    set_error(error, NO_ERROR, default_location);
+    set_error(NO_ERROR, default_location);
+}
+
+ErrorCode error_stat() {
+    return error.code;
+}
+
+void print_warning() {
+    printf("WARNING: label before extern/entry is useless.");
 }
 
 
@@ -106,9 +119,9 @@ static const Error errorTable[ERROR_COUNT] = {
         {MEMORY_ALLOCATION_ERROR, "Memory allocation failed",{NULL, 0}},
         {EOF_ERROR, "End of file reached",{NULL, 0}},
         {NO_ARGUMENTS, "No arguments were passed",{NULL, 0}},
-        {CANNOT_OPEN_FILE, "Cannot open file",{NULL, 0}},
-        {CANNOT_CREATE_FILE, "Cannot create file",{NULL, 0}},
+        {FAILED_OPEN_FILE, "Cannot open file",{NULL, 0}},
+        {FAILED_CREATE_FILE, "Cannot create file",{NULL, 0}},
         {INVALID_MACR, "Invalid macro name",{NULL, 0}},
-        {EXTRA_TXT, "Extra text after macro define",{NULL, 0}},
+        {EXTRA_TXT_MACR, "Extra text after macro define",{NULL, 0}},
         {OTHER_ERROR, "An unspecified error occurred",{NULL, 0}},
 };*/

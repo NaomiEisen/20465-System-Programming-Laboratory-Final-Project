@@ -11,23 +11,29 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         preprocessor.h
         preprocessor.c
         assembler_controller.h
-        macro_list.h
-        macro_list.c
+        macro_data.h
+        macro_data.c
         utils.c
         utils.h
         parser.c
         ast.h
-        hardware.h
+        mappings.h
         ast.c
-        first_phase.h
-        first_phase.c
+        two_phase_assembler.h
+        two_phase_assembler.c
         parser.h
-        label_trie.h
-        hardware.c
-        semantics.c
-        label_trie.c
+        mappings.c
+        first_phase.c
         code_convert.h
         code_convert.c
         cmp_data.h
         cmp_data.c
-        semantic.h)
+        first_phase.h
+        trie.h
+        trie.c
+        label_data.h
+        label_data.c
+        second_phase.h
+        second_phase.c
+        output_files.h
+        output_files.c)
