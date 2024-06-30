@@ -54,7 +54,7 @@ Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
     int opr_addr_dest;
     int opr_addr_src;
     int num_operands = node->specific.instruction.num_operands;
-    Boolean valid_addr;
+    Boolean valid_addr = TRUE;
 
     /* Code the operation name */
     set_int_code(0, 3, command_index, code_img);
@@ -66,18 +66,16 @@ Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
     if (num_operands == 1) {
         opr_addr_dest = node->specific.instruction.operand1.adr_mode;
         valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET);
-        updt_memory_image_counter(code_img);
-        return valid_addr;
     }
     else if (num_operands == 2) {
         opr_addr_dest = node->specific.instruction.operand2.adr_mode;
         opr_addr_src = node->specific.instruction.operand1.adr_mode;
         valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET) &&
                      code_first_word_addr(command_index, code_img, opr_addr_src, SRC_OFFSET);
-        updt_memory_image_counter(code_img);
-        return valid_addr;
     }
-    return TRUE;
+
+    updt_memory_image_counter(code_img);
+    return valid_addr;
 }
 
 Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset) {

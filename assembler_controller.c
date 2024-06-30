@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "errors.h"
-#include "two_phase_assembler.h"
+#include "phase_controller.h"
 #include "macro_data.h"
 
 char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie);
@@ -38,7 +38,7 @@ void controller(int argc, char* argv[]) {
 
         /* Process file */
         else {
-            two_phase_assembler(argv[i], file_am, &macro_trie);
+            phase_controller(argv[i], file_am, &macro_trie);
         }
 
         i++;

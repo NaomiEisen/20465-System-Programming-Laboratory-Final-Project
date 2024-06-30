@@ -19,8 +19,8 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         ast.h
         mappings.h
         ast.c
-        two_phase_assembler.h
-        two_phase_assembler.c
+        phase_controller.h
+        phase_controller.c
         parser.h
         mappings.c
         first_phase.c

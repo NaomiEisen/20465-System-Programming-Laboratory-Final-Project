@@ -18,10 +18,11 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
     create_new_file_name(file_name, &entry_file, ".ent");
     create_new_file_name(file_name, &extern_file, ".ext");
 
-    /* todo: do you really need to check this? */
+    /* todo: maybe change the check */
     if (entry_file == NULL || extern_file == NULL) {
         return FALSE;
     }
+
 
     data->entry_file.file = fopen(entry_file, "w");
     data->extern_file.file = fopen(extern_file, "w");
@@ -32,7 +33,7 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
         return FALSE;
     }
 
-    data->entry_file.file_name = entry_file;
+   data->entry_file.file_name = entry_file;
    data->extern_file.file_name = extern_file;
 
     /* Initialize code memory */

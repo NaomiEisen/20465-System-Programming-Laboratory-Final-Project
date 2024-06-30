@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "errors.h"
 #include "utils.h"
-#include "two_phase_assembler.h"
+#include "phase_controller.h"
 #include "ast.h"
 #include "parser.h"
 #include "boolean.h"
@@ -20,9 +20,9 @@
  *                               Head Function Of Two Phase Assembler
  * --------------------------------------------------------------------------------------- */
 
-void two_phase_assembler(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
-    FILE* file_am;                  /* the source file (.am) */
-    CmpData cmp_data;
+void phase_controller(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
+    FILE* file_am;    /* the source file (.am) */
+    CmpData cmp_data; /* program's data */
 
     /* Open the am file in read mode */
     if (!(file_am = fopen(file_name_am, "r"))) {
@@ -44,8 +44,7 @@ void two_phase_assembler(const char *origin_file_name, const char *file_name_am,
     }
 
     /* Update address */
-    /*updt_addr(cmp_data.label_table.root, IC_START, INSTRUCTION);*/
-    updt_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START - 1, DIRECTIVE);
+    updt_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START, DIRECTIVE);
 
     /* -------------------------------------- Second phase -------------------------------------- */
 

@@ -99,7 +99,6 @@ void free_label_tree(Trie *trie) {
     if (trie->root) {
         free_node(trie->root);
         trie->root = NULL;
-        trie->node_count = 0;
     }
 }
 
