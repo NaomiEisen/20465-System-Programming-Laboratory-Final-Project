@@ -6,6 +6,7 @@
 
 /* ------------------------ Initialize the global error variable ------------------------ */
 static Error error = {NO_ERROR, "No error"};
+static FatalError fatal_error = {FALSE};
 
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
@@ -28,7 +29,7 @@ const char* get_error_message(ErrorCode code) {
         case CONSECUTIVE_COMMA_ERROR: return "Multiple consecutive commas";
         case MISSING_COMMA_ERROR: return "Missing comma";
         case ILLEGAL_COMMA_ERROR: return "Illegal comma";
-        case INSTRUCATION_NAME_ERROR: return "Invalid command name";
+        case INSTRUCTION_NAME_ERROR: return "Invalid command name";
         case DIRECTIVE_NAME_ERROR: return "Invalid directive instruction";
         case INVALID_LABEL_NAME: return "Invalid label name, should start with alphabetic char";
         case EXTRA_TXT: return "Extra text after command";
@@ -67,7 +68,7 @@ void print_error() {
     if (error.code != NO_ERROR) {
         printf("Error: %s ", error.message);
         if (error.location.line > 0) {
-            printf(" Location: file name - %s, line - %d", error.location.file, error.location.line);
+            printf(" | Location: file name - %s, line - %d", error.location.file, error.location.line);
         }
         printf("\n");
     }
@@ -86,42 +87,7 @@ void print_warning() {
     printf("WARNING: label before extern/entry is useless.");
 }
 
-
-
-
-/* ---------------------------------------------------------------------------------------
- *                                          Archive
- * --------------------------------------------------------------------------------------- */
-
-/* Function to set the global error
-void set_error(ErrorCode code) {
-    if (code < ERROR_COUNT) {
-        error = errorTable[code];
-    } else {
-        error = (Error){OTHER_ERROR, "Unknown error"};
-    }
-}*/
-
-/* Function to set the global error
-void set_error(Error *error, ErrorCode code, const char *file, int line) {
-    if (code < ERROR_COUNT) {
-        *error = errorTable[code];
-    } else {
-        *error = errorTable[OTHER_ERROR];
-    }
-    error->location.file = file;
-    error->location.line = line;
-}*/
-
-/* Array of error structs
-static const Error errorTable[ERROR_COUNT] = {
-        {NO_ERROR, "No error",{NULL, 0}},
-        {MEMORY_ALLOCATION_ERROR, "Memory allocation failed",{NULL, 0}},
-        {EOF_ERROR, "End of file reached",{NULL, 0}},
-        {NO_ARGUMENTS, "No arguments were passed",{NULL, 0}},
-        {FAILED_OPEN_FILE, "Cannot open file",{NULL, 0}},
-        {FAILED_CREATE_FILE, "Cannot create file",{NULL, 0}},
-        {INVALID_MACR, "Invalid macro name",{NULL, 0}},
-        {EXTRA_TXT_MACR, "Extra text after macro define",{NULL, 0}},
-        {OTHER_ERROR, "An unspecified error occurred",{NULL, 0}},
-};*/
+void fatal_error_occured(){
+    printf("Memory Allocation Error: program run out of memory. Exiting...");
+    fatal_error.error = TRUE;
+}

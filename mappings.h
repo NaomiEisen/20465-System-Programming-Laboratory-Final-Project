@@ -5,9 +5,7 @@
 
 #define MAX_COMMAND_CHAR 15
 #define ADDRESS_MODES 4
-#define NUM_INSTRUCTIONS 16
-#define NUM_DIRECTIVES 4
-#define NUM_REGISTERS 8
+
 
 /* structure representing command_str mappings */
 typedef struct {

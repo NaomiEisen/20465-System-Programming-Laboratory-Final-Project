@@ -115,4 +115,6 @@ void free_node(TrieNode *node);
 void free_data(void *data);
 
 
+void print_trie(TrieNode *node, char *word_so_far);
+
 #endif /* TRIE_H */

@@ -1,15 +1,17 @@
-
 #ifndef FIRST_PHASE_H
 #define FIRST_PHASE_H
-
-#include "mappings.h"
 #include "macro_data.h"
-#include "cmp_data.h"
-#define MAX_LINE_LENGTH 81
 
+/* ----------------------------------- Functions Prototypes ------------------------------------*/
+/**
+ * The `phase_controller` function orchestrates the two phases of the assembler on the am file.
+ * It conducts the first and second phases of assembly and creates the final object file if both
+ * phases were successful.
+ *
+ * @param origin_file_name The name of the original source file.
+ * @param file_name_am The name of the preprocessed source file (.am).
+ * @param macr_trie The trie structure containing macro definitions.
+ */
 void phase_controller(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie);
-Boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data);
-Boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data);
-void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean delete);
-Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data);
+
 #endif /* FIRST_PHASE_H */

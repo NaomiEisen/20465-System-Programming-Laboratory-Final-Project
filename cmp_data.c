@@ -8,7 +8,6 @@
  * of the sets to the setMappings.
  * @param data Pointer to the ProgramData to be initialized
  */
-/* Function to initialize CmpData */
 Boolean init_cmp_data(CmpData *data, const char *file_name) {
     int i, j;
     char* extern_file = NULL;

@@ -1,19 +1,40 @@
 /* ---------------------------------------------------------------------------------------
- *                                          Includes
+ *                                        Includes
  * --------------------------------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "preprocessor.h"
 #include "errors.h"
 #include "macro_data.h"
 #include "utils.h"
+#include "boolean.h"
 #include "mappings.h"
+#include "defines.h"
+
+/* ---------------------------------------------------------------------------------------
+ *                               Static Functions Prototypes
+ * --------------------------------------------------------------------------------------- */
+static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location);
+static Boolean validate_line_length(const char *line, Location location);
+static Boolean verify_macro(const char *str, Location location);
+static int is_comment(const char* str);
+static int macr_start(const char* str);
+static int macr_end(const char* str);
+static Boolean create_macr(MacroTrie *macr_trie, const char *str, Location location);
+static void copy_macro_to_file(TrieNode *macr, FILE* file);
 
 /* ---------------------------------------------------------------------------------------
  *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
-
+/**
+ * The `preprocessor_controller` function handles preprocessing of the source file,
+ * using `process_line` to process each line and apply macro expansions.
+ * The processed output is written to a new file with the ".am" extension.
+ *
+ * @param file_origin The base name of the source file without extension.
+ * @param macro_trie A trie structure containing macro definitions for preprocessing.
+ * @return The name of the output file with the ".am" extension, or NULL if an error occurs.
+ */
 char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
     FILE* source_file;                  /* the source file (.as) */
     FILE* output_file;                  /* the output file (.am) */
@@ -65,8 +86,16 @@ char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
     free(source_filename);
     return output_filename;
 }
-
-void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location) {
+/**
+ * Processes each line of the source file, handling macro definitions and usages,
+ * and writes the processed lines to the output file.
+ *
+ * @param source_file The input file pointer to the source file being read.
+ * @param output_file The output file pointer where processed lines are written.
+ * @param macro_trie A trie structure containing macro definitions for preprocessing.
+ * @param location A structure representing the current file and line number being processed.
+ */
+static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
     char line[MAX_LINE_LENGTH+1] = {0}; /* string to hold the read line */
     const char* line_ptr = NULL;        /* pointer to go through line */
@@ -88,28 +117,28 @@ void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, L
 
         /* If line is not empty - process the line */
         if (sscanf(line_ptr, "%s", word) == 1) {
-
-            /* ______ 1. Ignore comment line ______ */
+            /* ------------------------ 1. Ignore comment line ------------------------ */
             if (is_comment(word))
                 continue;
 
-            /* ______ 2. End of macro initialization ______ */
+            /* -------------------- 2. End of macro initialization -------------------- */
             if (!macr_end(word)) {
                 inside_macro = FALSE;
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
                     set_error(EXTRA_TXT_MACR, location);
-                    clear_error();
+                    print_error();
+                    /* clear_error();  TOdo : why? */
                 }
                 continue;
             }
 
-            /* ______ 3. Inside of macro initialization ______ */
+            /* ------------------- 3. Inside of macro initialization ------------------- */
             if (inside_macro) {/* copy to macro */
                 add_line_to_last_macro(macro_trie, line_ptr);
             }
 
-            /* ______ 4. Macro initialization ______ */
+            /* ------------------------ 4. Macro initialization ------------------------ */
             else if (!macr_start(word)) {
                 if (create_macr(macro_trie, line_ptr + strlen(word), location) == TRUE){
                     inside_macro = TRUE; /* set flag */
@@ -120,12 +149,16 @@ void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, L
                 }
             }
 
-            /* ______ 5. Existing macro ______ */
+            /* --------------------------- 5. Existing macro --------------------------- */
             else if ((macr_usage = find_macro(macro_trie, word) ) != NULL) {
+                /* check if there is no extra text after macro usage */
+                if (!is_empty_line(line_ptr+ strlen(word))) {
+                    set_error(EXTRA_TXT_MACR, location);
+                }
                 copy_macro_to_file(macr_usage, output_file);
             }
 
-            /* ______ 6. Regular command line ______ */
+            /* ------------------------ 6. Regular command line ------------------------ */
             else {
                 fputs(line_ptr, output_file);
             }
@@ -134,11 +167,19 @@ void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, L
 }
 
 /* ---------------------------------------------------------------------------------------
- *                                   Utility Functions
+ *                                Preprocessor Utility Functions
  * --------------------------------------------------------------------------------------- */
 
-
-Boolean validate_line_length(const char *line, Location location) {
+/**
+ * The `validate_line_length` function checks if a given line exceeds the maximum allowed length.
+ * If the line is too long, it sets an error and returns FALSE.
+ *
+ * @param line The line to check.
+ * @param location The current file location being processed.
+ * @return TRUE if the line length is valid, FALSE otherwise.
+ */
+static Boolean validate_line_length(const char *line, Location location) {
+    /* Check if the length of the line exceeds the maximum allowed length */
     if (strlen(line) >= MAX_LINE_LENGTH) {
         set_error(LINE_TOO_LONG, location);
         return FALSE;
@@ -146,53 +187,103 @@ Boolean validate_line_length(const char *line, Location location) {
     return TRUE;
 }
 
-Boolean verify_macro(const char *str, Location location) {
+/**
+* The `verify_macro` function verifies the validity of a macro initialization line.
+* It checks if the macro has a valid name: if the name is not a reserved word,
+* and if there is no extra text after the macro name.
+*
+* @param str The string to verify as a macro initialization line.
+* @param location The current file location being processed.
+* @return TRUE if the macro initialization line is valid, FALSE otherwise.
+*/
+static Boolean verify_macro(const char *str, Location location) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
-    /* if macr don't have name */
+    /* If macro don't have name */
     if (sscanf(str, "%s", word) != 1)
         return FALSE;
 
-    /* macr name is reserved name */
+    /* Macro name is reserved name */
     if (reserved_word(word)) {
         set_error(INVALID_MACR, location);
         return FALSE;
     }
 
-    /* macr initialization line contain extra text */
+    /* Macro initialization line contain extra text */
     if (is_empty_line(str + strlen(word) + 1) == FALSE) {
         set_error(EXTRA_TXT_MACR, location);
         return FALSE;
 
     }
-    return TRUE; /* macr is valid */
+    return TRUE; /* Macro is valid */
 }
 
-int is_comment(const char* str) {
+/**
+ * The `is_comment` function checks if a given string is a comment line.
+ * A comment line defined as a line that starts with the char ';'.
+ *
+ * @param str The string to check.
+ * @return Non-zero if the string is a comment line, 0 otherwise.
+ */
+static int is_comment(const char* str) {
     return str != NULL && str[0] == ';';
 }
 
-int macr_start(const char* str) {
+/**
+ * The `macr_start` function checks if a given string is the start of a macro definition.
+ *
+ * @param str The string to check.
+ * @return Non-zero if the string is the start of a macro, 0 otherwise.
+ */
+static int macr_start(const char* str) {
     return str != NULL && strcmp(str ,MACR_START );
 }
 
-int macr_end(const char* str) {
+/**
+ * The `macr_end` function checks if a given string is the end of a macro definition.
+ *
+ * @param str The string to check.
+ * @return Non-zero if the string is the end of a macro, 0 otherwise.
+ */
+static int macr_end(const char* str) {
     return str != NULL && strcmp(str ,MACR_END );
 }
 
-
-Boolean create_macr(MacroTrie *macr_trie, const char *str, Location location) {
+/**
+ * The `create_macr` function creates a new macro in the macro trie if the given string
+ * is a valid macro initialization line.
+ *
+ * @param macr_trie The trie structure containing macro definitions.
+ * @param str The string containing the macro initialization line.
+ * @param location The current file location being processed.
+ * @return TRUE if the macro was successfully created, FALSE otherwise.
+ */
+static Boolean create_macr(MacroTrie *macr_trie, const char *str, Location location) {
+    /* Remove leading and trailing spaces from the string */
     trim_spaces(&str);
+
+    /* Verify the macro initialization line */
     if (verify_macro(str, location) == TRUE) {
+        /* Add the macro to the trie and return the status of this process */
         return add_macr(macr_trie, str);
     }
+    /* If the process failed - return FALSE */
     return FALSE;
 }
 
-
-void copy_macro_to_file(TrieNode *macr, FILE* file) {
+/**
+ * The `copy_macro_to_file` function copies the contents of a macro to the specified output file.
+ *
+ * @param macr The macro node containing the macro data to copy.
+ * @param file The output file to write the macro contents to.
+ */
+static void copy_macro_to_file(TrieNode *macr, FILE* file) {
+    /* Retrieve the macro data from the trie node */
     MacroData* data = (MacroData*) macr->data;
+    /* Get the head of the line list in the macro data */
     LineNode* current = data->head;
+
+    /* Iterate over each line and write it to the output file */
     while (current != NULL) {
         fputs(current->line, file);
         current = current->next;

@@ -79,6 +79,9 @@ typedef struct {
     Location location;            /* Location information of the line */
 } ASTNode;
 
+/* ---------------------------------------------------------------------------------------
+ *                                         Prototypes
+ * --------------------------------------------------------------------------------------- */
 
 ASTNode *create_empty_ASTnode(const char *file, int line);
 void set_ast_label(ASTNode *node, const char *label);
