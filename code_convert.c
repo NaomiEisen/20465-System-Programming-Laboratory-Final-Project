@@ -3,8 +3,8 @@
 #include "errors.h"
 #include "cmp_data.h"
 #include "utils.h"
-#include "first_phase.h"
 #include "output_files.h"
+#include "defines.h"
 
 
 /* Function to set multiple bits from an integer */

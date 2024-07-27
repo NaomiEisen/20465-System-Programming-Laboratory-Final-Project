@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "errors.h"
 #include "utils.h"
-#include "two_phase_assembler.h"
 #include "ast.h"
 #include "parser.h"
 #include "boolean.h"
@@ -14,15 +13,28 @@
 #include "second_phase.h"
 #include "label_data.h"
 #include "output_files.h"
-
-
 /* ---------------------------------------------------------------------------------------
- *                               Head Function Of Two Phase Assembler
+ *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
-
-void two_phase_assembler(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
-    FILE* file_am;                  /* the source file (.am) */
-    CmpData cmp_data;
+static Boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data);
+static Boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data);
+static Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data);
+static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean delete);
+/* ---------------------------------------------------------------------------------------
+ *                             Head Function Of Phase Controller
+ * --------------------------------------------------------------------------------------- */
+/**
+ * The `phase_controller` function orchestrates the two phases of the assembler on the am file.
+ * It conducts the first and second phases of assembly and creates the final object file if both
+ * phases were successful.
+ *
+ * @param origin_file_name The name of the original source file.
+ * @param file_name_am The name of the preprocessed source file (.am).
+ * @param macr_trie The trie structure containing macro definitions.
+ */
+void phase_controller(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
+    FILE* file_am;    /* the source file (.am) */
+    CmpData cmp_data; /* program's data */
 
     /* Open the am file in read mode */
     if (!(file_am = fopen(file_name_am, "r"))) {
@@ -44,8 +56,7 @@ void two_phase_assembler(const char *origin_file_name, const char *file_name_am,
     }
 
     /* Update address */
-    /*updt_addr(cmp_data.label_table.root, IC_START, INSTRUCTION);*/
-    updt_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START - 1, DIRECTIVE);
+    updt_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START, DIRECTIVE);
 
     /* -------------------------------------- Second phase -------------------------------------- */
 
@@ -70,7 +81,22 @@ void two_phase_assembler(const char *origin_file_name, const char *file_name_am,
     /*--------------------------------------------------------------*/
 }
 
-Boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
+/* ---------------------------------------------------------------------------------------
+ *                                       Phases Functions
+ * --------------------------------------------------------------------------------------- */
+/**
+ * The `first_phase_controller` function performs the first phase of the assembly process.
+ * It reads each line of the preprocessed file, parses it with the help of the 'parseLine' method,
+ * and analyzes with the method 'first_phase_analyzer' it in the first phase context.
+ * It updates the line count, parses lines, and handles errors if they occur.
+ *
+ * @param file_am The preprocessed source file (.am).
+ * @param file_name The name of the preprocessed source file.
+ * @param macr_trie The trie structure containing macro names.
+ * @param cmp_data The data structure holding various program-related data during assembly.
+ * @return TRUE if the first phase completes without errors, FALSE otherwise.
+ */
+static Boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
     int line_count = 0;                 /* line counter */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
@@ -99,7 +125,19 @@ Boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *
     return no_error;
 }
 
-Boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
+/**
+ * The `second_phase_controller` function performs the second phase of the assembly process.
+ * It reads each unresolved line from the preprocessed file, parses it with the help of the 'parseLine'
+ * method, and analyzes it with the method 'second_phase_analyzer' in the second phase context.
+ * It updates the line count and handles unresolved lines specifically.
+ *
+ * @param file_am The preprocessed source file (.am).
+ * @param file_name The name of the preprocessed source file.
+ * @param macr_trie The trie structure containing macro names.
+ * @param cmp_data The data structure holding various program-related data during assembly.
+ * @return TRUE if the second phase completes without errors, FALSE otherwise.
+ */
+static Boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
     int line_count = 1;                 /* line counter */
@@ -125,7 +163,18 @@ Boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie 
     return no_error;
 }
 
-Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) {
+/* ---------------------------------------------------------------------------------------
+ *                                Utility Functions Functions
+ * --------------------------------------------------------------------------------------- */
+/**
+ * The `create_obj_file` function creates an object file with the `.ob` extension from the source file name.
+ * It writes the program's memory images to the object file with the method 'print_memory_images'.
+ *
+ * @param source_file_name The name of the source file.
+ * @param cmp_data The data structure holding various program-related data during assembly.
+ * @return TRUE if the object file is created and written successfully, FALSE otherwise.
+ */
+static Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) {
     char* file_ob = NULL;              /* the object file name */
     FILE* object_file;                 /* the object file (.ob) */
 
@@ -152,7 +201,16 @@ Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) {
     }
 }
 
-void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean delete) {
+/**
+ * The `free_program_data` function frees the resources allocated for the program data,
+ * closes the source file, and optionally deletes the files associated with the compiled data.
+ * The files will be deleted if an error occurred during the processing stages.
+ *
+ * @param cmp_data The data structure holding various program-related data during assembly.
+ * @param source_file The source file to be closed.
+ * @param delete Flag indicating whether to delete the files associated with the compiled data.
+ */
+static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean delete) {
     free_label_tree(&cmp_data->label_table);
     fclose(source_file);
     free_cmp_data(cmp_data, delete);

@@ -1,23 +1,16 @@
 
-#ifndef INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_FIRST_PHASE_H
-#define INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_FIRST_PHASE_H
+#ifndef FIRST_PHASE_H
+#define FIRST_PHASE_H
 #include "cmp_data.h"
-
-#define A 12
-#define R 13
-#define E 14
-#define REGISTER_POS 6
-#define SRC_OFFSET 7
-#define DEST_OFFSET 11
-
-
-Boolean add_label(ASTNode *node, int address, CmpData *cmp_data);
-void code_operands(ASTNode *node, CmpData *cmp_data);
-Boolean handle_directive(ASTNode *node, CmpData *cmp_data);
-Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img);
-Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset);
-Boolean handle_extern(ASTNode* node, CmpData* cmp_data);
-Boolean handle_instruction(ASTNode *node, CmpData *cmp_data);
+/* ----------------------------------- Functions Prototypes ------------------------------------*/
+/**
+ * The `first_phase_analyzer` function analyzes a parsed line (ASTNode) during the first phase of assembly.
+ * It determines the type of line and processes it accordingly, updating the `CmpData` structure.
+ *
+ * @param node The parsed line represented as an Abstract Syntax Tree (AST) node.
+ * @param cmp_data The data structure holding various program-related data during assembly.
+ * @return TRUE if the line is processed successfully, FALSE otherwise.
+ */
 Boolean first_phase_analyzer(ASTNode *node, CmpData *cmp_data);
 
-#endif /*INC_20465_SYSTEM_PROGRAMMING_LABORATORY_FINAL_PROJECT_FIRST_PHASE_H*/
+#endif /*PHASE_H*/

@@ -1,5 +1,6 @@
 #ifndef ERRORS_H
 #define ERRORS_H
+#include "boolean.h"
 
 /* ---------------------------- Error Codes ---------------------------- */
 typedef enum {
@@ -28,7 +29,7 @@ typedef enum {
     ILLEGAL_COMMA_ERROR,
 
     /* ====== Semantic Errors ====== */
-    INSTRUCATION_NAME_ERROR,
+    INSTRUCTION_NAME_ERROR,
     DIRECTIVE_NAME_ERROR,
     EXTRA_TXT,
     INVALID_LABEL_NAME,
@@ -46,22 +47,24 @@ typedef enum {
     /* ======  Hardware Errors ====== */
     CPU_MEMORY_FULL,
 
-    /* ======= Other ======= */
-    OTHER_ERROR
 } ErrorCode;
 
-/* ---------------------------- Location Information ---------------------------- */
+/* ----------------------------- Location struct ------------------------------- */
 typedef struct {
     const char *file;
     int line;
 } Location;
 
-/* ---------------------------- Error information ---------------------------- */
+/* -------------------------------- Error struct -------------------------------- */
 typedef struct {
     ErrorCode code;
     const char *message;
     Location location;
 } Error;
+
+typedef struct {
+    Boolean error;
+} FatalError;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
 void set_error(ErrorCode code, Location location);

@@ -22,7 +22,6 @@ void trim_leading_spaces(const char** str) {
     while (is_space(*start)) {
         start++;
     }
-
     /* Update the original string pointer */
     *str = start;
 }

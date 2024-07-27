@@ -10,7 +10,6 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         assembler_controller.c
         preprocessor.h
         preprocessor.c
-        assembler_controller.h
         macro_data.h
         macro_data.c
         utils.c
@@ -19,8 +18,8 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         ast.h
         mappings.h
         ast.c
-        two_phase_assembler.h
-        two_phase_assembler.c
+        phase_controller.h
+        phase_controller.c
         parser.h
         mappings.c
         first_phase.c
@@ -36,4 +35,5 @@ add_executable(20465_System_Programming_Laboratory_Final_Project
         second_phase.h
         second_phase.c
         output_files.h
-        output_files.c)
+        output_files.c
+        defines.h)

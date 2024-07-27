@@ -168,7 +168,7 @@ Boolean validate_operation(const char *operation, ASTNode* node) {
         }
     }
 
-    set_error(INSTRUCATION_NAME_ERROR, node->location);
+    set_error(INSTRUCTION_NAME_ERROR, node->location);
     return FALSE;
 }
 

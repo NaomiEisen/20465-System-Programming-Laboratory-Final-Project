@@ -4,12 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "errors.h"
-#include "two_phase_assembler.h"
+#include "phase_controller.h"
 #include "macro_data.h"
-
-char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie);
+#include "preprocessor.h"
 /* ---------------------------------------------------------------------------------------
- *                             Head Function Of Assembler Controller
+ *                                         Functions
  * --------------------------------------------------------------------------------------- */
 void controller(int argc, char* argv[]) {
     int i = 1;            /* Index for iterating through loop */
@@ -31,18 +30,21 @@ void controller(int argc, char* argv[]) {
         file_am = preprocessor_controller(argv[i], &macro_trie);
         print_trie_test(&macro_trie);
 
-        /* If an error occur, continue to the nexr file */
+        /* If an error occur, continue to the next file */
         if (error_stat() != NO_ERROR) {
             printf("Could not process file %s \n", argv[i]);
         }
 
         /* Process file */
         else {
-            two_phase_assembler(argv[i], file_am, &macro_trie);
+            phase_controller(argv[i], file_am, &macro_trie);
         }
 
+        /* updated variables */
         i++;
         argc--;
+
+        /* free structures before proceeding to the next file */
         free(file_am);
         free_macr_trie(&macro_trie);
     }
