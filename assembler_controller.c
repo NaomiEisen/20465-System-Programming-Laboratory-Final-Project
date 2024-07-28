@@ -32,14 +32,16 @@ void controller(int argc, char* argv[]) {
         print_trie_test(&macro_trie); /* todo for meeee */
 
         /* Continue processing only if no error occurred */
-        if (error_stat() == NO_ERROR) {
+        if (get_status() == ERROR_FREE_FILE) {
             phase_controller(argv[i], file_am, &macro_trie);
-        } else {
+        }
+
+        if (get_status() == ERROR_IN_FILE) {
             printf("Could not process file %s \n", argv[i]);
         }
 
         /* Check for fatal error */
-        if (error_stat() == MEMORY_ALLOCATION_ERROR) {
+        if (get_status() == FATAL_ERROR) {
             exit(0);
         }
 

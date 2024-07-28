@@ -1,7 +1,6 @@
 /* ---------------------------------------------------------------------------------------
  *                                          Includes
  * --------------------------------------------------------------------------------------- */
-#include "boolean.h"
 #include "ast.h"
 #include "cmp_data.h"
 #include "label_data.h"
@@ -10,8 +9,8 @@
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
-static Boolean code_label_operands(ASTNode *node, CmpData *cmp_data);
-static Boolean handle_entry(ASTNode *node, CmpData *cmp_data);
+static void code_label_operands(ASTNode *node, CmpData *cmp_data);
+static void handle_entry(ASTNode *node, CmpData *cmp_data);
 
 /* ---------------------------------------------------------------------------------------
  *                                Head Function Of Second Phase
@@ -24,13 +23,13 @@ static Boolean handle_entry(ASTNode *node, CmpData *cmp_data);
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the line is processed successfully, FALSE otherwise.
  */
-Boolean second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
+void second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
     /* Handle operation line */
     if (node->lineType == LINE_INSTRUCTION) {
-        return code_label_operands(node, cmp_data);
+        code_label_operands(node, cmp_data);
+    } else { /* Handle directive line */
+        handle_entry(node, cmp_data);
     }
-    /* Handle directive line */
-    return handle_entry(node, cmp_data);
 }
 
 /* ---------------------------------------------------------------------------------------
@@ -44,7 +43,7 @@ Boolean second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the operands are processed and encoded successfully, FALSE otherwise.
  */
-static Boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
+static void code_label_operands(ASTNode *node, CmpData *cmp_data) {
     InstructionOperand *current_opr; /* Variable to store the current operand */
     int i;                       /* Variable to iterate through nodes operand */
     int line;            /* Variable to store the consecutive unresolved line */
@@ -67,13 +66,11 @@ static Boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
                 if (code_direct_addr_mode(current_opr->value.char_val, cmp_data) == FALSE) {
                     /* If an error occurred - return FALSE */
                     set_error(UNRECOGNIZED_LABEL, node->location);
-                    return FALSE;
+                    return;
                 }
             }
         }
     }
-    /* Process executed successfully */
-    return TRUE;
 }
 
 /**
@@ -84,7 +81,7 @@ static Boolean code_label_operands(ASTNode *node, CmpData *cmp_data) {
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the entry labels are processed and resolved successfully, FALSE otherwise.
  */
-static Boolean handle_entry(ASTNode *node, CmpData *cmp_data){
+static void handle_entry(ASTNode *node, CmpData *cmp_data){
     DirNode *current = node->specific.directive.operands;  /* Variable to store the current operand */
     int address;                                     /* Variable to store the current label address */
 
@@ -95,12 +92,10 @@ static Boolean handle_entry(ASTNode *node, CmpData *cmp_data){
             break;
         }
         /* Get the entry label address */
-        address = get_label_single_addr(&cmp_data->label_table, current->operand);
+        address = get_label_addr(&cmp_data->label_table, current->operand);
         /* Write the data in the entry file */
         write_label(current->operand, address, cmp_data->entry_file.file);
         /* Get the next operand */
         current = (DirNode *) current->next;
     }
-    /* Return error status, indicating whether the whole process executed successfully */
-    return error_stat() == NO_ERROR;
 }

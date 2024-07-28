@@ -16,8 +16,8 @@
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
-static Boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data);
-static Boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data);
+static void first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data);
+static void second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data);
 static Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data);
 static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean delete);
 /* ---------------------------------------------------------------------------------------
@@ -50,7 +50,13 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
     }
 
     /* -------------------------------------- First phase -------------------------------------- */
-    if (first_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
+    /*if (first_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
+        free_program_data(&cmp_data, file_am, TRUE);
+        return;
+    }*/
+
+    first_phase_controller(file_am, file_name_am, macr_trie, &cmp_data);
+    if (get_status() != ERROR_FREE_FILE) {
         free_program_data(&cmp_data, file_am, TRUE);
         return;
     }
@@ -59,8 +65,13 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
     updt_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START, DIRECTIVE);
 
     /* -------------------------------------- Second phase -------------------------------------- */
+   /* if (second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
+        free_program_data(&cmp_data, file_am, TRUE);
+        return;
+    }*/
 
-    if (second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
+    second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data);
+    if (get_status() != ERROR_FREE_FILE) {
         free_program_data(&cmp_data, file_am, TRUE);
         return;
     }
@@ -96,33 +107,38 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the first phase completes without errors, FALSE otherwise.
  */
-static Boolean first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
+static void first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
     int line_count = 0;                 /* line counter */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
     Boolean no_error = TRUE;
 
+    /* Read line from the am file */
     while (fgets(line, sizeof(line), file_am) != NULL) {
         line_count++; /* Update counter */
-        node = parseLine(macr_trie, file_name, line_count, line); /* Parse line */
 
-        if (error_stat() != NO_ERROR) {
-            clear_error(); /* Enable processing the rest of the lines */
-            no_error = FALSE;
-            free_ast_node(node);
+        /* Parse line */
+        node = parseLine(macr_trie, file_name, line_count, line);
+
+        /* If an error occurred */
+        if (get_error() != NO_ERROR) {
+            /* Clear for enabling the processing of the next lines */
+            clear_error();
+            free_ast_node(node); /* Free nodes */
             continue;
         }
 
-        if (no_error == TRUE) {
-            if (first_phase_analyzer(node, cmp_data) == FALSE)
-                no_error = FALSE;
+        if (get_status() == ERROR_FREE_FILE) {
+            /* Encode only if the file is error free */
+            first_phase_analyzer(node, cmp_data);
         }
+
+        /* Free the astNode */
         free_ast_node(node);
     }
 
     /* Reset the file pointer to the beginning */
     fseek(file_am, 0, SEEK_SET);
-    return no_error;
 }
 
 /**
@@ -137,30 +153,31 @@ static Boolean first_phase_controller(FILE* file_am, const char* file_name, Macr
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the second phase completes without errors, FALSE otherwise.
  */
-static Boolean second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
+static void second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
     int line_count = 1;                 /* line counter */
     int unresolved_line = get_unresolved_line(cmp_data);
     Boolean no_error = TRUE;
 
+    /* Read line from the am file */
     while (fgets(line, sizeof(line), file_am) != NULL) {
         if (line_count != unresolved_line) {
             line_count++;
             continue;
         }
+
         /* Parse only unresolved lines */
         node = parseLine(macr_trie, file_name, line_count, line);
 
-        if (second_phase_analyzer(node, cmp_data) == FALSE){
-            no_error = FALSE;
-        }
+        /* Encode Unresolved line - the second phase */
+        second_phase_analyzer(node, cmp_data);
 
+        /* Update counters and get the next line */
         line_count++;
         unresolved_line = get_unresolved_line(cmp_data);
-        free_ast_node(node);
+        free_ast_node(node); /* Free the ASTNode memory */
     }
-    return no_error;
 }
 
 /* ---------------------------------------------------------------------------------------

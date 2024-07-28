@@ -101,7 +101,7 @@ void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
 Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
     /* Get the label type and address from the label table */
     LabelType label_type = get_label_type(&cmp_data->label_table, label);
-    int address = get_label_single_addr(&cmp_data->label_table, label);
+    int address = get_label_addr(&cmp_data->label_table, label);
     int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
 
     /* Label is not found */

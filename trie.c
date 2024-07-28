@@ -2,7 +2,7 @@
  *                                          Includes
  * --------------------------------------------------------------------------------------- */
 #include "trie.h"
-
+#include "errors.h"
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
@@ -44,7 +44,7 @@ Boolean init_trie(Trie *trie) {
     trie->root = create_trie_node();
 
     /* Memory allocation failure */
-    if (trie->root == NULL) {
+    if (!trie->root) {
         return FALSE;
     }
     /* Trie is successfully initialized */

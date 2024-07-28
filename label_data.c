@@ -2,6 +2,7 @@
  *                                        Includes
  * --------------------------------------------------------------------------------------- */
 #include "label_data.h"
+#include "errors.h"
 /* ---------------------------------------------------------------------------------------
  *                                        Functions
  * --------------------------------------------------------------------------------------- */
@@ -28,10 +29,13 @@ Boolean init_label_trie(Trie *trie) {
  * @param label_type The type of the label.
  * @return TRUE if the insertion was successful, FALSE otherwise.
  */
-Boolean insert_single_addr_label(Trie *trie, const char *label, int address, LabelType label_type) {
+Boolean insert_label(Trie *trie, const char *label, int address, LabelType label_type) {
     /* Allocate memory for the labelData struct */
     LabelData *label_data = (LabelData *)malloc(sizeof(LabelData));
-    if (!label_data) return FALSE;
+    if (!label_data) {
+        set_general_error(MEMORY_ALLOCATION_ERROR);
+        return FALSE;
+    }
 
     /* Set the specified values */
     label_data->address = address;
@@ -49,7 +53,7 @@ Boolean insert_single_addr_label(Trie *trie, const char *label, int address, Lab
  * @param label The label whose address is to be retrieved.
  * @return The address of the label if found, -1 otherwise.
  */
-int get_label_single_addr(Trie *trie, const char *label) {
+int get_label_addr(Trie *trie, const char *label) {
     TrieNode *node;
     LabelData *label_data;
 

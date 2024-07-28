@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "mappings.h"
 #include "parser.h"
+#include "label_data.h"
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
@@ -175,8 +176,8 @@ static Boolean validate_label(const char *label, ASTNode *node, const MacroTrie 
         return FALSE;
     }
 
-    /* Check if the label collides with macro name */
-    if (find_macro(macr_trie,label) != NULL) {
+    /* Check if the label collides existing label */
+    if (search_trie((const Trie *) macr_trie, label) != NULL) {
         set_error(LABEL_MACR_COLLIDES, node->location);
         return FALSE;
     }
@@ -339,7 +340,7 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
                 add_directive_operand(&node->specific.directive, operand);
             } else { /* Parse instruction type operands */
                 if (operand_counter >= 2) {
-                    set_general_error(INVALID_PARAM_NUMBER);
+                    set_error(INVALID_PARAM_NUMBER, node->location);
                     free(operand);
                     return FALSE;
                 }

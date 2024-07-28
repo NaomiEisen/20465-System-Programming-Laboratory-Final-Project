@@ -39,7 +39,7 @@ Boolean init_label_trie(Trie *trie);
  * @param label_type The type of the label.
  * @return TRUE if the insertion was successful, FALSE otherwise.
  */
-Boolean insert_single_addr_label(Trie *trie, const char *label, int address, LabelType label_type);
+Boolean insert_label(Trie *trie, const char *label, int address, LabelType label_type);
 
 /**
  * Retrieve the address of a label from the trie.
@@ -49,7 +49,7 @@ Boolean insert_single_addr_label(Trie *trie, const char *label, int address, Lab
  * @param label The label whose address is to be retrieved.
  * @return The address of the label if found, -1 otherwise.
  */
-int get_label_single_addr(Trie *trie, const char *label);
+int get_label_addr(Trie *trie, const char *label);
 
 /**
  * Retrieve the type of a label from the trie.

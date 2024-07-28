@@ -20,6 +20,7 @@ typedef enum {
     /* ======= Macro Errors ======= */
     INVALID_MACR,
     EXTRA_TXT_MACR,
+    MACR_DUPLICATE,
 
     /* ======= Comma Errors ======= */
     CONSECUTIVE_COMMA_ERROR,
@@ -36,6 +37,7 @@ typedef enum {
     UNRECOGNIZED_LABEL,
     MULTIPLE_LABEL,
     INVALID_LABEL_LENGTH,
+    INVALID_CHAR_LABEL,
     NOT_INTEGER,
     INVALID_STRING,
     INVALID_REGISTER,
@@ -60,6 +62,15 @@ typedef struct {
     Location location;        /* Error's location */
 } Error;
 
+typedef enum {
+    FATAL_ERROR,
+    ERROR_IN_FILE,
+    ERROR_FREE_FILE
+} Status;
+
+typedef struct {
+    Status status;
+} ProgramStatus;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
 /**
@@ -83,11 +94,23 @@ void set_general_error(ErrorCode code);
 void clear_error();
 
 /**
+ * Resets the program's status to 'error free file status.
+ */
+void reset_status();
+
+/**
  * Returns the current error code.
  *
  * @return The current error code.
  */
-ErrorCode error_stat();
+ErrorCode get_error();
+
+/**
+ * Returns the current program's status.
+ *
+ * @return The current program's status.
+ */
+Status  get_status();
 
 /**
  * Prints a warning message indicating that a label before extern/entry is useless.

@@ -15,7 +15,7 @@
  * --------------------------------------------------------------------------------------- */
 static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location);
 static Boolean validate_line_length(const char *line, Location location);
-static Boolean verify_macro(const char *str, Location location);
+static Boolean verify_macro(const char *str, Location location, MacroTrie *macr_trie);
 static int is_comment(const char* str);
 static int macr_start(const char* str);
 static int macr_end(const char* str);
@@ -106,7 +106,7 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
     Boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
     TrieNode* macr_usage = NULL;        /* node to hold macro's data in case of usage */
 
-    while (fgets(line, sizeof(line), source_file) != NULL) {
+    while (fgets(line, sizeof(line), source_file) != NULL && get_status() != FATAL_ERROR) {
         location.line++;                    /* Update counter */
         line_ptr = line;                    /* Set line pointer to line start */
         trim_leading_spaces(&line_ptr); /* Skip leading spaces */
@@ -145,9 +145,9 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
                 if (create_macr(macro_trie, line_ptr + strlen(word), location) == TRUE){
                     inside_macro = TRUE; /* set flag */
                 }
-                    /* todo : decide if continue check or not */
+                    /* todo : decide if continue check or not  */
                 else {
-                    break;
+                    continue;
                 }
             }
 
@@ -198,7 +198,7 @@ static Boolean validate_line_length(const char *line, Location location) {
 * @param location The current file location being processed.
 * @return TRUE if the macro initialization line is valid, FALSE otherwise.
 */
-static Boolean verify_macro(const char *str, Location location) {
+static Boolean verify_macro(const char *str, Location location, MacroTrie *macr_trie) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
     /* If macro don't have name */
@@ -208,6 +208,12 @@ static Boolean verify_macro(const char *str, Location location) {
     /* Macro name is reserved name */
     if (reserved_word(word)) {
         set_error(INVALID_MACR, location);
+        return FALSE;
+    }
+
+    /* Macro name collides with previous macro declarations */
+    if (find_macro(macr_trie, str)) {
+        set_error(MACR_DUPLICATE, location);
         return FALSE;
     }
 
@@ -265,7 +271,7 @@ static Boolean create_macr(MacroTrie *macr_trie, const char *str, Location locat
     trim_spaces(&str);
 
     /* Verify the macro initialization line */
-    if (verify_macro(str, location) == TRUE) {
+    if (verify_macro(str, location, macr_trie) == TRUE) {
         /* Add the macro to the trie and return the status of this process */
         return add_macr(macr_trie, str);
     }

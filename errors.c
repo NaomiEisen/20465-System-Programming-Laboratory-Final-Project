@@ -6,6 +6,7 @@
 
 /* ------------------------ Initialize the global error variable ------------------------ */
 static Error error = {NO_ERROR, "No error"};
+static ProgramStatus program_status = {ERROR_FREE_FILE};
 
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
@@ -30,6 +31,7 @@ const char* get_error_message(ErrorCode code) {
         case LINE_TOO_LONG: return "Command line is too long. Should be 81 chars at max";
         case INVALID_MACR: return "Invalid macro name";
         case EXTRA_TXT_MACR: return "Extra text after macro define";
+        case MACR_DUPLICATE: return "Macro with the same name already exists";
         case CONSECUTIVE_COMMA_ERROR: return "Multiple consecutive commas";
         case MISSING_COMMA_ERROR: return "Missing comma";
         case ILLEGAL_COMMA_ERROR: return "Illegal comma";
@@ -40,6 +42,7 @@ const char* get_error_message(ErrorCode code) {
         case LABEL_RESERVED_WORD: return "Invalid label name, cannot be reserved word";
         case LABEL_MACR_COLLIDES: return "label and macro's name are collides";
         case UNRECOGNIZED_LABEL: return "Unrecognized label";
+        case INVALID_CHAR_LABEL: return "Invalid char/s in labels name";
         case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars";
         case MULTIPLE_LABEL: return "Multiple label defenition";
         case NOT_INTEGER: return "Not an integer";
@@ -58,13 +61,38 @@ const char* get_error_message(ErrorCode code) {
 static void print_error() {
     /* Print only if error is set */
     if (error.code != NO_ERROR) {
-        printf("Error: %s ", error.message);
+        printf("Error: %s", error.message);
         /* If there is specified location - print it too */
         if (error.location.line > 0) {
             printf(" | Location: file name - %s, line - %d", error.location.file, error.location.line);
         }
         printf("\n");
     }
+}
+
+/**
+ * Private function - sets the program's status to the specified status.
+ *
+ * @param status The program's status.
+ */
+static void set_program_status(Status status) {
+    program_status.status = status;
+}
+
+/**
+ * Resets the program's status to 'error free file' status.
+ */
+void reset_status() {
+    program_status.status = ERROR_FREE_FILE;
+}
+
+/**
+ * Returns the current program's status.
+ *
+ * @return The current program's status.
+ */
+Status  get_status() {
+    return program_status.status;
 }
 
 /**
@@ -78,6 +106,12 @@ void set_error(ErrorCode code, Location location) {
     error.message = get_error_message(code);
     error.location = location;
     print_error();
+
+    if (code == MEMORY_ALLOCATION_ERROR) {
+        set_program_status(FATAL_ERROR);
+    } else if (code != NO_ERROR){
+        set_program_status(ERROR_IN_FILE);
+    }
 }
 
 /**
@@ -106,7 +140,7 @@ void clear_error() {
  *
  * @return The current error code.
  */
-ErrorCode error_stat() {
+ErrorCode get_error() {
     return error.code;
 }
 

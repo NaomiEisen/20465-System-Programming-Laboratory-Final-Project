@@ -13,13 +13,13 @@
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
-static Boolean handle_instruction(ASTNode *node, CmpData *cmp_data);
+static void handle_instruction(ASTNode *node, CmpData *cmp_data);
 static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img);
 static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset);
 static void code_operands(ASTNode *node, CmpData *cmp_data);
-static Boolean handle_directive(ASTNode *node, CmpData *cmp_data);
+static void handle_directive(ASTNode *node, CmpData *cmp_data);
 static Boolean handle_extern(ASTNode* node, CmpData* cmp_data);
-static Boolean add_label(ASTNode *node, int address, CmpData *cmp_data);
+static void add_label(ASTNode *node, int address, CmpData *cmp_data);
 
 /* ---------------------------------------------------------------------------------------
  *                              Head Function of First Phase
@@ -32,17 +32,17 @@ static Boolean add_label(ASTNode *node, int address, CmpData *cmp_data);
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the line is processed successfully, FALSE otherwise.
  */
-Boolean first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
+void first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
     /* Check if line is empty or comment */
     if (node->lineType == LINE_EMPTY || node->lineType == LINE_COMMENT) {
-        return TRUE;
+        return;
     }
     /* Handle operation line */
     if (node->lineType == LINE_INSTRUCTION) {
-        return handle_instruction(node, cmp_data);
+        handle_instruction(node, cmp_data);
+    } else { /* Handle directive line */
+        handle_directive(node, cmp_data);
     }
-    /* Handle directive line */
-    return handle_directive(node, cmp_data);
 }
 /* ---------------------------------------------------------------------------------------
  *                                       Functions
@@ -56,20 +56,18 @@ Boolean first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the instruction is processed successfully, FALSE otherwise.
  */
-static Boolean handle_instruction(ASTNode *node, CmpData *cmp_data) {
+static void handle_instruction(ASTNode *node, CmpData *cmp_data) {
     int ic_start = cmp_data->code.count; /* remember starting address */
     int command_index = node->specific.instruction.operation;
 
     /* Validate number of parameters */
     if (get_num_param(command_index) != node->specific.instruction.num_operands) {
         set_error(INVALID_PARAM_NUMBER, node->location);
-        return FALSE;
     }
 
     /* Code first word */
     if (first_word(node, command_index, &cmp_data->code) == FALSE) {
         set_error(INVALID_PARAM_TYPE, node->location);
-        return FALSE;
     }
 
     /* Code the second/third word */
@@ -77,13 +75,8 @@ static Boolean handle_instruction(ASTNode *node, CmpData *cmp_data) {
 
     /* insert label if exists */
     if (node->label[0] != '\0' ){
-        if( add_label(node, ic_start+IC_START, cmp_data) == FALSE) {
-            set_error(MULTIPLE_LABEL, node->location);
-            return FALSE;
-        }
+        add_label(node, ic_start+IC_START, cmp_data);
     }
-    /* The process executed successfully */
-    return TRUE;
 }
 
 /**
@@ -153,15 +146,30 @@ static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, in
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the label is added successfully, FALSE otherwise.
  */
-static Boolean add_label(ASTNode *node, int address, CmpData *cmp_data) {
+static void add_label(ASTNode *node, int address, CmpData *cmp_data) {
+    Boolean label_added;
+
+    /* Check if label already defined */
+    if ((get_label_addr(&cmp_data->label_table,node->label) >= 0)) {
+        set_error(MULTIPLE_LABEL, node->location);
+        return;
+    }
+
     /* Add label to the label table according to it's type */
     switch (node->lineType) {
         case LINE_INSTRUCTION:
-            return insert_single_addr_label(&cmp_data->label_table, node->label, address, INSTRUCTION);
+            label_added = insert_label(&cmp_data->label_table, node->label, address, INSTRUCTION);
+            break;
         case LINE_DIRECTIVE:
-            return insert_single_addr_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
-        default: /* None existing label type - Error */
-            return FALSE;
+            label_added = insert_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
+            break;
+    }
+
+    /* Check for errors */
+    if (label_added == FALSE) {
+        if (get_status() != FATAL_ERROR) {
+            set_error(INVALID_LABEL_NAME, node->location);
+        }
     }
 }
 
@@ -218,7 +226,7 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the directive is processed successfully, FALSE otherwise.
  */
-static Boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
+static void handle_directive(ASTNode *node, CmpData *cmp_data) {
     int id_start = cmp_data->data.count; /* remember starting address */
 
     switch (node->specific.directive.operation) {
@@ -233,14 +241,13 @@ static Boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
         case ENTRY:
             if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
                 set_general_error(MEMORY_ALLOCATION_ERROR); /* TODO memory allocation! */
-                return FALSE;
+                return;
             }
             break;
         case EXTERN:
             if (handle_extern(node, cmp_data) == FALSE) {
-                return FALSE;
+                return;
             }
-            break;
     }
 
     /* insert label if exists */
@@ -248,13 +255,8 @@ static Boolean handle_directive(ASTNode *node, CmpData *cmp_data) {
         if (node->specific.directive.operation == EXTERN ||
         node->specific.directive.operation == ENTRY) {
             print_warning();
-        } else {
-            if (add_label(node, id_start, cmp_data) == FALSE) {
-                set_error(MULTIPLE_LABEL, node->location);
-            }
+        } else {add_label(node, id_start, cmp_data);}
         }
-    }
-    return (error_stat() == NO_ERROR);
 }
 
 /**
@@ -270,7 +272,7 @@ static Boolean handle_extern(ASTNode* node, CmpData* cmp_data) {
 
     while (current) {
         /* Try adding the label to the label table */
-        if (insert_single_addr_label(&cmp_data->label_table,current->operand, 0, EXTERNAL) == FALSE) {
+        if (insert_label(&cmp_data->label_table, current->operand, 0, EXTERNAL) == FALSE) {
             set_error(MULTIPLE_LABEL, node->location);
             return FALSE;
         }
@@ -278,7 +280,7 @@ static Boolean handle_extern(ASTNode* node, CmpData* cmp_data) {
     }
 
     /* Return the error status - to insure no error occurred during the labels adding process */
-    return error_stat() == NO_ERROR;
+    return get_error() == NO_ERROR;
 }
 
 

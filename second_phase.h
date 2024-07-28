@@ -12,6 +12,6 @@
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the line is processed successfully, FALSE otherwise.
  */
-Boolean second_phase_analyzer(ASTNode *node, CmpData *cmp_data);
+void second_phase_analyzer(ASTNode *node, CmpData *cmp_data);
 
 #endif /* SECOND_PHASE_H */
