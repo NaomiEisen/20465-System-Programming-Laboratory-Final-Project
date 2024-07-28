@@ -6,13 +6,17 @@
 
 /* ------------------------ Initialize the global error variable ------------------------ */
 static Error error = {NO_ERROR, "No error"};
-static FatalError fatal_error = {FALSE};
 
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
 
-/* Function to get the error message for a given error code */
+/**
+ * Function that retrieves the error message corresponding to a given error code.
+ *
+ * @param code The error code for which the message is to be retrieved.
+ * @return A string containing the error message.
+ */
 const char* get_error_message(ErrorCode code) {
     switch (code) {
         case NO_ERROR: return "No error";
@@ -47,8 +51,28 @@ const char* get_error_message(ErrorCode code) {
         default: return "An unspecified error occurred";
     }
 }
+/**
+ * Private methods - prints the current error message and location, if an error is set.
+ * Activates whenever an error is set.
+ */
+static void print_error() {
+    /* Print only if error is set */
+    if (error.code != NO_ERROR) {
+        printf("Error: %s ", error.message);
+        /* If there is specified location - print it too */
+        if (error.location.line > 0) {
+            printf(" | Location: file name - %s, line - %d", error.location.file, error.location.line);
+        }
+        printf("\n");
+    }
+}
 
-
+/**
+ * Sets the current error with the specified error code and location.
+ *
+ * @param code The error code to set.
+ * @param location The location in the source file where the error occurred.
+ */
 void set_error(ErrorCode code, Location location) {
     error.code = code;
     error.message = get_error_message(code);
@@ -56,6 +80,11 @@ void set_error(ErrorCode code, Location location) {
     print_error();
 }
 
+/**
+ * Sets a general error with the specified error code but without a specific location.
+ *
+ * @param code The error code to set.
+ */
 void set_general_error(ErrorCode code) {
     Location default_location = {NULL, 0};
     error.code = code;
@@ -64,30 +93,26 @@ void set_general_error(ErrorCode code) {
     print_error();
 }
 
-void print_error() {
-    if (error.code != NO_ERROR) {
-        printf("Error: %s ", error.message);
-        if (error.location.line > 0) {
-            printf(" | Location: file name - %s, line - %d", error.location.file, error.location.line);
-        }
-        printf("\n");
-    }
-}
-
+/**
+ * Clears the current error, resetting it to NO_ERROR with a default location.
+ */
 void clear_error() {
     Location default_location = {NULL, 0};
     set_error(NO_ERROR, default_location);
 }
 
+/**
+ * Returns the current error code.
+ *
+ * @return The current error code.
+ */
 ErrorCode error_stat() {
     return error.code;
 }
 
+/**
+ * Prints a warning message indicating that a label before extern/entry is useless.
+ */
 void print_warning() {
     printf("WARNING: label before extern/entry is useless.");
-}
-
-void fatal_error_occured(){
-    printf("Memory Allocation Error: program run out of memory. Exiting...");
-    fatal_error.error = TRUE;
 }

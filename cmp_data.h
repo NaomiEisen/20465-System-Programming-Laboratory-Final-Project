@@ -27,23 +27,23 @@ typedef struct UnresolvedLineList{
 
 /* File struct - Represents a file with a pointer to the file stream and the file name */
 typedef struct File{
-    FILE* file; /* Pointer to the file stream */
-    char* file_name;       /* The file's name */
+    FILE* file;                                /* Pointer to the file stream */
+    char* file_name;                                      /* The file's name */
 } File;
 
-/**
+/*
  * CmpData struct
  * Contains all the necessary data for the compilation process.
  * Includes memory images for code and data, a label table,
  * a list of unresolved lines, and file information for external and entry files.
  */
 typedef struct CmpData{
-    MemoryImage code;            /* Memory image for the code section */
-    MemoryImage data;            /* Memory image for the data section */
-    Trie label_table;                      /* Trie for storing labels */
-    UnresolvedLineList *line_list; /* Linked list of unresolved lines */
-    File extern_file;       /* File information for the external file */
-    File entry_file;           /* File information for the entry file */
+    MemoryImage code;                  /* Memory image for the code section */
+    MemoryImage data;                  /* Memory image for the data section */
+    Trie label_table;                            /* Trie for storing labels */
+    UnresolvedLineList *line_list;       /* Linked list of unresolved lines */
+    File extern_file;             /* File information for the external file */
+    File entry_file;                 /* File information for the entry file */
 } CmpData;
 
 /* ----------------------------------- Functions Prototypes ------------------------------------*/
@@ -91,5 +91,8 @@ void updt_memory_image_counter(MemoryImage *memory_image);
  * @param delete: If TRUE, delete the files associated with the CmpData structure.
  */
 void free_cmp_data(CmpData *cmp_data, Boolean delete);
+
+
+void print_memory_image_marks(const MemoryImage *memory_image);
 
 #endif /* CMP_DATA_H */

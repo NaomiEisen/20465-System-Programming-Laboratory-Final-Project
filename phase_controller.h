@@ -2,7 +2,6 @@
 #define FIRST_PHASE_H
 /* ----------------------------------------- Includes -----------------------------------------*/
 #include "macro_data.h"
-
 /* ----------------------------------- Functions Prototypes ------------------------------------*/
 /**
  * The `phase_controller` function orchestrates the two phases of the assembler on the am file.

@@ -1,19 +1,23 @@
 #ifndef PARSER_H
 #define PARSER_H
+/* ----------------------------------------- Includes -----------------------------------------*/
 # include "ast.h"
 #include "macro_data.h"
+/* ----------------------------------- Functions Prototypes ------------------------------------*/
+/**
+ * Parses a line of assembly code and creates an ASTNode representing the line.
+ * This function processes a single line of assembly code, determining its type
+ * (empty/comment, label, directive, or instruction) and extracting the relevant
+ * information into an ASTNode structure. It uses several helper functions to
+ * handle different parts of the line.
+ *
+ * @param macr_trie A trie containing macro definitions to check for collisions with labels.
+ * @param file_name The name of the file being parsed, used for error reporting.
+ * @param line_num The line number in the file, used for error reporting.
+ * @param line The line of assembly code to parse.
+ *
+ * @return A pointer to the newly created ASTNode representing the parsed line.
+ */
+ASTNode *parseLine(const MacroTrie *macr_trie, const char *file_name, int line_num, const char *line);
 
-
-Boolean check_empty_line (const char** line, ASTNode* node);
-Boolean validate_label(const char *label, ASTNode *node, MacroTrie *macr_trie);
-Boolean is_label(const char **line, ASTNode *node, MacroTrie *macr_trie);
-Boolean parse_operation(const char **line, ASTNode *node);
-Boolean validate_operation(const char *operation, ASTNode* node);
-Boolean parse_string(const char **line, ASTNode *node);
-Boolean parse_operands(const char **line, ASTNode *node);
-void parse_instruct_operand(ASTNode *node, const char *operand);
-ASTNode *parseLine(MacroTrie *macr_trie, const char *file_name, int line_num, const char *line);
-void parse_int(ASTNode* node, const char *operand);
-void parse_reg(ASTNode* node, const char *operand, int addr_mode);
-void parse_label (ASTNode* node, const char *operand);
 #endif /* PARSER_H */

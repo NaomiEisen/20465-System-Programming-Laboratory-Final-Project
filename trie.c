@@ -126,7 +126,7 @@ int get_index(char c) {
  * @param label The label to be searched in the trie.
  * @return TrieNode* A pointer to the found node if the label exists; otherwise, NULL.
  */
-TrieNode* search_trie(Trie *trie, const char *label) {
+TrieNode* search_trie(const Trie *trie, const char *label) {
     TrieNode *node;
     if (trie == NULL) {
         return NULL; /* if the trie pointer is NULL, return */

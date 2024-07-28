@@ -26,18 +26,21 @@ void controller(int argc, char* argv[]) {
     while (argc > 1) {
         /* Initialize the macro data structure */
         init_macr_trie(&macro_trie);
+
         /* Preprocess file */
         file_am = preprocessor_controller(argv[i], &macro_trie);
-        print_trie_test(&macro_trie);
+        print_trie_test(&macro_trie); /* todo for meeee */
 
-        /* If an error occur, continue to the next file */
-        if (error_stat() != NO_ERROR) {
+        /* Continue processing only if no error occurred */
+        if (error_stat() == NO_ERROR) {
+            phase_controller(argv[i], file_am, &macro_trie);
+        } else {
             printf("Could not process file %s \n", argv[i]);
         }
 
-        /* Process file */
-        else {
-            phase_controller(argv[i], file_am, &macro_trie);
+        /* Check for fatal error */
+        if (error_stat() == MEMORY_ALLOCATION_ERROR) {
+            exit(0);
         }
 
         /* updated variables */
@@ -47,5 +50,6 @@ void controller(int argc, char* argv[]) {
         /* free structures before proceeding to the next file */
         free(file_am);
         free_macr_trie(&macro_trie);
+        clear_error(); /* Clear error status for next files */
     }
 }

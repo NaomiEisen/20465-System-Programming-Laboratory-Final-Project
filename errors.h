@@ -1,7 +1,5 @@
 #ifndef ERRORS_H
 #define ERRORS_H
-#include "boolean.h"
-
 /* ---------------------------- Error Codes ---------------------------- */
 typedef enum {
     /* ======= General Errors ======= */
@@ -49,29 +47,51 @@ typedef enum {
 
 } ErrorCode;
 
-/* ----------------------------- Location struct ------------------------------- */
+/* Structure that represents a location in a source file */
 typedef struct {
-    const char *file;
-    int line;
+    const char *file;       /* File name */
+    int line; /* Line number in the file */
 } Location;
 
-/* -------------------------------- Error struct -------------------------------- */
+/* Structure that represents an error with associated information */
 typedef struct {
-    ErrorCode code;
-    const char *message;
-    Location location;
+    ErrorCode code;               /* Error's code */
+    const char *message; /* Message to be printed */
+    Location location;        /* Error's location */
 } Error;
 
-typedef struct {
-    Boolean error;
-} FatalError;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
+/**
+ * Sets the current error with the specified error code and location.
+ *
+ * @param code The error code to set.
+ * @param location The location in the source file where the error occurred.
+ */
 void set_error(ErrorCode code, Location location);
+
+/**
+ * Sets a general error with the specified error code but without a specific location.
+ *
+ * @param code The error code to set.
+ */
 void set_general_error(ErrorCode code);
-void print_error();
+
+/**
+ * Clears the current error, resetting it to NO_ERROR with a default location.
+ */
 void clear_error();
+
+/**
+ * Returns the current error code.
+ *
+ * @return The current error code.
+ */
 ErrorCode error_stat();
+
+/**
+ * Prints a warning message indicating that a label before extern/entry is useless.
+ */
 void print_warning();
 
 #endif /* ERRORS_H */

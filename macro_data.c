@@ -76,7 +76,7 @@ Boolean add_line_to_last_macro(MacroTrie *macr_trie, const char *line) {
 }
 
 /* Function to find a macro in the Macro Trie */
-TrieNode* find_macro(MacroTrie *macr_trie, const char *macr_name) {
+TrieNode* find_macro(const MacroTrie *macr_trie, const char *macr_name) {
     return search_trie(&macr_trie->trie, macr_name);
 }
 

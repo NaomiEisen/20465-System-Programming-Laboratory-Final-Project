@@ -10,7 +10,6 @@
 #include "boolean.h"
 #include "mappings.h"
 #include "defines.h"
-
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
@@ -86,6 +85,10 @@ char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
     free(source_filename);
     return output_filename;
 }
+
+/* ---------------------------------------------------------------------------------------
+ *                                           Functions
+ * --------------------------------------------------------------------------------------- */
 /**
  * Processes each line of the source file, handling macro definitions and usages,
  * and writes the processed lines to the output file.
@@ -127,7 +130,6 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
                     set_error(EXTRA_TXT_MACR, location);
-                    print_error();
                     /* clear_error();  TOdo : why? */
                 }
                 continue;

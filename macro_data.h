@@ -33,7 +33,7 @@ Boolean add_macr(MacroTrie *macr_trie, const char *macr_name);
 LineNode* get_macr_content(MacroTrie *macr_trie, const char *macr_name);
 /* Add a line to the last added macro */
 Boolean add_line_to_last_macro(MacroTrie *macr_trie, const char *line);
-TrieNode* find_macro(MacroTrie *macr_trie, const char *macr_name);
+TrieNode* find_macro(const MacroTrie *macr_trie, const char *macr_name);
 /* Function to free all data in the trie without freeing the nodes */
 void free_trie_data(MacroTrie *macr_trie);
 /* Free the entire Macro Trie */
