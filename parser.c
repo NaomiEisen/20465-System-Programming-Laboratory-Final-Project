@@ -1,3 +1,6 @@
+/* ---------------------------------------------------------------------------------------
+ *                                          Includes
+ * --------------------------------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -8,7 +11,9 @@
 #include "boolean.h"
 #include "mappings.h"
 #include "parser.h"
-
+/* ---------------------------------------------------------------------------------------
+ *                                   Head Function Of Parser
+ * --------------------------------------------------------------------------------------- */
 ASTNode *parseLine(MacroTrie *macr_trie, const char *file_name, int line_num, const char *line) {
     ASTNode *node = create_empty_ASTnode(file_name, line_num);
     const char *line_ptr = line;
@@ -47,6 +52,9 @@ ASTNode *parseLine(MacroTrie *macr_trie, const char *file_name, int line_num, co
 
     return node;
 }
+/* ---------------------------------------------------------------------------------------
+ *                                         Functions
+ * --------------------------------------------------------------------------------------- */
 
 Boolean check_empty_line (const char** line, ASTNode* node) {
     const char* ptr = *line;
@@ -276,7 +284,7 @@ void parse_instruct_operand(ASTNode *node, const char *operand) {
     }
     else if (operand[0] == '*') {
         /* Check if the rest of the string is a valid register */
-        parse_reg(node, operand+1, ADDR_UNDIRECT_REG);
+        parse_reg(node, operand+1, ADDR_INDIRECT_REG);
     }
 
     else if (get_register_index(operand) != -1) {

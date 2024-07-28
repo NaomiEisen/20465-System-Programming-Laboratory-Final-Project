@@ -1,91 +1,172 @@
+/* ---------------------------------------------------------------------------------------
+ *                                          Includes
+ * --------------------------------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "ast.h"
 #include "utils.h"
-
-
+#include "defines.h"
+/* ---------------------------------------------------------------------------------------
+ *                                         Functions
+ * --------------------------------------------------------------------------------------- */
+/**
+ * Creates and initializes an empty AST node.
+ * @param file: The name of the file where the node is created.
+ * @param line: The line number in the file where the node is created.
+ * @return A pointer to the newly created AST node, or a null pointer if memory allocation failed.
+ */
 ASTNode *create_empty_ASTnode(const char *file, int line) {
+    /* Allocate memory for ASTNode struct */
     ASTNode *node = (ASTNode*)malloc(sizeof(ASTNode));
-    if (node) {
-        node->lineType = LINE_EMPTY;
+    if (node) { /* If node is not null */
+        node->lineType = LINE_EMPTY; /* Default line type */
         node->label[0] = '\0';  /* Empty label */
         memset(&(node->specific.instruction), 0, sizeof(Instruction));  /* Initialize instruction to 0 */
         node->location.file = file;
         node->location.line = line;
     }
-    return node;
+    return node; /* Return the node or null if the memory allocation failed */
 }
+
+/**
+ * Sets the label of an AST node.
+ *
+ * @param node: The AST node whose label is to be set.
+ * @param label: The label to be set.
+ */
 void set_ast_label(ASTNode *node, const char *label) {
     if (node) {
-        strncpy(node->label, label, MAX_LABEL_LENGTH-2);  /* Copy label into node with a maximum length of 80 characters */
+        /* Copy label into node with a maximum length of 80 characters */
+        strncpy(node->label, label, MAX_LABEL_LENGTH-2);
         node->label[MAX_LABEL_LENGTH-1] = '\0';  /* Null-terminate the label string */
     }
 }
 
+/**
+ * Sets the type of an AST node.
+ *
+ * @param node: The AST node whose type is to be set.
+ * @param lineType: The type to be set.
+ */
 void set_ast_type(ASTNode *node, LineType lineType) {
     if (node) {
         node->lineType = lineType;
     }
 }
 
+/**
+ * Sets the operation for a directive in an AST node.
+ *
+ * @param node: The AST node whose directive operation is to be set.
+ * @param operation: The directive operation to be set.
+ */
 void set_operation_for_directive(ASTNode *node, DirectiveType operation) {
+    /* First check if node exists and if it's type is directive */
     if (node && node->lineType == LINE_DIRECTIVE) {
         node->specific.directive.operation = operation;
     }
 }
 
+/**
+ * Sets the operation for an instruction in an AST node.
+ *
+ * @param node: The AST node whose instruction operation is to be set.
+ * @param operation: The instruction operation to be set.
+ */
 void set_operation_for_instruction(ASTNode *node, int operation) {
+    /* First check if node exists and if it's type is instruction */
     if (node && node->lineType == LINE_INSTRUCTION) {
         node->specific.instruction.operation = operation;
     }
 }
 
+/**
+ * Retrieves the operand of an instruction in an AST node.
+ *
+ * @param node: The AST node from which to retrieve the operand.
+ * @param num: The number of the operand to retrieve (1 or 2).
+ * @return A pointer to the specified operand.
+ */
 InstructionOperand* get_operand(ASTNode *node, int num) {
-    if (num == 2) {
+    if (num == 2) { /* Second operand */
         return &node->specific.instruction.operand2;
     }
-    else {
+    else { /* First operand */
         return &node->specific.instruction.operand1;
     }
 }
 
-Boolean add_instruct_operand(ASTNode *node, int adr_mode, const char *value, int reg) {
+/**
+ * Adds an operand to an instruction in an AST node.
+ *
+ * @param node: The AST node to which the operand is to be added.
+ * @param adr_mode: The addressing mode of the operand.
+ * @param value: The value of the operand.
+ * @param num: The register number (if applicable) of the operand.
+ * @return TRUE if the operand was added successfully, FALSE otherwise.
+ */
+Boolean add_instruct_operand(ASTNode *node, int adr_mode, const char *value, int num) {
     InstructionOperand* instruct_op = get_operand(node, node->specific.instruction.num_operands + 1);
     switch (adr_mode) {
+        /* Direct address mode - label operand */
         case 1:
             strcpy(instruct_op->value.char_val, value);
             instruct_op->adr_mode = adr_mode;
             node->specific.instruction.num_operands++;
             break;
-        case 0:
-        case 2:
-        case 3:
-            instruct_op->value.int_val = reg;
+        /* Integer operand */
+        case 0: /* Immediate address mode */
+        case 2: /* Register Indirect Addressing Mode */
+        case 3: /* Register Direct Addressing Mode */
+            instruct_op->value.int_val = num;
             instruct_op->adr_mode = adr_mode;
             node->specific.instruction.num_operands++;
             break;
+        /* Invalid address mode */
         default:
             return FALSE;
     }
+    /* The process completed successfully */
     return TRUE;
 }
 
-DirNode* create_dir_node(char *operand) {
+/**
+ * Private function - creates a new directive node.
+ *
+ * @param operand: The operand for the directive node.
+ * @return A pointer to the newly created directive node. Or a null pointer if the
+ * memory allocation failed.
+ */
+static DirNode* create_dir_node(char *operand) {
+    /* Allocate memory for new DirNode */
     DirNode *new_node = (DirNode *)malloc(sizeof(DirNode));
-    if (!new_node) {
-        return NULL;
+    if (new_node) {
+        new_node->operand = operand;
+        new_node->next = NULL;
     }
-    new_node->operand = operand;
-    new_node->next = NULL;
+
+    /* Return the new node, or a null pointer if memory allocation failed */
     return new_node;
 }
 
+/**
+ * Adds an operand to a directive.
+ *
+ * @param directive: The directive to which the operand is to be added.
+ * @param operand: The operand to be added.
+ * @return TRUE if the operand was added successfully, FALSE otherwise.
+ */
 Boolean add_directive_operand(Directive *directive, char *operand) {
+    /* Create new empty DirNode */
     DirNode *new_node = create_dir_node(operand);
+
+    /* Return false if memory allocation failed */
     if (!new_node) {
         return FALSE;
     }
+
+    /* Add the new node to the end of the operand list */
     if (!directive->operands) {
         directive->operands = new_node;
     } else {
@@ -96,11 +177,18 @@ Boolean add_directive_operand(Directive *directive, char *operand) {
         temp->next = (struct DirNode *) new_node;
     }
 
+    /* The process completed successfully */
     return TRUE;
 }
 
-void free_dir_nodes(DirNode *node) {
+/**
+ * Private function - Frees the memory allocated for a list of directive nodes.
+ *
+ * @param node: The head of the list of directive nodes to be freed.
+ */
+static void free_dir_nodes(DirNode *node) {
     DirNode *temp;
+    /* Iterate through list and free all the nodes */
     while (node) {
         temp = node;
         node = (DirNode *) node->next;
@@ -109,15 +197,25 @@ void free_dir_nodes(DirNode *node) {
     }
 }
 
+/**
+ * Frees the memory allocated for an AST node.
+ *
+ * @param node: The AST node to be freed.
+ */
 void free_ast_node(ASTNode *node) {
-    if (!node) {
+    if (!node) { /* Check for null pointer */
         return;
     }
+    /* If this is directive node - free the list of directive nodes first */
     if (node->lineType == LINE_DIRECTIVE) {
         free_dir_nodes(node->specific.directive.operands);
     }
+    /* Free the node struct */
     free(node);
 }
+
+
+/* ------------------------------- for meeeee ------------------------------------------------------*/
 
 void print_instruction_node(ASTNode *node) {
     if (node->lineType != LINE_INSTRUCTION) {
@@ -141,32 +239,3 @@ void print_directive_node(ASTNode *node) {
         operand = (DirNode *) operand->next;
     }
 }
-
-/*void print_AST_node(ASTNode *node) {
-    printf("Line Type: %d\n", node->lineType);
-    printf("Label: %s\n", node->label);
-
-    if (node->lineType == LINE_INSTRUCTION) {
-        printf("Operation: %d\n", node->specifics.instruction.operation);
-        printf("Operand 1: Adr Mode - %d, Value - ", node->specifics.instruction.operand1.adr_mode);
-        if (node->specifics.instruction.operand1.adr_mode == 0) {
-            printf("%d\n", node->specifics.instruction.operand1.value.int_val);
-        } else if (node->specifics.instruction.operand1.adr_mode == 1) {
-            printf("%s\n", node->specifics.instruction.operand1.value.char_val);
-        }
-        printf("Operand 2: Adr Mode - %d, Value - ", node->specifics.instruction.operand2.adr_mode);
-        if (node->specifics.instruction.operand2.adr_mode == 0) {
-            printf("%d\n", node->specifics.instruction.operand2.value.int_val);
-        } else if (node->specifics.instruction.operand2.adr_mode == 1) {
-            printf("%s\n", node->specifics.instruction.operand2.value.char_val);
-        }
-    } else if (node->lineType == LINE_DIRECTIVE) {
-        printf("Directive Type: %d\n", node->specifics.directive.operation);
-        printf("Operands:\n");
-        struct OperandNode *current = node->specifics.directive.operands;
-        while (current != NULL) {
-            printf("%s\n", current->operand);
-            current = current->next;
-        }
-    }
-}*/

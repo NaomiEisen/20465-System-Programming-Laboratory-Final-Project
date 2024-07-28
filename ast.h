@@ -1,21 +1,11 @@
 #ifndef AST_H
 #define AST_H
-/* ---------------------------------------------------------------------------------------
- *                                          Includes
- * --------------------------------------------------------------------------------------- */
+/* ----------------------------------------- Includes -----------------------------------------*/
 #include "errors.h"
 #include "boolean.h"
-/* ---------------------------------------------------------------------------------------
- *                                          Defines
- * --------------------------------------------------------------------------------------- */
-#define MAX_LABEL_LENGTH 32
-#define ADDR_MODE_IMMEDIATE 0
-#define ADDR_MODE_DIRECT 1
-#define ADDR_UNDIRECT_REG 2
-#define ADDR_DIRECT_REG 3
-/* ---------------------------------------------------------------------------------------
- *                                          Structures
- * --------------------------------------------------------------------------------------- */
+#include "defines.h"
+
+/* ---------------------------------------- Structures ----------------------------------------*/
 
 /* Enum representing different types of lines */
 typedef enum {
@@ -79,21 +69,81 @@ typedef struct {
     Location location;            /* Location information of the line */
 } ASTNode;
 
-/* ---------------------------------------------------------------------------------------
- *                                         Prototypes
- * --------------------------------------------------------------------------------------- */
+/* ----------------------------------- Functions Prototypes ------------------------------------*/
 
+/**
+ * Creates and initializes an empty AST node.
+ * @param file: The name of the file where the node is created.
+ * @param line: The line number in the file where the node is created.
+ * @return A pointer to the newly created AST node, or a null pointer if memory allocation failed.
+ */
 ASTNode *create_empty_ASTnode(const char *file, int line);
-void set_ast_label(ASTNode *node, const char *label);
-void set_ast_type(ASTNode *node, LineType lineType);
-void set_operation_for_directive(ASTNode *node, DirectiveType operation);
-Boolean add_directive_operand(Directive *directive, char *operand);
-void set_operation_for_instruction(ASTNode *node, int operation);
-Boolean add_instruct_operand(ASTNode *node, int adr_mode, const char *value, int reg);
-InstructionOperand * get_operand(ASTNode *node, int num);
-void free_dir_nodes(DirNode *node);
-void free_ast_node(ASTNode *node);
-void print_AST_node(ASTNode *node);
 
+/**
+ * Sets the label of an AST node.
+ *
+ * @param node: The AST node whose label is to be set.
+ * @param label: The label to be set.
+ */
+void set_ast_label(ASTNode *node, const char *label);
+
+/**
+ * Sets the type of an AST node.
+ *
+ * @param node: The AST node whose type is to be set.
+ * @param lineType: The type to be set.
+ */
+void set_ast_type(ASTNode *node, LineType lineType);
+
+/**
+ * Sets the operation for a directive in an AST node.
+ *
+ * @param node: The AST node whose directive operation is to be set.
+ * @param operation: The directive operation to be set.
+ */
+void set_operation_for_directive(ASTNode *node, DirectiveType operation);
+
+/**
+ * Sets the operation for an instruction in an AST node.
+ *
+ * @param node: The AST node whose instruction operation is to be set.
+ * @param operation: The instruction operation to be set.
+ */
+void set_operation_for_instruction(ASTNode *node, int operation);
+
+/**
+ * Retrieves the operand of an instruction in an AST node.
+ *
+ * @param node: The AST node from which to retrieve the operand.
+ * @param num: The number of the operand to retrieve (1 or 2).
+ * @return A pointer to the specified operand.
+ */
+InstructionOperand* get_operand(ASTNode *node, int num);
+/**
+ * Adds an operand to an instruction in an AST node.
+ *
+ * @param node: The AST node to which the operand is to be added.
+ * @param adr_mode: The addressing mode of the operand.
+ * @param value: The value of the operand.
+ * @param num: The register number (if applicable) of the operand.
+ * @return TRUE if the operand was added successfully, FALSE otherwise.
+ */
+Boolean add_instruct_operand(ASTNode *node, int adr_mode, const char *value, int num);
+
+/**
+ * Adds an operand to a directive.
+ *
+ * @param directive: The directive to which the operand is to be added.
+ * @param operand: The operand to be added.
+ * @return TRUE if the operand was added successfully, FALSE otherwise.
+ */
+Boolean add_directive_operand(Directive *directive, char *operand);
+
+/**
+ * Frees the memory allocated for an AST node.
+ *
+ * @param node: The AST node to be freed.
+ */
+void free_ast_node(ASTNode *node);
 
 #endif /* AST_H */

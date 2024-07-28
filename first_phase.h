@@ -1,6 +1,6 @@
-
 #ifndef FIRST_PHASE_H
 #define FIRST_PHASE_H
+/* ----------------------------------------- Includes -----------------------------------------*/
 #include "cmp_data.h"
 /* ----------------------------------- Functions Prototypes ------------------------------------*/
 /**
@@ -13,4 +13,4 @@
  */
 Boolean first_phase_analyzer(ASTNode *node, CmpData *cmp_data);
 
-#endif /*PHASE_H*/
+#endif /* FIRST_PHASE_H */

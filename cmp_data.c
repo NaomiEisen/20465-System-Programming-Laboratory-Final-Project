@@ -1,6 +1,22 @@
+/* ---------------------------------------------------------------------------------------
+ *                                          Includes
+ * --------------------------------------------------------------------------------------- */
 #include "cmp_data.h"
 #include "label_data.h"
 #include "utils.h"
+
+/* ---------------------------------------------------------------------------------------
+ *                                 Static Functions Prototypes
+ * --------------------------------------------------------------------------------------- */
+
+static void close_files(CmpData* cmp_data);
+static void free_file_names(CmpData* cmp_data);
+static void delete_files(CmpData* cmp_data);
+static void free_unresolved_list(UnresolvedLineList *head);
+
+/* ---------------------------------------------------------------------------------------
+ *                                         Functions
+ * --------------------------------------------------------------------------------------- */
 
 /**
  * Function to initialize the ProgramData structure.
@@ -59,20 +75,31 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
 }
 
 
-/* Add a line to the unresolved line list */
+/**
+ * Adds a line to the unresolved line list for the second phase.
+ * Saves the line number in thr unresolved line list.
+ *
+ * @param data: The program's data structure containing the unresolved line list.
+ * @param line: The line number to be added to the unresolved line list.
+ * @return TRUE if the line was added successfully, FALSE if memory allocation failed.
+ */
 Boolean add_unresolved_line(CmpData *data, int line) {
+    /* Allocate memory for list's node */
     UnresolvedLineList *newNode = (UnresolvedLineList *)malloc(sizeof(UnresolvedLineList));
-    if (newNode == NULL) {
+    if (!newNode) {
         return FALSE; /* Memory allocation failed */
     }
+
     newNode->line = line;
     newNode->next = NULL;
 
-    if (data->line_list == NULL) {
-        data->line_list = newNode; /* List is empty, new node is the head */
+    /* If list is empty, new node is the head */
+    if (!data->line_list) {
+        data->line_list = newNode;
     } else {
+        /* Put the line in the accurate position - the end of the list */
         UnresolvedLineList *temp = data->line_list;
-        while (temp->next != NULL) {
+        while (temp->next) {
             if (temp->line == line) {
                 free(newNode);
                 return TRUE; /* Line already exists */
@@ -85,30 +112,80 @@ Boolean add_unresolved_line(CmpData *data, int line) {
         }
         temp->next = newNode; /* Add new node at the end */
     }
+    /* Process completed successfully */
     return TRUE;
 }
 
-/* Get the next unresolved line from the list */
+/**
+ * Retrieves and removes the next unresolved line from the list.
+ * Returns the number (integer) of the unresolved line.
+ *
+ * @param data: The program's data structure containing the unresolved line list.
+ * @return The line number of the next unresolved line, or -1 if the list is empty.
+ */
 int get_unresolved_line(CmpData *data) {
-    UnresolvedLineList *temp = NULL;
-    int line;
+    UnresolvedLineList *temp = NULL; /* Variable to hole the head of the line's list */
+    int line;        /* Variable to hold the number of the unresolved line to return */
 
-    if (data->line_list == NULL) {
+    if (!data->line_list) {
         return -1; /* List is empty */
     }
 
     temp = data->line_list;
     line = temp->line;
+
+    /* Remove current line node - move the head to the next line node */
     data->line_list = data->line_list->next;
-    free(temp);
-    return line;
+    free(temp); /* Free the line's node */
+    return line; /* return the freed line number */
 }
 
-/* Function to free the entire linked list */
-void free_unresolved_list(UnresolvedLineList *head) {
+/**
+ * Updates the memory image counter.
+ * Increments the memory image count and positions the writer pointer in the correct position.
+ *
+ * @param memory_image The memory image whose counter and write pointer is to be updated.
+ */
+void updt_memory_image_counter(MemoryImage *memory_image) {
+    memory_image->count++;
+    memory_image->write_ptr = memory_image->count;
+}
+
+/**
+ * Frees the CmpData structure, containing all the programs data, including closing and
+ * optionally deleting files.
+ *
+ * @param cmp_data: The programs data to be freed.
+ * @param delete: If TRUE, delete the files associated with the CmpData structure.
+ */
+void free_cmp_data(CmpData *cmp_data, Boolean delete) {
+    close_files(cmp_data); /* Close the files */
+    if (delete == TRUE) { /* Delete files if specified so */
+        delete_files(cmp_data);
+    }
+
+    /* Reset file pointers to null */
+    cmp_data->entry_file.file = NULL;
+    cmp_data->extern_file.file = NULL;
+
+    /* Free the memory allocated to the file names strings */
+    free_file_names(cmp_data);
+
+    /* Free the unresolved lines list */
+    free_unresolved_list(cmp_data->line_list);
+}
+
+/**
+ * Private function - frees the entire linked list of unresolved lines.
+ *
+ * @param head: The head of the unresolved line list to be freed.
+ */
+static void free_unresolved_list(UnresolvedLineList *head) {
+    /* Variables to iterate through list */
     UnresolvedLineList *current = head;
     UnresolvedLineList *next;
 
+    /* Iterate through list and free all it's nodes */
     while (current != NULL) {
         next = current->next;
         free(current);
@@ -116,57 +193,65 @@ void free_unresolved_list(UnresolvedLineList *head) {
     }
 }
 
-void updt_memory_image_counter(MemoryImage *memory_image) {
-    memory_image->count++;
-    memory_image->write_ptr = memory_image->count;
-}
-
-void free_cmp_data(CmpData *cmp_data, Boolean delete) {
-    close_files(cmp_data);
-    if (delete == TRUE) {
-        delete_files(cmp_data);
-    }
-    cmp_data->entry_file.file = NULL;
-    cmp_data->extern_file.file = NULL;
-
-    free_file_names(cmp_data);
-    free_unresolved_list(cmp_data->line_list);
-}
-
-void close_files(CmpData* cmp_data) {
-    if (cmp_data->entry_file.file != NULL) {
+/**
+ * Private function - closes the files associated with the CmpData structure.
+ *
+ * @param cmp_data: The program's data structure containing the files to be closed.
+ */
+static void close_files(CmpData* cmp_data) {
+    /* If file exists - close file */
+    if (cmp_data->entry_file.file) {
         if (fclose(cmp_data->entry_file.file) != 0) {
             set_general_error(FAILED_CLOSE_FILE);
         }
     }
 
-    if (cmp_data->extern_file.file != NULL) {
+    /* If file exists - close file */
+    if (cmp_data->extern_file.file) {
         if (fclose(cmp_data->extern_file.file) != 0) {
             set_general_error(FAILED_CLOSE_FILE);
         }
     }
 }
 
-void free_file_names(CmpData* cmp_data){
+/**
+ * Private function - frees the memory allocated for the file names in the CmpData structure.
+ *
+ * @param cmp_data: The program's data structure containing the file names to be freed.
+ */
+static void free_file_names(CmpData* cmp_data){
+    /* Free the files names */
     free(cmp_data->entry_file.file_name);
-    cmp_data->entry_file.file_name = NULL;
     free(cmp_data->extern_file.file_name);
+
+    /* Reset the variable to null */
+    cmp_data->entry_file.file_name = NULL;
     cmp_data->extern_file.file_name = NULL;
 }
 
-void delete_files(CmpData* cmp_data) {
-    /* Delete files */
+/**
+ * Private function - deletes the files associated with the CmpData structure.
+ *
+ * @param cmp_data: The program's data structure containing the files to be deleted.
+ */
+static void delete_files(CmpData* cmp_data) {
+    /* Delete file */
     if (cmp_data->entry_file.file_name != NULL && remove(cmp_data->entry_file.file_name) != 0) {
+        /* Failed to delete */
         set_general_error(FAILED_DELETE_FILE);
         printf("The file name: %s\n", cmp_data->entry_file.file_name);
     }
 
+    /* Delete file */
     if (cmp_data->extern_file.file_name != NULL && remove(cmp_data->extern_file.file_name) != 0) {
+        /* Failed to delete */
         set_general_error(FAILED_DELETE_FILE);
         printf("The file name: %s\n", cmp_data->extern_file.file_name);
     }
 
 }
+
+/* ------------------------------------------------- for me ------------------------------------------*/
 
 
 void print_memory_image(const MemoryImage *memory_image) {
