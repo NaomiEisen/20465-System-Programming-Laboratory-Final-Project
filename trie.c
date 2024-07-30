@@ -6,6 +6,34 @@
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
+
+/**
+ * Private function to get the index of a character in the trie.
+ * This function determines the index of a given character based on predefined offsets
+ * for different character types: lowercase letters, uppercase letters, digits, and
+ * specific special characters ('-', '_', and '.').
+ *
+ * @param c The character whose index is to be determined.
+ * @return int The index of the character if it is valid; otherwise, returns -1.
+ */
+static int get_index(char c) {
+    if (c >= 'a' && c <= 'z') {
+        return c - 'a' + LOWERCASE_OFFSET; /* Lowercase letters */
+    } else if (c >= 'A' && c <= 'Z') {
+        return c - 'A' + UPPERCASE_OFFSET; /* Uppercase letters */
+    } else if (c >= '0' && c <= '9') {
+        return c - '0' + DIGIT_OFFSET; /* Digits */
+    } else if (c == '-') {
+        return 62; /* Special character: - */
+    } else if (c == '_') {
+        return 63; /* Special character: _ */
+    } else if (c == '.') {
+        return 64; /* Special character: . */
+    } else {
+        return -1; /* Invalid character */
+    }
+}
+
 /**
  * Function to create a new TrieNode.
  *
@@ -64,7 +92,7 @@ Boolean init_trie(Trie *trie) {
  * @param data A pointer to the generic data to be stored at the final node of the string.
  * @return Boolean TRUE if the string is successfully inserted; otherwise, FALSE.
  */
-Boolean insert_to_trie(Trie *trie, const char *str, void *data) {
+ErrorCode insert_to_trie(Trie *trie, const char *str, void *data) {
     int index; /* Current char index */
     TrieNode *node = trie->root;
 
@@ -72,46 +100,20 @@ Boolean insert_to_trie(Trie *trie, const char *str, void *data) {
         index = get_index(*str); /* Get the relevant index */
         if (index == -1) {
             /* Invalid character in str */
-            return FALSE;
+            return INVALID_CHAR;
         }
         if (!node->children[index]) {
             /* Create the node if it does not exist */
             node->children[index] = create_trie_node();
+            if (!node->children[index]) {return MEMORY_ALLOCATION_ERROR;}
         }
         node = node->children[index];
         str++;
     }
+    if (node->exist == TRUE) {return DUPLICATE;}
     node->exist = TRUE; /* set existing node to true */
     node->data = data; /* attach the data */
-    return TRUE;
-}
-
-/**
- * Function to get the index of a character in the trie.
- *
- * This function determines the index of a given character based on predefined offsets
- * for different character types: lowercase letters, uppercase letters, digits, and
- * specific special characters ('-', '_', and '.').
- *
- * @param c The character whose index is to be determined.
- * @return int The index of the character if it is valid; otherwise, returns -1.
- */
-int get_index(char c) {
-    if (c >= 'a' && c <= 'z') {
-        return c - 'a' + LOWERCASE_OFFSET; /* Lowercase letters */
-    } else if (c >= 'A' && c <= 'Z') {
-        return c - 'A' + UPPERCASE_OFFSET; /* Uppercase letters */
-    } else if (c >= '0' && c <= '9') {
-        return c - '0' + DIGIT_OFFSET; /* Digits */
-    } else if (c == '-') {
-        return 62; /* Special character: - */
-    } else if (c == '_') {
-        return 63; /* Special character: _ */
-    } else if (c == '.') {
-        return 64; /* Special character: . */
-    } else {
-        return -1; /* Invalid character */
-    }
+    return NO_ERROR;
 }
 
 /**

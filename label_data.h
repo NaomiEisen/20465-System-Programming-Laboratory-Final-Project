@@ -39,7 +39,7 @@ Boolean init_label_trie(Trie *trie);
  * @param label_type The type of the label.
  * @return TRUE if the insertion was successful, FALSE otherwise.
  */
-Boolean insert_label(Trie *trie, const char *label, int address, LabelType label_type);
+ErrorCode insert_label(Trie *trie, const char *label, int address, LabelType label_type);
 
 /**
  * Retrieve the address of a label from the trie.
@@ -80,7 +80,7 @@ Boolean set_label_type(Trie *trie, const char *label, LabelType label_type);
  * @param increment The amount to increment the addresses by.
  * @param type The type of labels to update.
  */
-void updt_addr(TrieNode *node, int increment, LabelType type);
+void update_addr(TrieNode *node, int increment, LabelType type);
 
 /**
  * Free the entire label trie.

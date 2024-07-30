@@ -18,7 +18,7 @@ static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_im
 static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset);
 static void code_operands(ASTNode *node, CmpData *cmp_data);
 static void handle_directive(ASTNode *node, CmpData *cmp_data);
-static Boolean handle_extern(ASTNode* node, CmpData* cmp_data);
+static void handle_extern(ASTNode* node, CmpData* cmp_data);
 static void add_label(ASTNode *node, int address, CmpData *cmp_data);
 
 /* ---------------------------------------------------------------------------------------
@@ -44,6 +44,7 @@ void first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
         handle_directive(node, cmp_data);
     }
 }
+
 /* ---------------------------------------------------------------------------------------
  *                                       Functions
  * --------------------------------------------------------------------------------------- */
@@ -147,29 +148,34 @@ static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, in
  * @return TRUE if the label is added successfully, FALSE otherwise.
  */
 static void add_label(ASTNode *node, int address, CmpData *cmp_data) {
-    Boolean label_added;
+    ErrorCode insert_status;
 
     /* Check if label already defined */
     if ((get_label_addr(&cmp_data->label_table,node->label) >= 0)) {
-        set_error(MULTIPLE_LABEL, node->location);
+        set_error(LABEL_DUPLICATE, node->location);
         return;
     }
 
     /* Add label to the label table according to it's type */
     switch (node->lineType) {
         case LINE_INSTRUCTION:
-            label_added = insert_label(&cmp_data->label_table, node->label, address, INSTRUCTION);
+            insert_status = insert_label(&cmp_data->label_table, node->label, address, INSTRUCTION);
             break;
         case LINE_DIRECTIVE:
-            label_added = insert_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
+            insert_status = insert_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
             break;
     }
 
     /* Check for errors */
-    if (label_added == FALSE) {
-        if (get_status() != FATAL_ERROR) {
-            set_error(INVALID_LABEL_NAME, node->location);
-        }
+    if (insert_status != NO_ERROR) {
+        if (insert_status == MEMORY_ALLOCATION_ERROR)
+            set_error(MEMORY_ALLOCATION_ERROR, node->location);
+
+        else if (insert_status == INVALID_CHAR)
+            set_error(INVALID_CHAR_LABEL, node->location);
+
+        else if (insert_status == DUPLICATE)
+            set_error(LABEL_DUPLICATE, node->location);
     }
 }
 
@@ -192,11 +198,10 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
 
         /* Encode accordingly to the operand's address mode */
         switch (current_addr) {
-            case 0: /* Immediate address mode */
+            case 0:/* Immediate address mode */
                 code_immediate_addr_mode(current_opr->value.int_val, &cmp_data->code);
                 break;
-            case 1:
-                /* Don't code label in the first phase */
+            case 1: /* Don't code label in the first phase */
                 mark_word(&cmp_data->code);
                 if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
                     set_general_error(MEMORY_ALLOCATION_ERROR);
@@ -240,23 +245,23 @@ static void handle_directive(ASTNode *node, CmpData *cmp_data) {
             break;
         case ENTRY:
             if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
-                set_general_error(MEMORY_ALLOCATION_ERROR); /* TODO memory allocation! */
+                set_general_error(MEMORY_ALLOCATION_ERROR);
                 return;
             }
             break;
         case EXTERN:
-            if (handle_extern(node, cmp_data) == FALSE) {
-                return;
-            }
+            handle_extern(node, cmp_data);
+            break;
     }
 
     /* insert label if exists */
     if (node->label[0] != '\0'){
         if (node->specific.directive.operation == EXTERN ||
         node->specific.directive.operation == ENTRY) {
+            /* Label before extern/entry directive is useless */
             print_warning();
         } else {add_label(node, id_start, cmp_data);}
-        }
+    }
 }
 
 /**
@@ -267,20 +272,31 @@ static void handle_directive(ASTNode *node, CmpData *cmp_data) {
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the EXTERN directive is processed successfully, FALSE otherwise.
  */
-static Boolean handle_extern(ASTNode* node, CmpData* cmp_data) {
+static void handle_extern(ASTNode* node, CmpData* cmp_data) {
+    ErrorCode insert_status;                           /* Variable indicating the status of the label insertion */
     DirNode *current = node->specific.directive.operands; /* DirNode variable to iterate through node's operand */
 
     while (current) {
         /* Try adding the label to the label table */
-        if (insert_label(&cmp_data->label_table, current->operand, 0, EXTERNAL) == FALSE) {
-            set_error(MULTIPLE_LABEL, node->location);
-            return FALSE;
+        insert_status = insert_label(&cmp_data->label_table, current->operand, 0, EXTERNAL);
+        switch (insert_status) {
+            case MEMORY_ALLOCATION_ERROR:
+                set_general_error(MEMORY_ALLOCATION_ERROR);
+                break;
+
+            case INVALID_CHAR:
+                set_error(INVALID_CHAR_LABEL, node->location);
+                break;
+
+            case DUPLICATE: /* todo: check if needed*/
+                set_error(MACR_DUPLICATE, node->location);
+                break;
+
+            default: /* Process executed successfully */
+                break;
         }
         current = (DirNode *) current->next;
     }
-
-    /* Return the error status - to insure no error occurred during the labels adding process */
-    return get_error() == NO_ERROR;
 }
 
 

@@ -6,10 +6,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include "boolean.h"
-
-/* ---------------------------------------------------------------------------------------
- *                                          Defines
- * --------------------------------------------------------------------------------------- */
+#include "errors.h"
+/* ------------------------------------------ Defines ------------------------------------------*/
 /* 26 lowercase + 26 uppercase + 10 digits + 3 special characters */
 #define ALPHABET_SIZE 65
 
@@ -17,8 +15,6 @@
 #define LOWERCASE_OFFSET 0
 #define UPPERCASE_OFFSET 26
 #define DIGIT_OFFSET 52
-#define SPECIAL_OFFSET 62
-
 /* ---------------------------------------- Structures ----------------------------------------*/
 
 /* Trie node structure */
@@ -33,7 +29,7 @@ typedef struct Trie {
     TrieNode *root;  /* Pointer to the root node of the trie */
 } Trie;
 
-/* ---------------------------- Functions Prototypes ---------------------------- */
+/* ----------------------------------- Functions Prototypes ---------------------------------- */
 /**
  * Function to create a new TrieNode.
  *
@@ -67,19 +63,9 @@ Boolean init_trie(Trie *trie);
  * @param data A pointer to the generic data to be stored at the final node of the string.
  * @return Boolean TRUE if the string is successfully inserted; otherwise, FALSE.
  */
-Boolean insert_to_trie(Trie *trie, const char *str, void *data);
+ErrorCode insert_to_trie(Trie *trie, const char *str, void *data);
 
-/**
- * Function to get the index of a character in the trie.
- *
- * This function determines the index of a given character based on predefined offsets
- * for different character types: lowercase letters, uppercase letters, digits, and
- * specific special characters ('-', '_', and '.').
- *
- * @param c The character whose index is to be determined.
- * @return int The index of the character if it is valid; otherwise, returns -1.
- */
-int get_index(char c);
+
 /**
  * Function to search for a node in the trie.
  *

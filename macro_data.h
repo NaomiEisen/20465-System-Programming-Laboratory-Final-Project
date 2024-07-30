@@ -42,7 +42,7 @@ Boolean init_macr_trie(MacroTrie *macr_trie);
  * @param macr_name The name of the macro to be added.
  * @return TRUE if the macro is added successfully, FALSE otherwise.
  */
-Boolean add_macr(MacroTrie *macr_trie, const char *macr_name);
+ErrorCode add_macr(MacroTrie *macr_trie, const char *macr_name);
 
 /**
  * Add a line to the last added macro.

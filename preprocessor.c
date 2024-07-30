@@ -15,7 +15,7 @@
  * --------------------------------------------------------------------------------------- */
 static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location);
 static Boolean validate_line_length(const char *line, Location location);
-static Boolean verify_macro(const char *str, Location location, MacroTrie *macr_trie);
+static Boolean verify_macro(const char *str, Location location);
 static int is_comment(const char* str);
 static int macr_start(const char* str);
 static int macr_end(const char* str);
@@ -194,7 +194,7 @@ static Boolean validate_line_length(const char *line, Location location) {
 * @param location The current file location being processed.
 * @return TRUE if the macro initialization line is valid, FALSE otherwise.
 */
-static Boolean verify_macro(const char *str, Location location, MacroTrie *macr_trie) {
+static Boolean verify_macro(const char *str, Location location) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from str */
 
     /* If macro don't have name */
@@ -203,13 +203,7 @@ static Boolean verify_macro(const char *str, Location location, MacroTrie *macr_
 
     /* Macro name is reserved name */
     if (reserved_word(word)) {
-        set_error(INVALID_MACR, location);
-        return FALSE;
-    }
-
-    /* Macro name collides with previous macro declarations */
-    if (find_macro(macr_trie, str)) {
-        set_error(MACR_DUPLICATE, location);
+        set_error(MACR_RESERVED_WORD, location);
         return FALSE;
     }
 
@@ -230,7 +224,7 @@ static Boolean verify_macro(const char *str, Location location, MacroTrie *macr_
  * @return Non-zero if the string is a comment line, 0 otherwise.
  */
 static int is_comment(const char* str) {
-    return str != NULL && str[0] == ';';
+    return str && str[0] == ';';
 }
 
 /**
@@ -240,7 +234,7 @@ static int is_comment(const char* str) {
  * @return Non-zero if the string is the start of a macro, 0 otherwise.
  */
 static int macr_start(const char* str) {
-    return str != NULL && strcmp(str ,MACR_START );
+    return str && strcmp(str ,MACR_START );
 }
 
 /**
@@ -250,7 +244,7 @@ static int macr_start(const char* str) {
  * @return Non-zero if the string is the end of a macro, 0 otherwise.
  */
 static int macr_end(const char* str) {
-    return str != NULL && strcmp(str ,MACR_END );
+    return str && strcmp(str ,MACR_END );
 }
 
 /**
@@ -267,12 +261,30 @@ static Boolean create_macr(MacroTrie *macr_trie, const char *str, Location locat
     trim_spaces(&str);
 
     /* Verify the macro initialization line */
-    if (verify_macro(str, location, macr_trie) == TRUE) {
+    if (verify_macro(str, location) == TRUE) {
         /* Add the macro to the trie and return the status of this process */
-        return add_macr(macr_trie, str);
+        switch (add_macr(macr_trie, str)) {
+            case INVALID_CHAR:
+                set_error(INVALID_CHAR_MACR, location);
+                break;
+
+            case DUPLICATE:
+                set_error(MACR_DUPLICATE, location);
+                break;
+
+            case MEMORY_ALLOCATION_ERROR:
+                set_general_error(MEMORY_ALLOCATION_ERROR);
+                break;
+
+            default: /* Process succeeded */
+                return TRUE;
+        }
+        /* Process Failed */
+        return FALSE ;
+        } else {
+        /* If the process failed - return FALSE */
+        return FALSE;
     }
-    /* If the process failed - return FALSE */
-    return FALSE;
 }
 
 /**

@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "mappings.h"
 #include "parser.h"
-#include "label_data.h"
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
@@ -179,8 +178,8 @@ static Boolean validate_label(const char *label, ASTNode *node, const MacroTrie 
         return FALSE;
     }
 
-    /* Check if the label collides existing label */
-    if (search_trie((const Trie *) macr_trie, label) != NULL) {
+    /* Check if the label collides with macro name */
+    if (find_macro(macr_trie, label)) {
         set_error(LABEL_MACR_COLLIDES, node->location);
         return FALSE;
     }
@@ -378,7 +377,7 @@ static Boolean parse_string(const char **line, ASTNode *node) {
 
     if (*start == '"') {  /* Start of a quoted string */
         start++;
-        end = trim_trailing_spaces(end);
+        end = last_nonspace_char(end);
         if (*end != '"') { /* String does not end in with quotes */
             set_error(INVALID_STRING, node->location);
             return FALSE;

@@ -32,23 +32,25 @@ Boolean init_macr_trie(MacroTrie *macr_trie) {
  * @param macr_name The name of the macro to be added.
  * @return TRUE if the macro is added successfully, FALSE otherwise.
  */
-Boolean add_macr(MacroTrie *macr_trie, const char *macr_name) {
+ErrorCode add_macr(MacroTrie *macr_trie, const char *macr_name) {
+    ErrorCode status;
     MacroData *macr_data = (MacroData *)malloc(sizeof(MacroData));
+
     /* Memory allocation failure */
-    if (!macr_data) return FALSE;
+    if (!macr_data) return MEMORY_ALLOCATION_ERROR;
 
     macr_data->head = NULL;
     macr_data->tail = NULL;
 
     /* Try inserting the macro to the trie node */
-    if (insert_to_trie(&macr_trie->trie, macr_name, macr_data)) {
+    status = insert_to_trie(&macr_trie->trie, macr_name, macr_data);
+    if (status == NO_ERROR) {
         macr_trie->last_added_node = search_trie(&macr_trie->trie, macr_name);
-        return TRUE;
+    } else {
+        /* Process failed */
+        free(macr_data);
     }
-
-    /* Process failed */
-    free(macr_data);
-    return FALSE;
+    return status;
 }
 
 

@@ -9,12 +9,27 @@
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
-
-/* Custom implementation of the is_space function */
+/* ------------------------------------ String Utils ------------------------------------- */
+/**
+ * Custom implementation of the is_space function.
+ * Checks if a character is a whitespace character.
+ * This includes spaces, tabs, newlines, carriage returns, form feeds, and vertical tabs.
+ *
+ * @param c The character to check.
+ * @return Non-zero if the character is a whitespace character, zero otherwise.
+ */
 int is_space(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v';
 }
 
+
+/**
+ * Trims leading whitespace characters from a string.
+ * The pointer to the string is updated to point to the first non-whitespace character.
+ *
+ * @param str Pointer to the string to be trimmed. This pointer will be updated
+ *            to point to the start of the trimmed string.
+ */
 void trim_leading_spaces(const char** str) {
     const char *start = *str;
 
@@ -26,34 +41,60 @@ void trim_leading_spaces(const char** str) {
     *str = start;
 }
 
+/**
+ * Finds the last non-space character in the given string.
+ *
+ *
+ * @param str Pointer to the string to be processed.
+ * @return Pointer to the last non-space character in the string.
+ */
+const char* last_nonspace_char(const char *str) {
+    const char *end = str + strlen(str) - 1;
 
-void trim_spaces(char **str) {
-    char *end;
-    char *start = *str;
+    /* Move the end pointer back while it points to a space*/
+    while (end >= str && is_space(*end)) {
+        end--;
+    }
+
+    /* Return a pointer to the last non-space character */
+    return end;
+}
+
+/**
+ * Trims leading and trailing spaces from the given string.
+ *
+ * @param str Double pointer to the string to be trimmed. The pointer will be updated
+ *            to point to the start of the trimmed string.
+ */
+void trim_spaces(const char **str) {
+    const char *start = *str;
+    const char *end;
 
     /* Trim leading spaces */
     trim_leading_spaces((const char **) &start);
 
     /* If all spaces */
-    if (*start == 0) {
+    if (*start == '\0') {
         *str = start;
         return;
     }
 
     /* Trim trailing spaces */
-    end = start + strlen(start) - 1;
-    while (end > start && is_space(*end)) {
-        end--;
-    }
+    end = last_nonspace_char(start);
 
     /* Null-terminate the trimmed string */
-    *(end + 1) = '\0';
+    *(char *)(end + 1) = '\0';
 
     /* Update the original string pointer */
     *str = start;
 }
 
-/* Function to check if the rest of the line is empty */
+/**
+ * Checks if given line is empty.
+ *
+ * @param line The line to check.
+ * @return TRUE if the line is empty or contains only whitespace characters, FALSE otherwise.
+ */
 Boolean is_empty_line(const char *line) {
     /* Trim leading spaces */
     trim_leading_spaces(&line);
@@ -62,86 +103,85 @@ Boolean is_empty_line(const char *line) {
     return *line == '\0';
 }
 
-const char* trim_trailing_spaces(const char *str) {
-    const char *end = str + strlen(str) - 1;
+/**
+ * Duplicates a portion of a string up to a specified size.
+ *
+ * @param str The string to duplicate.
+ * @param size The maximum number of characters to duplicate from the string.
+ * @return A newly allocated string containing the first `size` characters of `str`.
+ *         Returns NULL if memory allocation fails.
+ */
+char* my_strndup(const char* str, size_t size) {
+    char* result; /* Variable to store the duplicated string */
+    size_t len = strlen(str);              /* Strings length */
 
-    /* Move the end pointer back while it points to a space*/
-    while (end >= str && is_space(*end)) {
-        end--;
-    }
+    /* Invalid strings length - will duplicate only a portion of it */
+    if (size < len) len = size;
 
-    /* The end pointer is now at the last non-space character*/
-    return end;
+    result = (char*)malloc(len + 1);
+    if (!result) return NULL; /* Memory allocation failure */
+
+    result[len] = '\0'; /* Null-terminate the string */
+    return (char*)memcpy(result, str, len);
 }
 
+/* ------------------------------------ File Handling Utils ------------------------------------- */
 
-Boolean is_valid_integer(const char *str) {
-    if (*str == '-' || *str == '+') {
-        str++;
-    }
-    if (!*str) {
-        return FALSE;
-    }
-    while (*str) {
-        if (!isdigit(*str)) {
-            return FALSE;
-        }
-        str++;
-    }
-    return TRUE;
-}
-
+/**
+ * Creates a new filename by appending the given extension to the original filename.
+ * Memory for the new filename is allocated within this function.
+ *
+ * @param original_filename The original filename to base the new filename on.
+ * @param new_filename Pointer to store the new filename. The memory is allocated here.
+ * @param extension The extension to append to the original filename.
+ * @return TRUE if the new filename was successfully created and memory was allocated, FALSE otherwise.
+ */
 Boolean create_new_file_name(const char* original_filename, char** new_filename , const char* extension) {
-
     /* Allocate memory for the new filename */
     size_t new_filename_length = strlen(original_filename) + strlen(extension) + 1;
     *new_filename = (char*)malloc(new_filename_length);
-    if (*new_filename != NULL) {
+
+    if (*new_filename) {
         /* Copy the original filename and append the new extension */
         strcpy(*new_filename, original_filename);
         strcat(*new_filename, extension);
         return TRUE;
     }
+
+    /* Memory allocation failure */
     return FALSE;
 }
 
-char* my_strndup(const char* str, size_t size) {
-    char* result;
-    size_t len = strlen(str);
+/* ---------------------------------------- Integer Utils ----------------------------------------- */
+/**
+ * Validates if a string represents a valid integer.
+ * The string may optionally start with a '+' or '-' sign.
+ *
+ * @param str The string to validate.
+ * @return TRUE if the string is a valid integer, FALSE otherwise.
+ */
+Boolean is_valid_integer(const char *str) {
+    /* Null pointer */
+    if (!*str)  return FALSE;
 
-    if (size < len)
-        len = size;
+    /* Skip sign indicator */
+    if (*str == '-' || *str == '+') str++;
 
-    result = (char*)malloc(len + 1);
-    if (!result)
-        return NULL;
+    while (*str) { /* Check string's chars */
+        if (!isdigit(*str)) return FALSE;
+        str++;
+    }
 
-    result[len] = '\0';
-    return (char*)memcpy(result, str, len);
+    /* The specified string is a valid integer */
+    return TRUE;
 }
 
 /**
- * Removes the specified number of characters from the operand string and allocates new memory for it.
- * @param operand - pointer to the original operand string pointer
- * @param num_chars - number of characters to remove from the beginning
- * @return - true if successful, false if allocation fails
+ * Converts a string to an integer, handling optional leading spaces and signs.
+ *
+ * @param str The string to convert.
+ * @return The integer value of the string.
  */
-Boolean strip_first_chars(char **operand, size_t num_chars) {
-    char *new_operand;
-    size_t len = strlen(*operand);
-    if (num_chars >= len) {
-        return FALSE; /* If num_chars is greater than or equal to the length of the string, fail*/
-    }
-    new_operand = (char *)malloc(len - num_chars + 1); /* Allocate memory for new string */
-    if (new_operand) {
-        strcpy(new_operand, *operand + num_chars); /* Copy the rest of the string */
-        free(*operand);
-        *operand = new_operand;
-        return TRUE;
-    }
-    return FALSE;
-}
-
 int my_atoi(const char *str) {
     int result = 0;
     int sign = 1;
@@ -164,7 +204,40 @@ int my_atoi(const char *str) {
         ptr++;
     }
 
+    /* Return the integer according to the specified sign */
     return sign * result;
 }
+
+
+
+
+
+/*
+void trim_spaces(char **str) {
+    char *end;
+    char *start = *str;
+
+
+    trim_leading_spaces((const char **) &start);
+
+    if (*start == 0) {
+        *str = start;
+        return;
+    }
+
+
+
+    end = start + strlen(start) - 1;
+    while (end > start && is_space(*end)) {
+        end--;
+    }
+
+
+    *(end + 1) = '\0';
+
+
+    *str = start;
+}
+*/
 
 

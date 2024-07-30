@@ -62,7 +62,7 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
     }
 
     /* Update address */
-    updt_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START, DIRECTIVE);
+    update_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START, DIRECTIVE);
 
     /* -------------------------------------- Second phase -------------------------------------- */
    /* if (second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {

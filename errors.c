@@ -31,10 +31,11 @@ const char* get_error_message(ErrorCode code) {
         case FAILED_CREATE_FILE: return "Cannot create file";
         case FAILED_CLOSE_FILE: return "Failed to close file";
         case FAILED_DELETE_FILE: return "Failed to delete file";
-        case LINE_TOO_LONG: return "Command line is too long. Should be 81 chars at max";
-        case INVALID_MACR: return "Invalid macro name";
+        case LINE_TOO_LONG: return "Command line is too long. Should be 81 chars at max"; /* todo fix number */
+        case MACR_RESERVED_WORD: return "Invalid macro name - macro's name is reserved word";
         case EXTRA_TXT_MACR: return "Extra text after macro define";
         case MACR_DUPLICATE: return "Macro with the same name already exists";
+        case INVALID_CHAR_MACR: return "Macro's name contains invalid character";
         case CONSECUTIVE_COMMA_ERROR: return "Multiple consecutive commas";
         case MISSING_COMMA_ERROR: return "Missing comma";
         case ILLEGAL_COMMA_ERROR: return "Illegal comma";
@@ -43,11 +44,11 @@ const char* get_error_message(ErrorCode code) {
         case INVALID_LABEL_NAME: return "Invalid label name, should start with alphabetic char";
         case EXTRA_TXT: return "Extra text after command";
         case LABEL_RESERVED_WORD: return "Invalid label name, cannot be reserved word";
-        case LABEL_MACR_COLLIDES: return "label and macro's name are collides";
+        case INVALID_CHAR_LABEL: return "Label's name contains invalid char";
+        case LABEL_MACR_COLLIDES: return "Label and macro's name are collides";
         case UNRECOGNIZED_LABEL: return "Unrecognized label";
-        case INVALID_CHAR_LABEL: return "Invalid char/s in labels name";
-        case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars";
-        case MULTIPLE_LABEL: return "Multiple label definition";
+        case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars"; /* todo fix number */
+        case LABEL_DUPLICATE: return "Multiple label definition";
         case NOT_INTEGER: return "Not an integer";
         case INVALID_STRING: return "Invalid string format";
         case INVALID_REGISTER: return "Invalid register name";

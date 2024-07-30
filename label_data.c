@@ -29,13 +29,10 @@ Boolean init_label_trie(Trie *trie) {
  * @param label_type The type of the label.
  * @return TRUE if the insertion was successful, FALSE otherwise.
  */
-Boolean insert_label(Trie *trie, const char *label, int address, LabelType label_type) {
+ErrorCode insert_label(Trie *trie, const char *label, int address, LabelType label_type) {
     /* Allocate memory for the labelData struct */
     LabelData *label_data = (LabelData *)malloc(sizeof(LabelData));
-    if (!label_data) {
-        set_general_error(MEMORY_ALLOCATION_ERROR);
-        return FALSE;
-    }
+    if (!label_data) return MEMORY_ALLOCATION_ERROR;
 
     /* Set the specified values */
     label_data->address = address;
@@ -130,7 +127,7 @@ Boolean set_label_type(Trie *trie, const char *label, LabelType label_type) {
  * @param increment The amount to increment the addresses by.
  * @param type The type of labels to update.
  */
-void updt_addr(TrieNode *node, int increment, LabelType type) {
+void update_addr(TrieNode *node, int increment, LabelType type) {
     int i;
     LabelData *data;
 
@@ -146,7 +143,7 @@ void updt_addr(TrieNode *node, int increment, LabelType type) {
     /* Recursively update child nodes */
     for (i = 0; i < ALPHABET_SIZE; ++i) {
         if (node->children[i] != NULL) {
-            updt_addr(node->children[i], increment, type);
+            update_addr(node->children[i], increment, type);
         }
     }
 }
