@@ -43,12 +43,15 @@ static void parse_label(ASTNode *node, const char *operand, const MacroTrie *mac
  *
  * @return A pointer to the newly created ASTNode representing the parsed line.
  */
-ASTNode *parseLine(const MacroTrie *macr_trie, const char *file_name, int line_num, const char *line) {
-    ASTNode *node = create_empty_ASTnode(file_name, line_num);
+ASTNode *parseLine(const MacroTrie *macr_trie, const char *file_name, int line_num, char *line) {
+    ASTNode *node = NULL;
     const char *line_ptr = line;
 
     /* Skip leading whitespace */
     trim_leading_spaces(&line_ptr);
+
+    /* Create empty ASTNode */
+    node = create_empty_ASTnode(file_name, line_num, line);
 
     /* ------------------- 1. Check if line is empty or a comment ------------------- */
     if (check_empty_line(&line_ptr, node) == TRUE) {
@@ -63,10 +66,10 @@ ASTNode *parseLine(const MacroTrie *macr_trie, const char *file_name, int line_n
     /* ------------------------- 3. Read the operation name ------------------------- */
 
     if (*line_ptr == '.') {
-        /* This is directive */
+        /* Directive line */
         set_ast_type(node, LINE_DIRECTIVE);
         line_ptr++; /* Skip dot */
-    } else {
+    } else { /* Instruction line */
         set_ast_type(node, LINE_INSTRUCTION);
     }
 

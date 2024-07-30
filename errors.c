@@ -2,7 +2,10 @@
  *                                          Includes
  * --------------------------------------------------------------------------------------- */
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include "errors.h"
+#include "utils.h"
 
 /* ------------------------ Initialize the global error variable ------------------------ */
 static Error error = {NO_ERROR, "No error"};
@@ -44,7 +47,7 @@ const char* get_error_message(ErrorCode code) {
         case UNRECOGNIZED_LABEL: return "Unrecognized label";
         case INVALID_CHAR_LABEL: return "Invalid char/s in labels name";
         case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars";
-        case MULTIPLE_LABEL: return "Multiple label defenition";
+        case MULTIPLE_LABEL: return "Multiple label definition";
         case NOT_INTEGER: return "Not an integer";
         case INVALID_STRING: return "Invalid string format";
         case INVALID_REGISTER: return "Invalid register name";
@@ -64,9 +67,11 @@ static void print_error() {
         printf("Error: %s", error.message);
         /* If there is specified location - print it too */
         if (error.location.line > 0) {
-            printf(" | Location: file name - %s, line - %d", error.location.file, error.location.line);
+            printf(" | File: %s | Line: %d", error.location.file, error.location.line);
+            if (error.location.line_content) /* Print line content if exists */
+                printf("\n\t %s", error.location.line_content);
         }
-        printf("\n");
+        printf("\n\n");
     }
 }
 
@@ -82,7 +87,7 @@ static void set_program_status(Status status) {
 /**
  * Resets the program's status to 'error free file' status.
  */
-void reset_status() {
+void clear_status() {
     program_status.status = ERROR_FREE_FILE;
 }
 
@@ -91,7 +96,7 @@ void reset_status() {
  *
  * @return The current program's status.
  */
-Status  get_status() {
+Status get_status() {
     return program_status.status;
 }
 
@@ -121,18 +126,32 @@ void set_error(ErrorCode code, Location location) {
  */
 void set_general_error(ErrorCode code) {
     Location default_location = {NULL, 0};
-    error.code = code;
-    error.message = get_error_message(code);
-    error.location = default_location;
-    print_error();
+    set_error(code, default_location);
 }
 
+void save_line_content(Location *location, char *content){
+    if (!location) return;
+
+    char *copy_content = my_strndup(content, strlen(content));
+    if (!copy_content) {
+        set_general_error(MEMORY_ALLOCATION_ERROR);
+    } else {
+        location->line_content = copy_content;
+    }
+}
 /**
  * Clears the current error, resetting it to NO_ERROR with a default location.
  */
 void clear_error() {
-    Location default_location = {NULL, 0};
-    set_error(NO_ERROR, default_location);
+    set_general_error(NO_ERROR);
+}
+
+void free_location(Location *location){
+    if (location) {
+        free(location->line_content);
+        /* Set pointer to NULL after freeing */
+        location->line_content = NULL;
+    }
 }
 
 /**

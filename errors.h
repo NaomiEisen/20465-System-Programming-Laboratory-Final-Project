@@ -1,5 +1,6 @@
 #ifndef ERRORS_H
 #define ERRORS_H
+#include "defines.h"
 /* ---------------------------- Error Codes ---------------------------- */
 typedef enum {
     /* ======= General Errors ======= */
@@ -45,14 +46,15 @@ typedef enum {
     INVALID_PARAM_TYPE,
 
     /* ======  Hardware Errors ====== */
-    CPU_MEMORY_FULL,
+    CPU_MEMORY_FULL
 
 } ErrorCode;
 
 /* Structure that represents a location in a source file */
 typedef struct {
-    const char *file;       /* File name */
-    int line; /* Line number in the file */
+    const char *file;                                             /* File name */
+    int line;                                       /* Line number in the file */
+    char *line_content;  /* command line from the source file */
 } Location;
 
 /* Structure that represents an error with associated information */
@@ -88,6 +90,8 @@ void set_error(ErrorCode code, Location location);
  */
 void set_general_error(ErrorCode code);
 
+void save_line_content(Location *location, char *content);
+
 /**
  * Clears the current error, resetting it to NO_ERROR with a default location.
  */
@@ -96,7 +100,9 @@ void clear_error();
 /**
  * Resets the program's status to 'error free file status.
  */
-void reset_status();
+void clear_status();
+
+void free_location(Location *location);
 
 /**
  * Returns the current error code.

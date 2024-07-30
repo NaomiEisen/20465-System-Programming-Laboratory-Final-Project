@@ -77,7 +77,7 @@ typedef struct {
  * @param line: The line number in the file where the node is created.
  * @return A pointer to the newly created AST node, or a null pointer if memory allocation failed.
  */
-ASTNode *create_empty_ASTnode(const char *file, int line);
+ASTNode *create_empty_ASTnode(const char *file, int line, char *line_content);
 
 /**
  * Sets the label of an AST node.

@@ -29,13 +29,14 @@ void controller(int argc, char* argv[]) {
 
         /* Preprocess file */
         file_am = preprocessor_controller(argv[i], &macro_trie);
-        print_trie_test(&macro_trie); /* todo for meeee */
+        /*print_trie_test(&macro_trie);  todo for meeee */
 
         /* Continue processing only if no error occurred */
         if (get_status() == ERROR_FREE_FILE) {
             phase_controller(argv[i], file_am, &macro_trie);
         }
 
+        /* Check if the file succeeded processing */
         if (get_status() == ERROR_IN_FILE) {
             printf("Could not process file %s \n", argv[i]);
         }
@@ -49,9 +50,12 @@ void controller(int argc, char* argv[]) {
         i++;
         argc--;
 
-        /* free structures before proceeding to the next file */
-        free(file_am);
+        /* Cleanup resources before proceeding to the next file */
+        if (file_am) free(file_am);
         free_macr_trie(&macro_trie);
-        clear_error(); /* Clear error status for next files */
+
+        /* Clear error status for next files */
+        clear_error();
+        clear_status();
     }
 }

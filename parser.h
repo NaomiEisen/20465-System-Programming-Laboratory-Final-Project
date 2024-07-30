@@ -18,6 +18,6 @@
  *
  * @return A pointer to the newly created ASTNode representing the parsed line.
  */
-ASTNode *parseLine(const MacroTrie *macr_trie, const char *file_name, int line_num, const char *line);
+ASTNode *parseLine(const MacroTrie *macr_trie, const char *file_name, int line_num, char *line);
 
 #endif /* PARSER_H */

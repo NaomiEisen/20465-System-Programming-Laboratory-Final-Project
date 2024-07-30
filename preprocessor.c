@@ -21,7 +21,7 @@ static int macr_start(const char* str);
 static int macr_end(const char* str);
 static Boolean create_macr(MacroTrie *macr_trie, const char *str, Location location);
 static void copy_macro_to_file(TrieNode *macr, FILE* file);
-
+static void cleanup_files(FILE* source_file, FILE* output_file, char* source_filename, char* output_filename);
 /* ---------------------------------------------------------------------------------------
  *                               Head Function Of Preprocessor
  * --------------------------------------------------------------------------------------- */
@@ -35,11 +35,11 @@ static void copy_macro_to_file(TrieNode *macr, FILE* file);
  * @return The name of the output file with the ".am" extension, or NULL if an error occurs.
  */
 char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
-    FILE* source_file;                  /* the source file (.as) */
-    FILE* output_file;                  /* the output file (.am) */
-    char* source_filename = NULL;       /* the source file name */
-    char* output_filename = NULL;       /* the output file name */
-    Location location = {NULL, 0};
+    FILE* source_file = NULL;                          /* the source file (.as) */
+    FILE* output_file = NULL;                          /* the output file (.am) */
+    char* source_filename = NULL;                       /* the source file name */
+    char* output_filename = NULL;                       /* the output file name */
+    Location location = {NULL, 0}; /* Location variable set to default */
 
     /* ------------- Create the source filename with the specified extension -------------*/
     if (!create_new_file_name(file_origin, &source_filename, ".as")) {
@@ -49,27 +49,27 @@ char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
 
     /* ----------------------- Open the source file in read mode ----------------------- */
     if (!(source_file = fopen(source_filename, "r"))) {
-        /* if the file fails to open, set an error and return */
+        /* If the file fails to open, set an error */
         set_general_error(FAILED_OPEN_FILE);
-        fclose(source_file); /* close the file */
-        free(source_filename);
+        /* Cleanup resources */
+        cleanup_files(source_file, NULL, source_filename, NULL);
         return NULL;
     }
 
     /* -------------- Create the output filename with the specified extension --------------*/
     if (!create_new_file_name(file_origin, &output_filename, ".am")) {
         set_general_error(MEMORY_ALLOCATION_ERROR);
+        /* Cleanup resources */
+        cleanup_files(source_file, NULL, source_filename, NULL);
         return NULL;
     }
 
     /* ------------------------ Open the output file in write mode ------------------------ */
     if (!(output_file = fopen(output_filename, "w"))) {
-        /* if the file fails to open, set an error and return */
+        /* If the file fails to open, set an error and return */
         set_general_error(FAILED_CREATE_FILE);
-        fclose(source_file); /* close the source file */
-        fclose(output_file); /* close the output file */
-        free(output_filename);
-        free(source_filename);
+        /* Cleanup resources */
+        cleanup_files(source_file, NULL, source_filename, output_filename);
         return NULL;
     }
 
@@ -79,10 +79,8 @@ char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
 
     /* ------------------------------------- Free memory ------------------------------------- */
     free_trie_data(macro_trie);
-    /* close the file */
-    fclose(source_file);
-    fclose(output_file);
-    free(source_filename);
+    /* Cleanup resources */
+    cleanup_files(source_file, output_file, source_filename, NULL);
     return output_filename;
 }
 
@@ -101,28 +99,30 @@ char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
 static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location) {
     char word[MAX_LINE_LENGTH] = {0};   /* string to hold one read word from line */
     char line[MAX_LINE_LENGTH+1] = {0}; /* string to hold the read line */
-    const char* line_ptr = NULL;        /* pointer to go through line */
+    char* line_ptr = NULL;        /* pointer to go through line */
     int ch;                             /* variable to skip too long lines */
     Boolean inside_macro = FALSE;       /* flag that indicated if read line is part of macro */
     TrieNode* macr_usage = NULL;        /* node to hold macro's data in case of usage */
 
     while (fgets(line, sizeof(line), source_file) != NULL && get_status() != FATAL_ERROR) {
-        location.line++;                    /* Update counter */
-        line_ptr = line;                    /* Set line pointer to line start */
-        trim_leading_spaces(&line_ptr); /* Skip leading spaces */
+        location.line++;                                         /* Update counter */
+        line_ptr = line;                         /* Set line pointer to line start */
+        trim_leading_spaces((const char **) &line_ptr); /* Skip leading spaces */
+        save_line_content(&location, line_ptr);        /* Save line content */
 
         /* Check if the line is too long */
         if (validate_line_length(line, location) == FALSE) {
             /* Skip the rest of the overly long line */
             while ((ch = fgetc(source_file)) != '\n' && ch != EOF) {}
-            continue; /* Skip processing this line*/
         }
 
         /* If line is not empty - process the line */
-        if (sscanf(line_ptr, "%s", word) == 1) {
+        else if (sscanf(line_ptr, "%s", word) == 1) {
             /* ------------------------ 1. Ignore comment line ------------------------ */
-            if (is_comment(word))
+            if (is_comment(word)) {
+                free_location(&location);
                 continue;
+            }
 
             /* -------------------- 2. End of macro initialization -------------------- */
             if (!macr_end(word)) {
@@ -130,13 +130,11 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
                 /* verify end */
                 if (!is_empty_line(line_ptr+ strlen(word))) {
                     set_error(EXTRA_TXT_MACR, location);
-                    /* clear_error();  TOdo : why? */
                 }
-                continue;
             }
 
             /* ------------------- 3. Inside of macro initialization ------------------- */
-            if (inside_macro) {/* copy to macro */
+            else if (inside_macro) {/* copy to macro */
                 add_line_to_last_macro(macro_trie, line_ptr);
             }
 
@@ -144,10 +142,6 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
             else if (!macr_start(word)) {
                 if (create_macr(macro_trie, line_ptr + strlen(word), location) == TRUE){
                     inside_macro = TRUE; /* set flag */
-                }
-                    /* todo : decide if continue check or not  */
-                else {
-                    continue;
                 }
             }
 
@@ -165,6 +159,8 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
                 fputs(line_ptr, output_file);
             }
         }
+        /* Free line content after parsing each line */
+        free_location(&location);
     }
 }
 
@@ -296,4 +292,25 @@ static void copy_macro_to_file(TrieNode *macr, FILE* file) {
         fputs(current->line, file);
         current = current->next;
     }
+}
+
+/**
+ * Private function - cleans up resources by closing files and freeing allocated memory for filenames.
+ * This helper function is used to centralize the cleanup process . It closes any open files and frees
+ * any allocated memory for filenames if they are not NULL.
+ *
+ * @param source_file Pointer to the source file to be closed. If NULL, no action is taken.
+ * @param output_file Pointer to the output file to be closed. If NULL, no action is taken.
+ * @param source_filename Pointer to the source filename string to be freed. If NULL, no action is taken.
+ * @param output_filename Pointer to the output filename string to be freed. If NULL, no action is taken.
+ */
+static void cleanup_files(FILE* source_file, FILE* output_file, char* source_filename, char* output_filename) {
+    /* Close files */
+    if (source_file) fclose(source_file);
+    if (output_file) fclose(output_file);
+
+    /* Free files names */
+    if (source_filename) free(source_filename);
+    if (output_filename) free(output_filename);
+
 }

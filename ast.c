@@ -7,6 +7,7 @@
 #include "ast.h"
 #include "utils.h"
 #include "defines.h"
+#include "errors.h"
 /* ---------------------------------------------------------------------------------------
  *                                         Functions
  * --------------------------------------------------------------------------------------- */
@@ -16,7 +17,7 @@
  * @param line: The line number in the file where the node is created.
  * @return A pointer to the newly created AST node, or a null pointer if memory allocation failed.
  */
-ASTNode *create_empty_ASTnode(const char *file, int line) {
+ASTNode *create_empty_ASTnode(const char *file, int line, char *line_content) {
     /* Allocate memory for ASTNode struct */
     ASTNode *node = (ASTNode*)malloc(sizeof(ASTNode));
     if (node) { /* If node is not null */
@@ -25,6 +26,7 @@ ASTNode *create_empty_ASTnode(const char *file, int line) {
         memset(&(node->specific.instruction), 0, sizeof(Instruction));  /* Initialize instruction to 0 */
         node->location.file = file;
         node->location.line = line;
+        save_line_content(&node->location, line_content);
     }
     return node; /* Return the node or null if the memory allocation failed */
 }
@@ -210,6 +212,9 @@ void free_ast_node(ASTNode *node) {
     if (node->lineType == LINE_DIRECTIVE) {
         free_dir_nodes(node->specific.directive.operands);
     }
+    /* Free location content */
+    free_location(&node->location);
+
     /* Free the node struct */
     free(node);
 }

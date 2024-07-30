@@ -33,7 +33,7 @@ static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean dele
  * @param macr_trie The trie structure containing macro definitions.
  */
 void phase_controller(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
-    FILE* file_am;    /* the source file (.am) */
+    FILE* file_am = NULL;    /* the source file (.am) */
     CmpData cmp_data; /* program's data */
 
     /* Open the am file in read mode */
@@ -111,7 +111,6 @@ static void first_phase_controller(FILE* file_am, const char* file_name, MacroTr
     int line_count = 0;                 /* line counter */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
     ASTNode* node = NULL;
-    Boolean no_error = TRUE;
 
     /* Read line from the am file */
     while (fgets(line, sizeof(line), file_am) != NULL) {
@@ -120,7 +119,7 @@ static void first_phase_controller(FILE* file_am, const char* file_name, MacroTr
         /* Parse line */
         node = parseLine(macr_trie, file_name, line_count, line);
 
-        /* If an error occurred */
+        /* If an error occurred - ASTNode is not completed, therefore cannot be encoded */
         if (get_error() != NO_ERROR) {
             /* Clear for enabling the processing of the next lines */
             clear_error();
@@ -128,13 +127,10 @@ static void first_phase_controller(FILE* file_am, const char* file_name, MacroTr
             continue;
         }
 
-        if (get_status() == ERROR_FREE_FILE) {
-            /* Encode only if the file is error free */
-            first_phase_analyzer(node, cmp_data);
-        }
+        first_phase_analyzer(node, cmp_data);
 
-        /* Free the astNode */
-        free_ast_node(node);
+        free_ast_node(node); /* Free the astNode */
+        clear_error(); /* Clear error for the next line */
     }
 
     /* Reset the file pointer to the beginning */
@@ -158,7 +154,6 @@ static void second_phase_controller(FILE* file_am, const char* file_name, MacroT
     ASTNode* node = NULL;
     int line_count = 1;                 /* line counter */
     int unresolved_line = get_unresolved_line(cmp_data);
-    Boolean no_error = TRUE;
 
     /* Read line from the am file */
     while (fgets(line, sizeof(line), file_am) != NULL) {
