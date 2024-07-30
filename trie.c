@@ -6,7 +6,6 @@
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
-
 /**
  * Private function to get the index of a character in the trie.
  * This function determines the index of a given character based on predefined offsets
@@ -90,7 +89,8 @@ Boolean init_trie(Trie *trie) {
  * @param trie A pointer to the Trie in which the string will be inserted.
  * @param str The string to be inserted into the trie.
  * @param data A pointer to the generic data to be stored at the final node of the string.
- * @return Boolean TRUE if the string is successfully inserted; otherwise, FALSE.
+ * @return ErrorCode - Error code of the error that occurred or NO_ERROR if the process
+ *          executed successfully.
  */
 ErrorCode insert_to_trie(Trie *trie, const char *str, void *data) {
     int index; /* Current char index */

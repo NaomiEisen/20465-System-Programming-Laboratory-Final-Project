@@ -22,7 +22,6 @@ int is_space(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' || c == '\v';
 }
 
-
 /**
  * Trims leading whitespace characters from a string.
  * The pointer to the string is updated to point to the first non-whitespace character.
@@ -126,7 +125,6 @@ char* my_strndup(const char* str, size_t size) {
 }
 
 /* ------------------------------------ File Handling Utils ------------------------------------- */
-
 /**
  * Creates a new filename by appending the given extension to the original filename.
  * Memory for the new filename is allocated within this function.

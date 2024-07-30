@@ -164,18 +164,22 @@ static void add_label(ASTNode *node, int address, CmpData *cmp_data) {
         case LINE_DIRECTIVE:
             insert_status = insert_label(&cmp_data->label_table, node->label, address, DIRECTIVE);
             break;
+        default: /* Invalid line type */
+            return;
     }
 
     /* Check for errors */
-    if (insert_status != NO_ERROR) {
-        if (insert_status == MEMORY_ALLOCATION_ERROR)
-            set_error(MEMORY_ALLOCATION_ERROR, node->location);
-
-        else if (insert_status == INVALID_CHAR)
+    switch (insert_status) {
+        case MEMORY_ALLOCATION_ERROR:
+            set_general_error(MEMORY_ALLOCATION_ERROR);
+            break;
+        case INVALID_CHAR:
             set_error(INVALID_CHAR_LABEL, node->location);
-
-        else if (insert_status == DUPLICATE)
+            break;
+        case DUPLICATE:
             set_error(LABEL_DUPLICATE, node->location);
+        default:
+            break;
     }
 }
 
@@ -201,22 +205,28 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
             case 0:/* Immediate address mode */
                 code_immediate_addr_mode(current_opr->value.int_val, &cmp_data->code);
                 break;
-            case 1: /* Don't code label in the first phase */
-                mark_word(&cmp_data->code);
+
+            case 1: /* Direct address mode */
+                /* Don't code labels in the first pass */
+                mark_word(&cmp_data->code); /* mark unresolved line */
                 if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
                     set_general_error(MEMORY_ALLOCATION_ERROR);
                     return;
                 }
                 break;
-            case 2:
-            case 3:
-                if (reg == TRUE) {
+
+            case 2: /* Indirect register address mode */
+            case 3: /* Direct register address mode */
+                if (reg == TRUE) { /* Two register operands can be written in a single word */
                     /* write on the previous word */
                     cmp_data->code.count--;
                     cmp_data->code.write_ptr = cmp_data->code.count;
                 }
                 code_register_addr_mode(current_opr->value.int_val, &cmp_data->code, REGISTER_POS + (SECOND_REG_POSITION * (i - 1)));
                 reg = TRUE;
+                break;
+
+            default:
                 break;
         }
         updt_memory_image_counter(&cmp_data->code);
@@ -273,13 +283,12 @@ static void handle_directive(ASTNode *node, CmpData *cmp_data) {
  * @return TRUE if the EXTERN directive is processed successfully, FALSE otherwise.
  */
 static void handle_extern(ASTNode* node, CmpData* cmp_data) {
-    ErrorCode insert_status;                           /* Variable indicating the status of the label insertion */
-    DirNode *current = node->specific.directive.operands; /* DirNode variable to iterate through node's operand */
+    /* DirNode variable to iterate through node's operand */
+    DirNode *current = node->specific.directive.operands;
 
     while (current) {
         /* Try adding the label to the label table */
-        insert_status = insert_label(&cmp_data->label_table, current->operand, 0, EXTERNAL);
-        switch (insert_status) {
+        switch (insert_label(&cmp_data->label_table, current->operand, 0, EXTERNAL)) {
             case MEMORY_ALLOCATION_ERROR:
                 set_general_error(MEMORY_ALLOCATION_ERROR);
                 break;

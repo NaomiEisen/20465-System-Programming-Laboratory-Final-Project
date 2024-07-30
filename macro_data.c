@@ -30,7 +30,8 @@ Boolean init_macr_trie(MacroTrie *macr_trie) {
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @param macr_name The name of the macro to be added.
- * @return TRUE if the macro is added successfully, FALSE otherwise.
+ * @return ErrorCode - Error code of the error that occurred or NO_ERROR if the process
+ *          executed successfully.
  */
 ErrorCode add_macr(MacroTrie *macr_trie, const char *macr_name) {
     ErrorCode status;
@@ -52,7 +53,6 @@ ErrorCode add_macr(MacroTrie *macr_trie, const char *macr_name) {
     }
     return status;
 }
-
 
 /**
  * Add a line to the last added macro.
@@ -177,7 +177,6 @@ void free_trie_data(MacroTrie *macr_trie) {
 void free_macr_trie(MacroTrie *macr_trie) {
     free_node(macr_trie->trie.root);
 }
-
 
 /**
  * Print lines of a macro.

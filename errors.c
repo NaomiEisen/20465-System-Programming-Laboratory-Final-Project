@@ -7,7 +7,7 @@
 #include "errors.h"
 #include "utils.h"
 
-/* ------------------------ Initialize the global error variable ------------------------ */
+/* --------------------------- Initialize the static variables --------------------------- */
 static Error error = {NO_ERROR, "No error"};
 static ProgramStatus program_status = {ERROR_FREE_FILE};
 

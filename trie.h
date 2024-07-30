@@ -16,8 +16,7 @@
 #define UPPERCASE_OFFSET 26
 #define DIGIT_OFFSET 52
 /* ---------------------------------------- Structures ----------------------------------------*/
-
-/* Trie node structure */
+/* Generic trie node structure */
 typedef struct TrieNode {
     struct TrieNode *children[ALPHABET_SIZE];       /* Array of pointers to child nodes */
     Boolean exist; /* Flag indicating if this node represents the end of a valid string */
@@ -61,10 +60,10 @@ Boolean init_trie(Trie *trie);
  * @param trie A pointer to the Trie in which the string will be inserted.
  * @param str The string to be inserted into the trie.
  * @param data A pointer to the generic data to be stored at the final node of the string.
- * @return Boolean TRUE if the string is successfully inserted; otherwise, FALSE.
+ * @return ErrorCode - Error code of the error that occurred or NO_ERROR if the process
+ *          executed successfully.
  */
 ErrorCode insert_to_trie(Trie *trie, const char *str, void *data);
-
 
 /**
  * Function to search for a node in the trie.
@@ -79,6 +78,7 @@ ErrorCode insert_to_trie(Trie *trie, const char *str, void *data);
  * @return TrieNode* A pointer to the found node if the label exists; otherwise, NULL.
  */
 TrieNode* search_trie(const Trie *trie, const char *label);
+
 /**
  * Function to free a node in the trie.
  *
@@ -89,6 +89,7 @@ TrieNode* search_trie(const Trie *trie, const char *label);
  * @param node A pointer to the TrieNode to be freed.
  */
 void free_node(TrieNode *node);
+
 /**
  * Function to free the node's data.
  *
@@ -97,6 +98,7 @@ void free_node(TrieNode *node);
 void free_data(void *data);
 
 
+/* todo: delete later! */
 void print_trie(TrieNode *node, char *word_so_far);
 
 #endif /* TRIE_H */
