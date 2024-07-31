@@ -116,6 +116,7 @@ Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
         /* Set the external bit and write the label to the extern file */
         set_bit(E,1, &cmp_data->code);
         write_label(label, cmp_data->code.write_ptr+IC_START, cmp_data->extern_file.file);
+        cmp_data->extern_file.delete = FALSE;  /* Set flag to false - non-empty file should not be deleted */
     } else {
         /* Set the relocatable bit */
         set_bit(R, 1, &cmp_data->code);

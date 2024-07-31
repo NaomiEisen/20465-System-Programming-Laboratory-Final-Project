@@ -63,11 +63,6 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
     update_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START, DIRECTIVE);
 
     /* -------------------------------------- Second phase -------------------------------------- */
-   /* if (second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
-        free_program_data(&cmp_data, file_am, TRUE);
-        return;
-    }*/
-
     second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data);
     if (get_status() != ERROR_FREE_FILE) {
         free_program_data(&cmp_data, file_am, TRUE);
@@ -77,7 +72,7 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
     /* ------------------------------------ Create object file ----------------------------------- */
     if (create_obj_file(origin_file_name, &cmp_data) == FALSE) {
         free_program_data(&cmp_data, file_am, TRUE);
-    } else {
+    }else {
         free_program_data(&cmp_data, file_am, FALSE);
     }
 
@@ -197,13 +192,13 @@ static Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) 
 
     /* ----------------------- Open the source file in read mode ----------------------- */
     if (!(object_file = fopen(file_ob, "w"))) {
-        /* if the file fails to open, set an error and return */
+        /* If the file fails to open, set an error and return */
         set_general_error(FAILED_OPEN_FILE);
         /*fclose(object_file);  close the file */
         free(file_ob);
         return FALSE;
     }
-    else {
+    else { /* Print the memory image */
         print_memory_images(object_file, cmp_data);
         fclose(object_file); /* close the file */
         free(file_ob);

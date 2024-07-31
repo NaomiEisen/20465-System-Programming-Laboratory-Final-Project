@@ -3,10 +3,7 @@
  * --------------------------------------------------------------------------------------- */
 #include "../../structures/headers/ast.h"
 #include "../../structures/headers/cmp_data.h"
-#include "../../utils/headers/boolean.h"
 #include "../headers/code_convert.h"
-#include "../../structures/headers/label_data.h"
-#include "../headers/defines.h"
 
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes

@@ -29,6 +29,7 @@ typedef struct UnresolvedLineList{
 typedef struct File{
     FILE* file;                                /* Pointer to the file stream */
     char* file_name;                                      /* The file's name */
+    Boolean delete;
 } File;
 
 /*

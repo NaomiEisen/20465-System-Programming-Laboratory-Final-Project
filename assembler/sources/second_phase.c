@@ -3,7 +3,6 @@
  * --------------------------------------------------------------------------------------- */
 #include "../../structures/headers/ast.h"
 #include "../../structures/headers/cmp_data.h"
-#include "../../structures/headers/label_data.h"
 #include "../headers/code_convert.h"
 #include "../../utils/headers/output_files.h"
 /* ---------------------------------------------------------------------------------------
@@ -98,4 +97,6 @@ static void handle_entry(ASTNode *node, CmpData *cmp_data){
         /* Get the next operand */
         current = (DirNode *) current->next;
     }
+
+    cmp_data->entry_file.delete = FALSE; /* Set flag to false - non-empty file should not be deleted */
 }

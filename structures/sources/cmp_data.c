@@ -32,23 +32,27 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
     create_new_file_name(file_name, &entry_file, ".ent");
     create_new_file_name(file_name, &extern_file, ".ext");
 
-    /* todo: maybe change the check */
-    if (entry_file == NULL || extern_file == NULL) {
-        return FALSE;
-    }
+    /* Memory allocation failure */
+    if (entry_file == NULL || extern_file == NULL) return FALSE;
 
-
+    /* Open in write mpde */
     data->entry_file.file = fopen(entry_file, "w");
     data->extern_file.file = fopen(extern_file, "w");
 
+    /* Failed to open */
    if (data->extern_file.file == NULL || data->entry_file.file == NULL) {
         free(extern_file);
         free(entry_file);
         return FALSE;
     }
 
+   /* Save the file name */
    data->entry_file.file_name = entry_file;
    data->extern_file.file_name = extern_file;
+
+   /* Default state - delete the files. Will be changed only if text will be written on them */
+   data->entry_file.delete = TRUE;
+   data->extern_file.delete = TRUE;
 
     /* Initialize code memory */
     for (i = 0; i < MEMORY_CAPACITY; i++) {
@@ -56,6 +60,8 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
             data->code.lines[i][j] = 0;
         }
     }
+
+    /* Set data count and writer pointer */
     data->code.count = 0;
     data->code.write_ptr = 0;
 
@@ -66,10 +72,9 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
         }
     }
 
-    data->data.count = 0;
-    data->data.write_ptr = 0;
     data->line_list = NULL; /* Initialize unresolved line list line_list to NULL*/
 
+    /* return the status of trie initialization */
     return init_label_trie(&data->label_table);
 }
 
@@ -159,9 +164,13 @@ void updt_memory_image_counter(MemoryImage *memory_image) {
  */
 void free_cmp_data(CmpData *cmp_data, Boolean delete) {
     close_files(cmp_data); /* Close the files */
-    if (delete == TRUE) { /* Delete files if specified so */
-        delete_files(cmp_data);
+    if (delete == TRUE) {
+        /* Delete files if specified so */
+        cmp_data->extern_file.delete = TRUE;
+        cmp_data->entry_file.delete = TRUE;
     }
+    /* Delete the necessary files */
+    delete_files(cmp_data);
 
     /* Reset file pointers to null */
     cmp_data->entry_file.file = NULL;
@@ -235,19 +244,21 @@ static void free_file_names(CmpData* cmp_data){
  */
 static void delete_files(CmpData* cmp_data) {
     /* Delete file */
+    if (cmp_data->entry_file.delete == TRUE){
     if (cmp_data->entry_file.file_name != NULL && remove(cmp_data->entry_file.file_name) != 0) {
         /* Failed to delete */
         set_general_error(FAILED_DELETE_FILE);
         printf("The file name: %s\n", cmp_data->entry_file.file_name);
     }
-
+}
     /* Delete file */
+    if (cmp_data->extern_file.delete == TRUE) {
     if (cmp_data->extern_file.file_name != NULL && remove(cmp_data->extern_file.file_name) != 0) {
         /* Failed to delete */
         set_general_error(FAILED_DELETE_FILE);
         printf("The file name: %s\n", cmp_data->extern_file.file_name);
     }
-
+}
 }
 
 /* ------------------------------------------------- for me ------------------------------------------*/
