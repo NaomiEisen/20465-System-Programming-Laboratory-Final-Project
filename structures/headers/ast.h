@@ -43,7 +43,7 @@ typedef union {
 
 /* Structure representing an operand in an instruction operation */
 typedef struct {
-    int adr_mode;           /* Addressing mode for the instruction */
+    int adr_mode;              /* Address mode of the instruction */
     InstructionValue value; /* Value of the instruction's operand */
 } InstructionOperand;
 

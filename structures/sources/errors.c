@@ -23,42 +23,43 @@ static ProgramStatus program_status = {ERROR_FREE_FILE};
  */
 const char* get_error_message(ErrorCode code) {
     switch (code) {
-        case NO_ERROR: return "No error";
-        case MEMORY_ALLOCATION_ERROR: return "Memory allocation failed";
-        case EOF_ERROR: return "End of file reached";
-        case NO_ARGUMENTS: return "No arguments were passed";
-        case PROGRAM_FILE_ERROR: return "Failed to open program's extern/entry files";
-        case FAILED_OPEN_FILE: return "Cannot open file";
-        case FAILED_CREATE_FILE: return "Cannot create file";
-        case FAILED_CLOSE_FILE: return "Failed to close file";
-        case FAILED_DELETE_FILE: return "Failed to delete file";
-        case LINE_TOO_LONG: return "Command line is too long. Should be 81 chars at max"; /* todo fix number */
-        case MACR_RESERVED_WORD: return "Invalid macro name - macro's name is reserved word";
-        case EXTRA_TXT_MACR: return "Extra text after macro define";
-        case MACR_DUPLICATE: return "Macro with the same name already exists";
-        case INVALID_CHAR_MACR: return "Macro's name contains invalid character";
-        case CONSECUTIVE_COMMA_ERROR: return "Multiple consecutive commas";
-        case MISSING_COMMA_ERROR: return "Missing comma";
-        case ILLEGAL_COMMA_ERROR: return "Illegal comma";
-        case INSTRUCTION_NAME_ERROR: return "Invalid command name";
-        case DIRECTIVE_NAME_ERROR: return "Invalid directive instruction";
-        case INVALID_LABEL_NAME: return "Invalid label name, should start with alphabetic char";
-        case EXTRA_TXT: return "Extra text after command";
-        case LABEL_RESERVED_WORD: return "Invalid label name, cannot be reserved word";
-        case INVALID_CHAR_LABEL: return "Label's name contains invalid char";
-        case LABEL_MACR_COLLIDES: return "Label and macro's name are collides";
-        case UNRECOGNIZED_LABEL: return "Unrecognized label";
-        case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars"; /* todo fix number */
-        case LABEL_DUPLICATE: return "Multiple label definition";
-        case NOT_INTEGER: return "Not an integer";
-        case INVALID_STRING: return "Invalid string format";
-        case INVALID_REGISTER: return "Invalid register name";
-        case INVALID_PARAM_NUMBER: return "Invalid param number";
-        case INVALID_PARAM_TYPE: return "Invalid param type";
-        case CPU_MEMORY_FULL: return "CPU memory full";
-        default: return "An unspecified error occurred";
+        case NO_ERROR:                   return "No error";
+        case MEMORY_ALLOCATION_ERROR:    return "Memory allocation failed";
+        case EOF_ERROR:                  return "End of file reached";
+        case NO_ARGUMENTS:               return "No arguments provided";
+        case PROGRAM_FILE_ERROR:         return "Failed to open program's extern/entry files";
+        case FAILED_OPEN_FILE:           return "Cannot open file";
+        case FAILED_CREATE_FILE:         return "Cannot create file";
+        case FAILED_CLOSE_FILE:          return "Failed to close file";
+        case FAILED_DELETE_FILE:         return "Failed to delete file";
+        case LINE_TOO_LONG:              return "Line is too long; max length is " TOSTRING(MAX_LINE_LENGTH) " characters";
+        case MACR_RESERVED_WORD:         return "Invalid macro name - name is a reserved word";
+        case EXTRA_TXT_MACR:             return "Extra text after macro definition";
+        case MACR_DUPLICATE:             return "Invalid macro name - duplicate macro names found";
+        case INVALID_CHAR_MACR:          return "Macro name contains invalid characters";
+        case CONSECUTIVE_COMMA_ERROR:    return "Multiple consecutive commas";
+        case MISSING_COMMA_ERROR:        return "Missing comma";
+        case ILLEGAL_COMMA_ERROR:        return "Illegal comma";
+        case INSTRUCTION_NAME_ERROR:     return "Invalid command name";
+        case DIRECTIVE_NAME_ERROR:       return "Invalid directive instruction";
+        case INVALID_LABEL_NAME:         return "Invalid label name - should start with an alphabetic character";
+        case EXTRA_TXT:                  return "Extra text after command";
+        case LABEL_RESERVED_WORD:        return "Invalid label name - cannot be a reserved word";
+        case INVALID_CHAR_LABEL:         return "Label name contains invalid characters";
+        case LABEL_MACR_COLLIDES:        return "Label and macro name collision";
+        case UNRECOGNIZED_LABEL:         return "Unrecognized label";
+        case INVALID_LABEL_LENGTH:       return "Invalid label length - cannot exceed " TOSTRING(MAX_LABEL_LENGTH) " characters";
+        case LABEL_DUPLICATE:            return "Invalid label name - duplicate label names found";
+        case NOT_INTEGER:                return "Not an integer";
+        case INVALID_STRING:             return "Invalid string format";
+        case INVALID_REGISTER:           return "Invalid register name";
+        case INVALID_PARAM_NUMBER:       return "Invalid number of parameters";
+        case INVALID_PARAM_TYPE:         return "Invalid parameter type";
+        case CPU_MEMORY_FULL:            return "CPU memory full";
+        default:                         return "An unspecified error occurred";
     }
 }
+
 /**
  * Private methods - prints the current error message and location, if an error is set.
  * Activates whenever an error is set.
@@ -181,3 +182,42 @@ ErrorCode get_error() {
 void print_warning() {
     printf("WARNING: label before extern/entry is useless.");
 }
+
+/*const char* get_error_message(ErrorCode code) {
+    switch (code) {
+        case NO_ERROR: return "No error";
+        case MEMORY_ALLOCATION_ERROR: return "Memory allocation failed";
+        case EOF_ERROR: return "End of file reached";
+        case NO_ARGUMENTS: return "No arguments were passed";
+        case PROGRAM_FILE_ERROR: return "Failed to open program's extern/entry files";
+        case FAILED_OPEN_FILE: return "Cannot open file";
+        case FAILED_CREATE_FILE: return "Cannot create file";
+        case FAILED_CLOSE_FILE: return "Failed to close file";
+        case FAILED_DELETE_FILE: return "Failed to delete file";
+        case LINE_TOO_LONG: return "Command line is too long. Should be 81 chars at max";
+case MACR_RESERVED_WORD: return "Invalid macro name - macro's name is reserved word";
+case EXTRA_TXT_MACR: return "Extra text after macro define";
+case MACR_DUPLICATE: return "Macro with the same name already exists";
+case INVALID_CHAR_MACR: return "Macro's name contains invalid character";
+case CONSECUTIVE_COMMA_ERROR: return "Multiple consecutive commas";
+case MISSING_COMMA_ERROR: return "Missing comma";
+case ILLEGAL_COMMA_ERROR: return "Illegal comma";
+case INSTRUCTION_NAME_ERROR: return "Invalid command name";
+case DIRECTIVE_NAME_ERROR: return "Invalid directive instruction";
+case INVALID_LABEL_NAME: return "Invalid label name, should start with alphabetic char";
+case EXTRA_TXT: return "Extra text after command";
+case LABEL_RESERVED_WORD: return "Invalid label name, cannot be reserved word";
+case INVALID_CHAR_LABEL: return "Label's name contains invalid char";
+case LABEL_MACR_COLLIDES: return "Label and macro's name are collides";
+case UNRECOGNIZED_LABEL: return "Unrecognized label";
+case INVALID_LABEL_LENGTH: return "Invalid label length, cannot exceed 31 chars";
+case LABEL_DUPLICATE: return "Multiple label definition";
+case NOT_INTEGER: return "Not an integer";
+case INVALID_STRING: return "Invalid string format";
+case INVALID_REGISTER: return "Invalid register name";
+case INVALID_PARAM_NUMBER: return "Invalid param number";
+case INVALID_PARAM_TYPE: return "Invalid param type";
+case CPU_MEMORY_FULL: return "CPU memory full";
+default: return "An unspecified error occurred";
+}
+}*/

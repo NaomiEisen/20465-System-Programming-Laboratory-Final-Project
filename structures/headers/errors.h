@@ -1,6 +1,9 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 #include "../../assembler/headers/defines.h"
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
 /* ---------------------------- Error Codes ---------------------------- */
 typedef enum {
     /* ======= General Errors ======= */
