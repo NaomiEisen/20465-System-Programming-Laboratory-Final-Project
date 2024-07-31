@@ -27,6 +27,7 @@ const char* get_error_message(ErrorCode code) {
         case MEMORY_ALLOCATION_ERROR: return "Memory allocation failed";
         case EOF_ERROR: return "End of file reached";
         case NO_ARGUMENTS: return "No arguments were passed";
+        case PROGRAM_FILE_ERROR: return "Failed to open program's extern/entry files";
         case FAILED_OPEN_FILE: return "Cannot open file";
         case FAILED_CREATE_FILE: return "Cannot create file";
         case FAILED_CLOSE_FILE: return "Failed to close file";

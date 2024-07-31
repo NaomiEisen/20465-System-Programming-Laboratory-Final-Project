@@ -23,7 +23,7 @@ static void free_unresolved_list(UnresolvedLineList *head);
  * of the sets to the setMappings.
  * @param data Pointer to the ProgramData to be initialized
  */
-Boolean init_cmp_data(CmpData *data, const char *file_name) {
+ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
     int i, j;
     char* extern_file = NULL;
     char* entry_file= NULL;
@@ -33,9 +33,9 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
     create_new_file_name(file_name, &extern_file, ".ext");
 
     /* Memory allocation failure */
-    if (entry_file == NULL || extern_file == NULL) return FALSE;
+    if (entry_file == NULL || extern_file == NULL) return MEMORY_ALLOCATION_ERROR;
 
-    /* Open in write mpde */
+    /* Open in write mode */
     data->entry_file.file = fopen(entry_file, "w");
     data->extern_file.file = fopen(extern_file, "w");
 
@@ -43,7 +43,7 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
    if (data->extern_file.file == NULL || data->entry_file.file == NULL) {
         free(extern_file);
         free(entry_file);
-        return FALSE;
+        return PROGRAM_FILE_ERROR;
     }
 
    /* Save the file name */
@@ -75,7 +75,7 @@ Boolean init_cmp_data(CmpData *data, const char *file_name) {
     data->line_list = NULL; /* Initialize unresolved line list line_list to NULL*/
 
     /* return the status of trie initialization */
-    return init_label_trie(&data->label_table);
+    return (init_label_trie(&data->label_table) == TRUE)? NO_ERROR: MEMORY_ALLOCATION_ERROR;
 }
 
 

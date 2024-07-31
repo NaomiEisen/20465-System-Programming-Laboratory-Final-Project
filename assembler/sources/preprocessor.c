@@ -34,11 +34,11 @@ static void cleanup_files(FILE* source_file, FILE* output_file, char* source_fil
  * @return The name of the output file with the ".am" extension, or NULL if an error occurs.
  */
 char *preprocessor_controller(const char *file_origin, MacroTrie *macro_trie) {
-    FILE* source_file = NULL;                          /* the source file (.as) */
-    FILE* output_file = NULL;                          /* the output file (.am) */
-    char* source_filename = NULL;                       /* the source file name */
-    char* output_filename = NULL;                       /* the output file name */
-    Location location = {NULL, 0}; /* Location variable set to default */
+    FILE* source_file = NULL;        /* The source file (.as) */
+    FILE* output_file = NULL;        /* The output file (.am) */
+    char* source_filename = NULL;    /* The source file name */
+    char* output_filename = NULL;    /* The output file name */
+    Location location = {NULL, 0};   /* Location variable set to default */
 
     /* ------------- Create the source filename with the specified extension -------------*/
     if (!create_new_file_name(file_origin, &source_filename, ".as")) {

@@ -32,7 +32,8 @@ static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean dele
  */
 void phase_controller(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
     FILE* file_am = NULL;    /* the source file (.am) */
-    CmpData cmp_data; /* program's data */
+    CmpData cmp_data;              /* program's data */
+    ErrorCode cmp_init_status = NO_ERROR;
 
     /* Open the am file in read mode */
     if (!(file_am = fopen(file_name_am, "r"))) {
@@ -43,16 +44,14 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
     }
 
     /* initialize the computer's data */
-    if (init_cmp_data(&cmp_data, origin_file_name) == FALSE) {
+    cmp_init_status = init_cmp_data(&cmp_data, origin_file_name);
+    if (cmp_init_status != NO_ERROR) {
+        set_general_error(cmp_init_status);
+        free_program_data(&cmp_data, file_am, TRUE);
         return;
     }
 
     /* -------------------------------------- First phase -------------------------------------- */
-    /*if (first_phase_controller(file_am, file_name_am, macr_trie, &cmp_data) == FALSE) {
-        free_program_data(&cmp_data, file_am, TRUE);
-        return;
-    }*/
-
     first_phase_controller(file_am, file_name_am, macr_trie, &cmp_data);
     if (get_status() != ERROR_FREE_FILE) {
         free_program_data(&cmp_data, file_am, TRUE);

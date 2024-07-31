@@ -54,7 +54,7 @@ typedef struct CmpData{
  * of the sets to the setMappings.
  * @param data Pointer to the ProgramData to be initialized
  */
-Boolean init_cmp_data(CmpData *data, const char *file_name);
+ErrorCode init_cmp_data(CmpData *data, const char *file_name);
 
 
 /**

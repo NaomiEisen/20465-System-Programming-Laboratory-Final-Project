@@ -21,7 +21,7 @@ static void add_label(ASTNode *node, int address, CmpData *cmp_data);
  * --------------------------------------------------------------------------------------- */
 /**
  * The `first_phase_analyzer` function analyzes a parsed line (ASTNode) during the first phase of assembly.
- * It determines the type of line and processes it accordingly, updating the `CmpData` structure.
+ * It determines the type of line and processes it accordingly with the helper functions.
  *
  * @param node The parsed line represented as an Abstract Syntax Tree (AST) node.
  * @param cmp_data The data structure holding various program-related data during assembly.
@@ -223,13 +223,14 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
                 }
 
                 /* Code register operand */
-                code_register_addr_mode(current_opr->value.int_val, &cmp_data->code, REGISTER_POS + (SECOND_REG_POSITION * (i - 1)));
-                reg = TRUE;
+                code_register_addr_mode(current_opr->value.int_val, &cmp_data->code,
+                                        REGISTER_POS + (SECOND_REG_POSITION * (i - 1)));
+                reg = TRUE; /* Set flag to indicate that the encoded operand was a register */
                 break;
 
-            default:
-                break;
+            default: break;
         }
+        /* Update the memory image counter after each written operand  */
         updt_memory_image_counter(&cmp_data->code);
     }
 }
@@ -290,6 +291,7 @@ static void handle_extern(ASTNode* node, CmpData* cmp_data) {
     while (current) {
         /* Try adding the label to the label table */
         switch (insert_label(&cmp_data->label_table, current->operand, 0, EXTERNAL)) {
+            /* Check for errors */
             case MEMORY_ALLOCATION_ERROR:
                 set_general_error(MEMORY_ALLOCATION_ERROR);
                 break;
@@ -308,29 +310,3 @@ static void handle_extern(ASTNode* node, CmpData* cmp_data) {
         current = (DirNode *) current->next;
     }
 }
-
-/*
-static void handle_extern(ASTNode *node, CmpData *cmp_data) {
-    if (node->specific.directive.operands->next) {
-        set_error(INVALID_PARAM_NUMBER, node->location);
-    }
-
-    switch (insert_label(&cmp_data->label_table, node->specific.directive.operands->operand,
-                         0, EXTERNAL)) {
-
-        case MEMORY_ALLOCATION_ERROR:
-            set_general_error(MEMORY_ALLOCATION_ERROR);
-            break;
-
-        case INVALID_CHAR:
-            set_error(INVALID_CHAR_LABEL, node->location);
-            break;
-
-        case DUPLICATE:
-            set_error(MACR_DUPLICATE, node->location);
-            break;
-
-        default:
-            break;
-    }
-}*/

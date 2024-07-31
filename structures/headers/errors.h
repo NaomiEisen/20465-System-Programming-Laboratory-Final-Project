@@ -7,6 +7,7 @@ typedef enum {
     NO_ERROR,
     MEMORY_ALLOCATION_ERROR,
     EOF_ERROR,
+    PROGRAM_FILE_ERROR,
 
     /* ======= File Errors ======= */
     NO_ARGUMENTS,

@@ -1,5 +1,6 @@
 #ifndef ASSEMBLER_CONTROLLER_H
 #define ASSEMBLER_CONTROLLER_H
+/* ----------------------------------- Functions Prototypes ------------------------------------*/
 /**
  * Controller function to handle the execution of the assembler program.
  *

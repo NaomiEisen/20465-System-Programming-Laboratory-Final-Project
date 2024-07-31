@@ -8,8 +8,6 @@
 #include "../../structures/headers/macro_data.h"
 #include "../../structures/headers/ast.h"
 #include "../../utils/headers/utils.h"
-#include "../../structures/headers/errors.h"
-#include "../../utils/headers/boolean.h"
 #include "../../structures/headers/mappings.h"
 #include "../headers/parser.h"
 /* ---------------------------------------------------------------------------------------
@@ -282,7 +280,7 @@ static Boolean validate_operation(const char *operation, ASTNode* node) {
  * @return TRUE if the operands were parsed successfully, FALSE otherwise.
  */
 static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie *macr_trie) {
-    const char *start = *line;                 /* Pointer to the start of the line/word */
+    const char *start = *line;                      /* Pointer to the start of the word */
     const char *line_ptr = start;                   /* Pointer to move through the line */
     Boolean first_op = TRUE; /* Flag indicating if the first operand was already parsed */
     char* operand = NULL;                         /* Variable to store the operand text */
@@ -342,19 +340,13 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
             if (node->lineType == LINE_DIRECTIVE) {
                 add_directive_operand(&node->specific.directive, operand);
             } else { /* Parse instruction type operands */
-                /*if (operand_counter >= 2) {
-                    set_error(INVALID_PARAM_NUMBER, node->location);
-                    free(operand);
-                    return FALSE;
-                }*/ /* todo I think I dont need this - parse operand already checks */
                 parse_instruct_operand(node, operand, macr_trie);
                 operand_counter++;
                 free(operand);
             }
             first_op = FALSE; /* Processed first operand already */
             trim_leading_spaces(&line_ptr);
-        }
-        else {
+        } else {
             set_error(EXTRA_TXT, node->location);
             return FALSE;
         }

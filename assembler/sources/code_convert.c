@@ -86,7 +86,7 @@ unsigned int convert_to_octal(const char *word) {
  * @param memory_img Pointer to the memory image structure.
  */
 void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
-    int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
+    int end = IMMEDIATE_DIRECTIVE_BIT_SIZE - 1;
     set_int_code(0, end, num, memory_img);
     set_bit(A, 1, memory_img);
 }
@@ -102,7 +102,7 @@ Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
     /* Get the label type and address from the label table */
     LabelType label_type = get_label_type(&cmp_data->label_table, label);
     int address = get_label_addr(&cmp_data->label_table, label);
-    int end = IMMIDIATE_DIRECTIVE_BIT_SIZE-1;
+    int end = IMMEDIATE_DIRECTIVE_BIT_SIZE - 1;
 
     /* Label is not found */
     if (address == -1) {
@@ -252,29 +252,3 @@ int get_marked_line(MemoryImage *memory_img) {
     }
     return -1; /* No marked word found */
 }
-
-
-/**
- * Function that sets the bit at the specified index to 1 in the relevant memory image.
- * @param i
- * @param memory_img
-
-void set_bit(int i, MemoryImage *memory_img) {
-
-    char mask;
-    int byteIndex = i / BYTE_SIZE;
-    int bitOffset = i % BYTE_SIZE;
-
-    if (byteIndex >= NUM_OF_BYTES) {
-        return;
-    }
-
-    mask = (char)(1 << (BYTE_SIZE -1 - bitOffset));
-
-    if (memory_img->count < MEMORY_CAPACITY) {
-        memory_img->lines[memory_img->count][byteIndex] |= mask;
-    } else {
-        set_general_error(CPU_MEMORY_FULL);
-    }
-
-}*/
