@@ -96,7 +96,7 @@ ASTNode *parseLine(const MacroTrie *macr_trie, const char *file_name, int line_n
 * @param node The ASTNode to update.
 * @return TRUE if the line is empty or a comment, FALSE otherwise.
 */
-static Boolean check_empty_line (const char** line, ASTNode* node) {
+static Boolean check_empty_line(const char** line, ASTNode* node) {
     const char* ptr = *line;
     if (*ptr == '\0') { /* Empty line */
         set_ast_type(node, LINE_EMPTY);
@@ -341,11 +341,11 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
             if (node->lineType == LINE_DIRECTIVE) {
                 add_directive_operand(&node->specific.directive, operand);
             } else { /* Parse instruction type operands */
-                if (operand_counter >= 2) {
+                /*if (operand_counter >= 2) {
                     set_error(INVALID_PARAM_NUMBER, node->location);
                     free(operand);
                     return FALSE;
-                }
+                }*/ /* todo I think I dont need this - parse operand already checks */
                 parse_instruct_operand(node, operand, macr_trie);
                 operand_counter++;
                 free(operand);
@@ -398,10 +398,7 @@ static Boolean parse_string(const char **line, ASTNode *node) {
  * @param operand The operand to parse.
  */
 static void parse_instruct_operand(ASTNode *node, const char *operand, const MacroTrie *macr_trie) {
-
-    if (!operand) {
-        return;
-    }
+    if (!operand) return; /* Null pointer */
 
     /* Integer */
     else if (operand[0] == '#') {
@@ -470,7 +467,7 @@ static void parse_reg(ASTNode* node, const char *operand, int addr_mode) {
  * @param operand The operand to parse.
  */
 static void parse_label(ASTNode *node, const char *operand, const MacroTrie *macr_trie) {
-    if (validate_label(operand, node, macr_trie) == TRUE) {
+    if (validate_label(operand, node, macr_trie) == TRUE) { /* Validate label */
         if (add_instruct_operand(node, ADDR_MODE_DIRECT, operand, 0) == FALSE) {
             set_error(INVALID_PARAM_NUMBER, node->location);
         }

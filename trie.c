@@ -8,6 +8,7 @@
  * --------------------------------------------------------------------------------------- */
 /**
  * Private function to get the index of a character in the trie.
+ *
  * This function determines the index of a given character based on predefined offsets
  * for different character types: lowercase letters, uppercase letters, digits, and
  * specific special characters ('-', '_', and '.').
@@ -71,9 +72,8 @@ Boolean init_trie(Trie *trie) {
     trie->root = create_trie_node();
 
     /* Memory allocation failure */
-    if (!trie->root) {
-        return FALSE;
-    }
+    if (!trie->root) return FALSE;
+
     /* Trie is successfully initialized */
     return TRUE;
 
@@ -93,26 +93,32 @@ Boolean init_trie(Trie *trie) {
  *          executed successfully.
  */
 ErrorCode insert_to_trie(Trie *trie, const char *str, void *data) {
-    int index; /* Current char index */
-    TrieNode *node = trie->root;
+    int index;                                  /* Current char index */
+    TrieNode *node = trie->root; /* Variable to hold the current node */
 
     while (*str) {
-        index = get_index(*str); /* Get the relevant index */
-        if (index == -1) {
-            /* Invalid character in str */
-            return INVALID_CHAR;
-        }
+        /* Get the relevant index */
+        index = get_index(*str);
+
+        /* Char not found */
+        if (index == -1) return INVALID_CHAR;
+
         if (!node->children[index]) {
             /* Create the node if it does not exist */
             node->children[index] = create_trie_node();
-            if (!node->children[index]) {return MEMORY_ALLOCATION_ERROR;}
+            /* Memory allocation failed */
+            if (!node->children[index]) return MEMORY_ALLOCATION_ERROR;
         }
         node = node->children[index];
         str++;
     }
-    if (node->exist == TRUE) {return DUPLICATE;}
-    node->exist = TRUE; /* set existing node to true */
-    node->data = data; /* attach the data */
+
+    /* If Node already exists */
+    if (node->exist == TRUE) return DUPLICATE;
+
+    /* Set existing node to true and attach the data */
+    node->exist = TRUE;
+    node->data = data;
     return NO_ERROR;
 }
 
@@ -129,12 +135,8 @@ ErrorCode insert_to_trie(Trie *trie, const char *str, void *data) {
  * @return TrieNode* A pointer to the found node if the label exists; otherwise, NULL.
  */
 TrieNode* search_trie(const Trie *trie, const char *label) {
-    TrieNode *node;
-    if (trie == NULL) {
-        return NULL; /* if the trie pointer is NULL, return */
-    }
+    TrieNode *node = trie->root; /* Variable to hold the current node */
 
-    node = trie->root;
     while (*label) {
         int index = get_index(*label);
         if (index == -1 || !node->children[index]) {
@@ -147,7 +149,7 @@ TrieNode* search_trie(const Trie *trie, const char *label) {
     if (node && node->exist) {
         return node; /* Return the node if it exists */
     }
-    return NULL; /* If node was not found */
+    return NULL; /* Node wasn't found */
 }
 
 /**

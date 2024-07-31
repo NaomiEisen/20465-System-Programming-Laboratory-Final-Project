@@ -17,6 +17,7 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
 static Boolean validate_line_length(const char *line, Location location);
 static Boolean verify_macro(const char *str, Location location);
 static int is_comment(const char* str);
+static void remove_comments(char* str);
 static int macr_start(const char* str);
 static int macr_end(const char* str);
 static Boolean create_macr(MacroTrie *macr_trie, const char *str, Location location);
@@ -110,6 +111,9 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
         trim_leading_spaces((const char **) &line_ptr); /* Skip leading spaces */
         save_line_content(&location, line_ptr);        /* Save line content */
 
+        /* Remove comments from the line */
+        remove_comments(line_ptr);
+
         /* Check if the line is too long */
         if (validate_line_length(line, location) == FALSE) {
             /* Skip the rest of the overly long line */
@@ -119,10 +123,10 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
         /* If line is not empty - process the line */
         else if (sscanf(line_ptr, "%s", word) == 1) {
             /* ------------------------ 1. Ignore comment line ------------------------ */
-            if (is_comment(word)) {
+            /*if (is_comment(word)) {
                 free_location(&location);
                 continue;
-            }
+            }*/
 
             /* -------------------- 2. End of macro initialization -------------------- */
             if (!macr_end(word)) {
@@ -167,9 +171,38 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
 /* ---------------------------------------------------------------------------------------
  *                                Preprocessor Utility Functions
  * --------------------------------------------------------------------------------------- */
+/**
+ * Private function -  checks if a given string is a comment line.
+ * A comment is defined as a line/part of the line that starts with the character ';'.
+ * If the comment character is found, the function trims any characters after
+ * the ';' character from the line, while preserving the newline character at
+ * the end of the line if it exists.
+ *
+ * @param str The string to check and modify.
+ */
+static void remove_comments(char* str) {
+    char *comment_start = NULL; /* Pointer to the start of a comment */
+    char *newline = NULL;       /* Pointer to newLine char if exists */
+    if (str) {
+        /* Comment starts with ';' */
+        comment_start = strchr(str, ';');
+        if (comment_start) {
+            newline = strchr(comment_start, '\n');
+            if (newline) { /* If there is a newLine char in the line */
+                /* Restore the newline character */
+                *comment_start = '\n';
+                /* Trim the rest of the line after ';' */
+                *(comment_start + 1) = '\0';
+            } else { /* No newLine char */
+                /* Trim the rest of the line after ';' */
+                *comment_start = '\0';
+            }
+        }
+    }
+}
 
 /**
- * The `validate_line_length` function checks if a given line exceeds the maximum allowed length.
+ * Private function - checks if a given line exceeds the maximum allowed length.
  * If the line is too long, it sets an error and returns FALSE.
  *
  * @param line The line to check.
@@ -186,7 +219,7 @@ static Boolean validate_line_length(const char *line, Location location) {
 }
 
 /**
-* The `verify_macro` function verifies the validity of a macro initialization line.
+* Private function - verifies the validity of a macro initialization line.
 * It checks if the macro has a valid name: if the name is not a reserved word,
 * and if there is no extra text after the macro name.
 *
@@ -224,11 +257,13 @@ static Boolean verify_macro(const char *str, Location location) {
  * @return Non-zero if the string is a comment line, 0 otherwise.
  */
 static int is_comment(const char* str) {
-    return str && str[0] == ';';
+    return str && str[0] == ';'; /* todo: DELETE!! */
 }
 
+
+
 /**
- * The `macr_start` function checks if a given string is the start of a macro definition.
+ * Private function - checks if a given string is the start of a macro definition.
  *
  * @param str The string to check.
  * @return Non-zero if the string is the start of a macro, 0 otherwise.
@@ -238,7 +273,7 @@ static int macr_start(const char* str) {
 }
 
 /**
- * The `macr_end` function checks if a given string is the end of a macro definition.
+ * Private function - checks if a given string is the end of a macro definition.
  *
  * @param str The string to check.
  * @return Non-zero if the string is the end of a macro, 0 otherwise.
@@ -248,7 +283,7 @@ static int macr_end(const char* str) {
 }
 
 /**
- * The `create_macr` function creates a new macro in the macro trie if the given string
+ * Private function - creates a new macro in the macro trie if the given string
  * is a valid macro initialization line.
  *
  * @param macr_trie The trie structure containing macro definitions.
@@ -288,7 +323,7 @@ static Boolean create_macr(MacroTrie *macr_trie, const char *str, Location locat
 }
 
 /**
- * The `copy_macro_to_file` function copies the contents of a macro to the specified output file.
+ * Private function - copies the contents of a macro to the specified output file.
  *
  * @param macr The macro node containing the macro data to copy.
  * @param file The output file to write the macro contents to.

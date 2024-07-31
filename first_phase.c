@@ -217,11 +217,17 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
 
             case 2: /* Indirect register address mode */
             case 3: /* Direct register address mode */
-                if (reg == TRUE) { /* Two register operands can be written in a single word */
+                /* If there is only one register operand - it is the target register */
+                if (node->specific.instruction.num_operands == 1) i++;
+
+                /* Two register operands can be written in a single word */
+                else if (reg == TRUE) {
                     /* write on the previous word */
                     cmp_data->code.count--;
                     cmp_data->code.write_ptr = cmp_data->code.count;
                 }
+
+                /* Code register operand */
                 code_register_addr_mode(current_opr->value.int_val, &cmp_data->code, REGISTER_POS + (SECOND_REG_POSITION * (i - 1)));
                 reg = TRUE;
                 break;
@@ -245,21 +251,20 @@ static void handle_directive(ASTNode *node, CmpData *cmp_data) {
     int id_start = cmp_data->data.count; /* remember starting address */
 
     switch (node->specific.directive.operation) {
-        case DATA:
+        case DATA: /* Data directive */
             code_data(node, &cmp_data->data);
             /*updt_memory_image_counter(&cmp_data->data);*/
             break;
-        case STRING:
+        case STRING: /* String directive */
             code_string(node, &cmp_data->data);
             /*updt_memory_image_counter(&cmp_data->data);*/
             break;
-        case ENTRY:
+        case ENTRY: /* Entry directive will be handled in the second phase */
             if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
                 set_general_error(MEMORY_ALLOCATION_ERROR);
                 return;
-            }
-            break;
-        case EXTERN:
+            } break;
+        case EXTERN: /* Extern directive */
             handle_extern(node, cmp_data);
             break;
     }
@@ -274,6 +279,7 @@ static void handle_directive(ASTNode *node, CmpData *cmp_data) {
     }
 }
 
+
 /**
  * The `handle_extern` function processes an EXTERN directive during the first phase of assembly.
  * It adds the external label to the label table in the `CmpData` structure.
@@ -283,7 +289,7 @@ static void handle_directive(ASTNode *node, CmpData *cmp_data) {
  * @return TRUE if the EXTERN directive is processed successfully, FALSE otherwise.
  */
 static void handle_extern(ASTNode* node, CmpData* cmp_data) {
-    /* DirNode variable to iterate through node's operand */
+    /* DirNode variable to iterate through the parameters list */
     DirNode *current = node->specific.directive.operands;
 
     while (current) {
@@ -297,7 +303,7 @@ static void handle_extern(ASTNode* node, CmpData* cmp_data) {
                 set_error(INVALID_CHAR_LABEL, node->location);
                 break;
 
-            case DUPLICATE: /* todo: check if needed*/
+            case DUPLICATE:
                 set_error(MACR_DUPLICATE, node->location);
                 break;
 
@@ -308,4 +314,28 @@ static void handle_extern(ASTNode* node, CmpData* cmp_data) {
     }
 }
 
+/*
+static void handle_extern(ASTNode *node, CmpData *cmp_data) {
+    if (node->specific.directive.operands->next) {
+        set_error(INVALID_PARAM_NUMBER, node->location);
+    }
 
+    switch (insert_label(&cmp_data->label_table, node->specific.directive.operands->operand,
+                         0, EXTERNAL)) {
+
+        case MEMORY_ALLOCATION_ERROR:
+            set_general_error(MEMORY_ALLOCATION_ERROR);
+            break;
+
+        case INVALID_CHAR:
+            set_error(INVALID_CHAR_LABEL, node->location);
+            break;
+
+        case DUPLICATE:
+            set_error(MACR_DUPLICATE, node->location);
+            break;
+
+        default:
+            break;
+    }
+}*/
