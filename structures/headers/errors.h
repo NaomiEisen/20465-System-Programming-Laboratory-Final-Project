@@ -75,7 +75,7 @@ typedef struct {
 
 /* Structure that represents an error with associated information */
 typedef struct {
-    ErrorCode code;               /* Error's code */
+    ErrorCode code;               /* Error's image */
     const char *message; /* Message to be printed */
     Location location;        /* Error's location */
 } Error;
@@ -90,22 +90,21 @@ typedef struct {
     Status status;
     int error_counter;
     int warning_counter;
-    int full_memory;
 } ProgramStatus;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
 /**
- * Sets the current error with the specified error code and location.
+ * Sets the current error with the specified error image and location.
  *
- * @param code The error code to set.
+ * @param code The error image to set.
  * @param location The location in the source file where the error occurred.
  */
 void set_error(ErrorCode code, Location location);
 
 /**
- * Sets a general error with the specified error code but without a specific location.
+ * Sets a general error with the specified error image but without a specific location.
  *
- * @param code The error code to set.
+ * @param code The error image to set.
  */
 void set_general_error(ErrorCode code);
 
@@ -130,9 +129,9 @@ void clear_status();
 void free_location(Location *location);
 
 /**
- * Returns the current error code.
+ * Returns the current error image.
  *
- * @return The current error code.
+ * @return The current error image.
  */
 ErrorCode get_error();
 

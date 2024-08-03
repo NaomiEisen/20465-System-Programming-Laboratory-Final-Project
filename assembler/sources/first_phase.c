@@ -38,11 +38,6 @@ void first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
     } else { /* Handle directive line */
         handle_directive(node, cmp_data);
     }
-
-    /* Check if the program is run out of memory */
-    if (cmp_data->code.count + cmp_data->data.count > MEMORY_CAPACITY) {
-        set_general_error(RAM_MEMORY_FULL);
-    }
 }
 
 /* ---------------------------------------------------------------------------------------
@@ -51,14 +46,14 @@ void first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
 /**
  * The `handle_instruction` function processes an instruction line during the first phase of assembly.
  * It validates the number of parameters, encodes the instruction, and updates the `CmpData` structure.
- * The instructions is coded in the code image, stored in the `CmpData` structure.
+ * The instructions is coded in the image image, stored in the `CmpData` structure.
  *
  * @param node The parsed line represented as an ASTNode.
  * @param cmp_data The data structure holding various program-related data during assembly.
  * @return TRUE if the instruction is processed successfully, FALSE otherwise.
  */
 static void handle_instruction(ASTNode *node, CmpData *cmp_data) {
-    int ic_start = cmp_data->code.count; /* remember starting address */
+    int ic_start = cmp_data->image.code_count; /* remember starting address */
     int command_index = node->specific.instruction.operation;
 
     /* Validate number of parameters */
@@ -67,7 +62,7 @@ static void handle_instruction(ASTNode *node, CmpData *cmp_data) {
     }
 
     /* Code first word */
-    if (first_word(node, command_index, &cmp_data->code) == FALSE) {
+    if (first_word(node, command_index, &cmp_data->image) == FALSE) {
         set_error(INVALID_PARAM_TYPE, node->location);
     }
 
@@ -81,8 +76,8 @@ static void handle_instruction(ASTNode *node, CmpData *cmp_data) {
 }
 
 /**
- * The `first_word` function encodes the first word of an instruction into the code memory image.
- * It sets the operation code, addressing modes, and updates the memory image counter.
+ * The `first_word` function encodes the first word of an instruction into the image memory image.
+ * It sets the operation image, addressing modes, and updates the memory image counter.
  *
  * @param node The parsed line represented as an ASTNode.
  * @param command_index The index of the command in the operation table.
@@ -97,12 +92,12 @@ static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_im
     int num_operands = node->specific.instruction.num_operands;
 
     /* Code the operation name */
-    set_int_code(0, 3, command_index, code_img);
+    set_int_code(0, 3, command_index, code_img, CODE_IMAGE);
 
     /* ARE default first word's field */
-    set_bit(A, 1, code_img);
+    set_bit(A, 1, code_img, CODE_IMAGE);
 
-    /* Check if there is operands to code */
+    /* Check if there is operands to image */
     if (num_operands == 1) {
         opr_addr_dest = node->specific.instruction.operand1.adr_mode;
         valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET, 1);
@@ -115,12 +110,12 @@ static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_im
     }
 
     /* Update the code image counter */
-    updt_memory_image_counter(code_img);
+    updt_code_image_counter(code_img);
     return valid_addr; /* Return if the first word is valid */
 }
 
 /**
- * The `code_first_word_addr` function encodes the addressing mode of an operand into the first word of the instruction.
+ * This function encodes the addressing mode of an operand into the first word of the instruction.
  *
  * @param command_index The index of the command in the operation table.
  * @param code_img The memory image where the encoded instruction will be stored.
@@ -132,7 +127,7 @@ static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_im
 static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset, int param) {
     /* Encode only if the address mode of the operand is valid for the operation */
     if (valid_addr_mode(command_index, addr_mode, param) == TRUE) {
-        set_bit(offset - addr_mode, 1, code_img);
+        set_bit(offset - addr_mode, 1, code_img, CODE_IMAGE);
         return TRUE;
     } else {
         return FALSE;
@@ -204,12 +199,12 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
         /* Encode accordingly to the operand's address mode */
         switch (current_addr) {
             case 0:/* Immediate address mode */
-                code_immediate_addr_mode(current_opr->value.int_val, &cmp_data->code);
+                code_immediate_addr_mode(current_opr->value.int_val, &cmp_data->image);
                 break;
 
             case 1: /* Direct address mode */
-                /* Don't code labels in the first pass */
-                mark_word(&cmp_data->code); /* mark unresolved line */
+                /* Don't image labels in the first pass */
+                mark_word(&cmp_data->image); /* mark unresolved line */
                 if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
                     set_general_error(MEMORY_ALLOCATION_ERROR);
                     return;
@@ -223,13 +218,14 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
 
                 /* Two register operands can be written in a single word */
                 else if (reg == TRUE) {
-                    /* write on the previous word */
-                    cmp_data->code.count--;
-                    cmp_data->code.write_ptr = cmp_data->code.count;
+                    /* write on the previous word
+                    cmp_data->image.code_count--;
+                    cmp_data->image.writer_code = cmp_data->image.code_count;*/
+                    seek_back(&cmp_data->image);
                 }
 
                 /* Code register operand */
-                code_register_addr_mode(current_opr->value.int_val, &cmp_data->code,
+                code_register_addr_mode(current_opr->value.int_val, &cmp_data->image,
                                         REGISTER_POS + (SECOND_REG_POSITION * (i - 1)));
                 reg = TRUE; /* Set flag to indicate that the encoded operand was a register */
                 break;
@@ -237,7 +233,7 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
             default: break;
         }
         /* Update the memory image counter after each written operand  */
-        updt_memory_image_counter(&cmp_data->code);
+        updt_code_image_counter(&cmp_data->image);
     }
 }
 
@@ -250,16 +246,14 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
  * @return TRUE if the directive is processed successfully, FALSE otherwise.
  */
 static void handle_directive(ASTNode *node, CmpData *cmp_data) {
-    int id_start = cmp_data->data.count; /* remember starting address */
+    int id_start = cmp_data->image.data_count; /* remember starting address */
 
     switch (node->specific.directive.operation) {
         case DATA: /* Data directive */
-            code_data(node, &cmp_data->data);
-            /*updt_memory_image_counter(&cmp_data->data);*/
+            code_data(node, &cmp_data->image);
             break;
         case STRING: /* String directive */
-            code_string(node, &cmp_data->data);
-            /*updt_memory_image_counter(&cmp_data->data);*/
+            code_string(node, &cmp_data->image);
             break;
         case ENTRY: /* Entry directive will be handled in the second phase */
             if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {

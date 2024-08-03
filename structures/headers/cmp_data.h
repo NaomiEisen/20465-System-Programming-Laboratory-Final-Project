@@ -5,19 +5,27 @@
 #include "mappings.h"
 
 /* ---------------------------------------- Structures ----------------------------------------*/
+typedef enum {
+    CODE_IMAGE,
+    DATA_IMAGE
+} MemoryImageType;
+
 /* MemoryImage struct
  * Represents a memory image with a fixed capacity for storing lines of bytes.
- * Contains a count of lines and a pointer for writing the next line.
+ * Contains a code_count of lines and a pointer for writing the next line.
  */
 typedef struct MemoryImage{
     char lines[MEMORY_CAPACITY][NUM_OF_BYTES]; /* Storage for lines of bytes */
-    int count;                        /* Number of lines currently in memory */
-    int write_ptr;             /* Write pointer for writing on the next line */
+    int code_count;                        /* Number of lines currently in memory */
+    int writer_code;             /* Write pointer for writing on the next line */
+    int data_count;
+    int writer_data;
+    Boolean full;
 } MemoryImage;
 
 /*
  * UnresolvedLineList struct
- * Represents a linked list of unresolved lines in the code.
+ * Represents a linked list of unresolved lines in the image.
  * Each node contains a line number and a pointer to the next node.
  */
 typedef struct UnresolvedLineList{
@@ -35,12 +43,11 @@ typedef struct File{
 /*
  * CmpData struct
  * Contains all the necessary data for the compilation process.
- * Includes memory images for code and data, a label table,
+ * Includes memory images for image and data, a label table,
  * a list of unresolved lines, and file information for external and entry files.
  */
 typedef struct CmpData{
-    MemoryImage code;                  /* Memory image for the code section */
-    MemoryImage data;                  /* Memory image for the data section */
+    MemoryImage image;                /* Memory image for the image section */
     Trie label_table;                            /* Trie for storing labels */
     UnresolvedLineList *line_list;       /* Linked list of unresolved lines */
     File extern_file;             /* File information for the external file */
@@ -78,11 +85,15 @@ int get_unresolved_line(CmpData *data);
 
 /**
  * Updates the memory image counter.
- * Increments the memory image count and positions the writer pointer in the correct position.
+ * Increments the memory image code_count and positions the writer pointer in the correct position.
  *
  * @param memory_image The memory image whose counter and write pointer is to be updated.
  */
-void updt_memory_image_counter(MemoryImage *memory_image);
+void updt_code_image_counter(MemoryImage *memory_image);
+
+void updt_data_image_counter(MemoryImage *memory_image);
+
+void seek_back(MemoryImage *memory_image);
 
 /**
  * Frees the CmpData structure, containing all the programs data, including closing and

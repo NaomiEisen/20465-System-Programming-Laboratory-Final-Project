@@ -59,7 +59,7 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
     }
 
     /* Update address */
-    update_addr(cmp_data.label_table.root, cmp_data.code.count + IC_START, DIRECTIVE);
+    update_addr(cmp_data.label_table.root, cmp_data.image.code_count + IC_START, DIRECTIVE);
 
     /* -------------------------------------- Second phase -------------------------------------- */
     second_phase_controller(file_am, file_name_am, macr_trie, &cmp_data);
@@ -77,10 +77,9 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
 
     /* todo FOR ME !! ------------------------------------------*/
     print_trie(cmp_data.label_table.root,"");
-    printf("code image:\n");
-    print_memory_image_marks(&cmp_data.code);
-    printf("data image:\n");
-    print_memory_image_marks(&cmp_data.data);
+    printf(" image:\n");
+    print_memory_image_marks(&cmp_data.image);
+
     /*--------------------------------------------------------------*/
 }
 
@@ -91,7 +90,7 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
  * The `first_phase_controller` function performs the first phase of the assembly process.
  * It reads each line of the preprocessed file, parses it with the help of the 'parseLine' method,
  * and analyzes with the method 'first_phase_analyzer' it in the first phase context.
- * It updates the line count, parses lines, and handles errors if they occur.
+ * It updates the line code_count, parses lines, and handles errors if they occur.
  *
  * @param file_am The preprocessed source file (.am).
  * @param file_name The name of the preprocessed source file.
@@ -133,7 +132,7 @@ static void first_phase_controller(FILE* file_am, const char* file_name, MacroTr
  * The `second_phase_controller` function performs the second phase of the assembly process.
  * It reads each unresolved line from the preprocessed file, parses it with the help of the 'parseLine'
  * method, and analyzes it with the method 'second_phase_analyzer' in the second phase context.
- * It updates the line count and handles unresolved lines specifically.
+ * It updates the line code_count and handles unresolved lines specifically.
  *
  * @param file_am The preprocessed source file (.am).
  * @param file_name The name of the preprocessed source file.

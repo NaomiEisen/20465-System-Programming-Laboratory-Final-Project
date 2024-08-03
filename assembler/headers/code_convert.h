@@ -14,7 +14,7 @@
  * @param value The integer value to set in the memory image.
  * @param memory_img Pointer to the memory image structure.
  */
-void set_int_code(int start, int end, int value, MemoryImage *memory_img);
+void set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type);
 
 /**
  * Sets or clears a specific bit in the memory image.
@@ -23,7 +23,7 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img);
  * @param value The value to set (1 for setting the bit, 0 for clearing it).
  * @param memory_img Pointer to the memory image structure.
  */
-void set_bit(int i, int value, MemoryImage *memory_img);
+void set_bit(int i, int value, MemoryImage *memory_img, MemoryImageType image_type);
 
 /**
  * Converts a 15-bit word to an unsigned integer in octal representation.

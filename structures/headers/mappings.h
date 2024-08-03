@@ -78,7 +78,7 @@ int get_register_index(const char* str);
  * a macro initialization or the end of macro initialization.
  *
  * @param str The name of the reserved word to find.
- * @return The macro command code.
+ * @return The macro command image.
  */
 MacrCommand find_macr_reserved(const char* str);
 

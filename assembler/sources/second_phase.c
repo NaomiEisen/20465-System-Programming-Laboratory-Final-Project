@@ -55,11 +55,11 @@ static void code_label_operands(ASTNode *node, CmpData *cmp_data) {
         /* If this is operand of type label - encode */
         if (current_opr->adr_mode == ADDR_MODE_DIRECT) {
             /* Get the unresolved line */
-            line = get_marked_line(&cmp_data->code);
+            line = get_marked_line(&cmp_data->image);
 
             if (line != -1) { /* If line exists */
-                unmark_word(&cmp_data->code, line); /* Unmark the line */
-                cmp_data->code.write_ptr = line; /* Set writer to the relevant address */
+                unmark_word(&cmp_data->image, line); /* Unmark the line */
+                cmp_data->image.writer_code = line; /* Set writer to the relevant address */
 
                 /* Encode the label */
                 if (code_direct_addr_mode(current_opr->value.char_val, cmp_data) == FALSE) {

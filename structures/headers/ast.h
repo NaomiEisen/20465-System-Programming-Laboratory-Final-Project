@@ -49,7 +49,7 @@ typedef struct {
 
 /* Structure representing an instruction */
 typedef struct {
-    int operation;               /* Operation code for the instruction */
+    int operation;               /* Operation image for the instruction */
     InstructionOperand operand1; /* First operand of the instruction */
     InstructionOperand operand2; /* Second operand of the instruction */
     int num_operands;            /* Number of operands for the instruction */

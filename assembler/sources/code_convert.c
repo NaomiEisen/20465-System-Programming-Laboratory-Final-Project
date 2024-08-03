@@ -21,7 +21,7 @@
  * @param value The integer value to set in the memory image.
  * @param memory_img Pointer to the memory image structure.
  */
-void set_int_code(int start, int end, int value, MemoryImage *memory_img) {
+void set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type) {
     int i;                              /* Variable to iterate trough loop */
     int bit_per_line = NUM_OF_BYTES * BYTE_SIZE; /* length of word in bits */
 
@@ -33,7 +33,7 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img) {
     /* Encode the bits */
     for (i = start; i <= end; i++) {
         if (value & (1 << (end - i))) {
-            set_bit(i, 1,  memory_img);
+            set_bit(i, 1, memory_img, image_type);
         }
     }
 }
@@ -45,17 +45,25 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img) {
  * @param value The value to set (1 for setting the bit, 0 for clearing it).
  * @param memory_img Pointer to the memory image structure.
  */
-void set_bit(int i, int value, MemoryImage *memory_img) {
+void set_bit(int i, int value, MemoryImage *memory_img, MemoryImageType image_type) {
     int byteIndex = i / BYTE_SIZE;                       /* Calculate the byte index */
     int bitOffset = i % BYTE_SIZE;        /* Calculate the bit index within the byte */
     char mask = (char)(1 << (BYTE_SIZE - 1 - bitOffset)); /* Create mask accordingly */
+    int pos;
+
+    switch (image_type) {
+        case CODE_IMAGE: pos = memory_img->writer_code;
+        break;
+        case DATA_IMAGE: pos = memory_img->writer_data;
+        break;
+    }
 
     /* If memory image is not ran out of storage */
-    if (memory_img->count < MEMORY_CAPACITY) {
+    if (memory_img->code_count < MEMORY_CAPACITY) {
         if (value) {
-            memory_img->lines[memory_img->write_ptr][byteIndex] |= mask;  /* Set bit to 1 */
+            memory_img->lines[pos][byteIndex] |= mask;  /* Set bit to 1 */
         } else {
-            memory_img->lines[memory_img->write_ptr][byteIndex] &= ~mask; /* Clear bit to 0 */
+            memory_img->lines[pos][byteIndex] &= ~mask; /* Clear bit to 0 */
         }
     }
 }
@@ -78,15 +86,15 @@ unsigned int convert_to_octal(const char *word) {
 }
 
 /**
- * Encodes an immediate address mode value into the memory image.
+ * Encodes an immediate address mode value into the code memory image.
  *
  * @param num The immediate value to encode.
  * @param memory_img Pointer to the memory image structure.
  */
 void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
     int end = IMMEDIATE_DIRECTIVE_BIT_SIZE - 1;
-    set_int_code(0, end, num, memory_img);
-    set_bit(A, 1, memory_img);
+    set_int_code(0, end, num, memory_img, CODE_IMAGE);
+    set_bit(A, 1, memory_img, CODE_IMAGE);
 }
 
 /**
@@ -108,16 +116,16 @@ Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
     }
 
     /* Encode the label address into the memory image */
-    set_int_code(0 , end, address, &cmp_data->code);
+    set_int_code(0, end, address, &cmp_data->image, CODE_IMAGE);
 
     if (label_type == EXTERNAL) {
         /* Set the external bit and write the label to the extern file */
-        set_bit(E,1, &cmp_data->code);
-        write_label(label, cmp_data->code.write_ptr+IC_START, cmp_data->extern_file.file);
+        set_bit(E, 1, &cmp_data->image, CODE_IMAGE);
+        write_label(label, cmp_data->image.writer_code + IC_START, cmp_data->extern_file.file);
         cmp_data->extern_file.delete = FALSE;  /* Set flag to false - non-empty file should not be deleted */
     } else {
         /* Set the relocatable bit */
-        set_bit(R, 1, &cmp_data->code);
+        set_bit(R, 1, &cmp_data->image, CODE_IMAGE);
     }
 
     /* Process executed successfully */
@@ -133,12 +141,12 @@ Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
  */
 void code_register_addr_mode(int reg_num, MemoryImage *memory_img, int position) {
     int end = position+REGISTER_BIT_SIZE-1;
-    set_int_code(position, end, reg_num, memory_img);
-    set_bit(A, 1, memory_img);
+    set_int_code(position, end, reg_num, memory_img, CODE_IMAGE);
+    set_bit(A, 1, memory_img, CODE_IMAGE);
 }
 
 /**
- * Encodes a character into the memory image as its ASCII value.
+ * Encodes a character into the data place in the memory image as its ASCII value.
  *
  * @param c The character to encode.
  * @param memory_img Pointer to the memory image structure.
@@ -154,13 +162,13 @@ void set_char_code(char c, MemoryImage *memory_img) {
         return;
     }
 
-    /* Set the binary code of the ASCII value using set_int_code */
-    set_int_code(0, WORD_END_POS, ascii_value, memory_img);
-    updt_memory_image_counter(memory_img);
+    /* Set the binary image of the ASCII value using set_int_code */
+    set_int_code(0, WORD_END_POS, ascii_value, memory_img, DATA_IMAGE);
+    updt_data_image_counter(memory_img);
 }
 
 /**
- * Encodes a list of data operands into the memory image.
+ * Encodes a list of data operands into the memory image at the data memory section.
  *
  * @param node The AST node containing the data operands.
  * @param memory_image Pointer to the memory image structure.
@@ -171,8 +179,8 @@ void code_data(ASTNode *node, MemoryImage *memory_image) {
         /* Validate operand */
         if (is_valid_integer(current->operand)) {
             /* Convert the text to integer and encode */
-            set_int_code(0, WORD_END_POS, my_atoi(current->operand), memory_image);
-            updt_memory_image_counter(memory_image); /* Update counter */
+            set_int_code(0, WORD_END_POS, my_atoi(current->operand), memory_image, DATA_IMAGE);
+            updt_data_image_counter(memory_image); /* Update counter */
             current = (DirNode *) current->next;
         } else {
             /* Not an integer */
@@ -203,8 +211,6 @@ void code_string(ASTNode *node, MemoryImage *memory_img) {
     for (i = 0; i <= str_length; i++) {
         set_char_code(str[i], memory_img);
     }
-    /* Add Null terminator */
-    /*set_char_code('\0', memory_img);*/
 }
 
 /**
@@ -214,7 +220,7 @@ void code_string(ASTNode *node, MemoryImage *memory_img) {
  * @param code_img Pointer to the memory image structure.
  */
 void mark_word(MemoryImage *code_img) {
-    set_bit(LAST_WORD_BIT, 1, code_img);
+    set_bit(LAST_WORD_BIT, 1, code_img, CODE_IMAGE);
 }
 
 /**
@@ -225,8 +231,8 @@ void mark_word(MemoryImage *code_img) {
  * @param line The line number to unmark.
  */
 void unmark_word(MemoryImage *code_img, int line) {
-    code_img->write_ptr = line; /* Set writer to line */
-    set_bit(LAST_WORD_BIT, 0, code_img);
+    code_img->writer_code = line; /* Set writer to line */
+    set_bit(LAST_WORD_BIT, 0, code_img, CODE_IMAGE);
 }
 
 /**
@@ -244,7 +250,7 @@ int get_marked_line(MemoryImage *memory_img) {
     char mask = (char)(1 << (BYTE_SIZE - 1 - bitOffset));
 
     /* Go through the memory image and fine the first unresolved word */
-    for (i = 0; i < memory_img->count; i++) {
+    for (i = 0; i < memory_img->code_count; i++) {
         if ((memory_img->lines[i][byteIndex] & mask) != 0) {
             return i;
         }

@@ -54,27 +54,21 @@ ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
    data->entry_file.delete = TRUE;
    data->extern_file.delete = TRUE;
 
-    /* Initialize code memory */
+    /* Initialize image memory */
     for (i = 0; i < MEMORY_CAPACITY; i++) {
         for (j = 0; j < NUM_OF_BYTES; j++) {
-            data->code.lines[i][j] = 0;
+            data->image.lines[i][j] = 0;
         }
     }
 
-    /* Reset data counter and writing pointer in the code image */
-    data->code.count = 0;
-    data->code.write_ptr = 0;
+    /* Reset data counter and writing pointer in the image */
+    data->image.code_count = 0;
+    data->image.writer_code = 0;
+    data->image.data_count = 0;
+    data->image.writer_data = MEMORY_CAPACITY-1;
 
-    /* Reset data counter and writing pointer in the memory image */
-    data->data.count = 0;
-    data->data.write_ptr = 0;
-
-    /* Initialize data memory */
-    for (i = 0; i < MEMORY_CAPACITY; i++) {
-        for (j = 0; j < NUM_OF_BYTES; j++) {
-            data->data.lines[i][j] = 0;
-        }
-    }
+    /* Set capacity error to false */
+    data->image.full = FALSE;
 
     data->line_list = NULL; /* Initialize unresolved line list line_list to NULL*/
 
@@ -148,15 +142,45 @@ int get_unresolved_line(CmpData *data) {
     return line; /* return the freed line number */
 }
 
+static void check_capacity(MemoryImage *memory_image){
+    /* Check if the program is run out of memory */
+    if (memory_image->code_count + memory_image->data_count > MEMORY_CAPACITY) {
+        set_general_error(RAM_MEMORY_FULL);
+        memory_image->full = TRUE;
+    }
+}
+
 /**
  * Updates the memory image counter.
- * Increments the memory image count and positions the writer pointer in the correct position.
+ * Increments the memory image code_count and positions the writer pointer in the correct position.
  *
  * @param memory_image The memory image whose counter and write pointer is to be updated.
  */
-void updt_memory_image_counter(MemoryImage *memory_image) {
-    memory_image->count++;
-    memory_image->write_ptr = memory_image->count;
+void updt_code_image_counter(MemoryImage *memory_image) {
+    if (memory_image->full == FALSE){
+        memory_image->code_count++;
+        memory_image->writer_code = memory_image->code_count;
+        check_capacity(memory_image);
+    }
+}
+
+/**
+ * Updates the memory image counter.
+ * Increments the memory image code_count and positions the writer pointer in the correct position.
+ *
+ * @param memory_image The memory image whose counter and write pointer is to be updated.
+ */
+void updt_data_image_counter(MemoryImage *memory_image) {
+    if (memory_image->full == FALSE) {
+        memory_image->data_count++;
+        memory_image->writer_data--;
+        check_capacity(memory_image);
+    }
+}
+
+void seek_back(MemoryImage *memory_image){
+    memory_image->code_count--;
+    memory_image->writer_code = memory_image->code_count;
 }
 
 /**
@@ -277,9 +301,9 @@ void print_memory_image(const MemoryImage *memory_image) {
         return;
     }
 
-    printf("Count: %d\n", memory_image->count);
+    printf("Count: %d\n", memory_image->code_count);
 
-    for (i = 0; i < memory_image->count; i++) {
+    for (i = 0; i < memory_image->code_count; i++) {
         printf("%04d    ", i); /* Print the line number */
 
         for (j = 0; j < NUM_OF_BYTES; j++) {
@@ -303,7 +327,7 @@ void print_memory_image(const MemoryImage *memory_image) {
 }
 
 void print_memory_image_marks(const MemoryImage *memory_image) {
-    int i, j, k;
+    int i, j, k, c;
     char bit;
 
     if (memory_image == NULL) {
@@ -311,9 +335,9 @@ void print_memory_image_marks(const MemoryImage *memory_image) {
         return;
     }
 
-    printf("Count: %d\n", memory_image->count);
+    printf("Code: %d\n", memory_image->code_count);
 
-    for (i = 0; i < memory_image->count; i++) {
+    for (i = 0; i < memory_image->code_count; i++) {
         printf("%04d    ", i); /* Print the line number */
 
         for (j = 0; j < NUM_OF_BYTES; j++) {
@@ -335,5 +359,32 @@ void print_memory_image_marks(const MemoryImage *memory_image) {
         /* Print the skipped 15th bit (bit 0 of the second byte) separately */
         printf(" %c", (memory_image->lines[i][1] & 1) ? '1' : '0');
         printf("\n");
+    }
+
+    printf("Data: %d\n", memory_image->data_count);
+    c = memory_image->code_count;
+    for (i = MEMORY_CAPACITY-1; i > MEMORY_CAPACITY - memory_image->data_count; i--) {
+        printf("%04d    ", c); /* Print the line number */
+
+        for (j = 0; j < NUM_OF_BYTES; j++) {
+            char current_char = memory_image->lines[i][j];
+            for (k = 7; k >= 0; k--) {
+                if (j == 1 && k == 0) {
+                    continue; /* Skip the last bit */
+                }
+                bit = (current_char & (1 << k)) ? '1' : '0';
+                printf("%c", bit);
+                if (j == 0 && (k == 4 || k == 0)) { /* Add a space after every 4 bits in the first byte */
+                    printf(" ");
+                }
+                if (j == 1 && k == 4) { /* Add a space after 4 bits in the second byte */
+                    printf(" ");
+                }
+            }
+        }
+        /* Print the skipped 15th bit (bit 0 of the second byte) separately */
+        printf(" %c", (memory_image->lines[i][1] & 1) ? '1' : '0');
+        printf("\n");
+        c++;
     }
 }

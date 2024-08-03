@@ -9,16 +9,16 @@
 
 /* --------------------------- Initialize the static variables --------------------------- */
 static Error error = {NO_ERROR, "No error"};
-static ProgramStatus program_status = {ERROR_FREE_FILE, 0,0, 0};
+static ProgramStatus program_status = {ERROR_FREE_FILE, 0,0, };
 
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
 
 /**
- * Function that retrieves the error message corresponding to a given error code.
+ * Function that retrieves the error message corresponding to a given error image.
  *
- * @param code The error code for which the message is to be retrieved.
+ * @param code The error image for which the message is to be retrieved.
  * @return A string containing the error message.
  */
 static const char* get_error_message(ErrorCode code) {
@@ -115,9 +115,9 @@ Status get_status() {
 }
 
 /**
- * Sets the current error with the specified error code and location.
+ * Sets the current error with the specified error image and location.
  *
- * @param code The error code to set.
+ * @param code The error image to set.
  * @param location The location in the source file where the error occurred.
  */
 void set_error(ErrorCode code, Location location) {
@@ -126,12 +126,6 @@ void set_error(ErrorCode code, Location location) {
     error.location = location;
 
     if (code != NO_ERROR) {
-        /* Memory error should be printed no more than once */
-        if (error.code == RAM_MEMORY_FULL){
-            if (program_status.full_memory) return;
-            program_status.full_memory = 1;
-        }
-
         print_error();
         program_status.error_counter++;
         if (code == MEMORY_ALLOCATION_ERROR)
@@ -143,9 +137,9 @@ void set_error(ErrorCode code, Location location) {
 }
 
 /**
- * Sets a general error with the specified error code but without a specific location.
+ * Sets a general error with the specified error image but without a specific location.
  *
- * @param code The error code to set.
+ * @param code The error image to set.
  */
 void set_general_error(ErrorCode code) {
     Location default_location = {NULL, 0};
@@ -194,9 +188,9 @@ void free_location(Location *location){
 }
 
 /**
- * Returns the current error code.
+ * Returns the current error image.
  *
- * @return The current error code.
+ * @return The current error image.
  */
 ErrorCode get_error() {
     return error.code;
