@@ -57,8 +57,6 @@ void set_bit(int i, int value, MemoryImage *memory_img) {
         } else {
             memory_img->lines[memory_img->write_ptr][byteIndex] &= ~mask; /* Clear bit to 0 */
         }
-    } else { /* Ran out of memory */
-        set_general_error(CPU_MEMORY_FULL);
     }
 }
 
@@ -179,6 +177,7 @@ void code_data(ASTNode *node, MemoryImage *memory_image) {
         } else {
             /* Not an integer */
             set_error(NOT_INTEGER, node->location);
+            current = (DirNode *) current->next;
         }
     }
 }
@@ -239,7 +238,7 @@ void unmark_word(MemoryImage *code_img, int line) {
 int get_marked_line(MemoryImage *memory_img) {
     int i; /* Variable to iterate through loop */
     int byteIndex = LAST_WORD_BIT / BYTE_SIZE; /* Calculate the byte index */
-    int bitOffset = LAST_WORD_BIT % BYTE_SIZE;  /* Calculate the bit index */
+    int bitOffset = LAST_WORD_BIT % BYTE_SIZE; /* Calculate the bit index */
 
     /* Create the relevant mask */
     char mask = (char)(1 << (BYTE_SIZE - 1 - bitOffset));

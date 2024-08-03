@@ -85,11 +85,19 @@ static void handle_entry(ASTNode *node, CmpData *cmp_data){
     int address;                                     /* Variable to store the current label address */
 
     while (current) {
-        /** todo: maybe you don't need ? */
+        /* Label was already set as entry */
+        if (get_label_type(&cmp_data->label_table, current->operand) == ENTERNAL) {
+            /* Print warning that this line will be ignored */
+            print_warning(ENTRY_DUPLICATE, &node->location);
+            return;
+        }
+
+        /* Set label type to ENTERNAL */
         if (set_label_type(&cmp_data->label_table, current->operand, ENTERNAL) == FALSE){
             set_error(UNRECOGNIZED_LABEL, node->location);
             break;
         }
+
         /* Get the entry label address */
         address = get_label_addr(&cmp_data->label_table, current->operand);
         /* Write the data in the entry file */

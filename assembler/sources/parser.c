@@ -372,14 +372,15 @@ static Boolean parse_string(const char **line, ASTNode *node) {
         start++;
         end = last_nonspace_char(end);
         if (*end != '"') { /* String does not end in with quotes */
-            set_error(INVALID_STRING, node->location);
+            set_error(INVALID_END_STRING, node->location);
             return FALSE;
         }
         /* Add string to ASTNode and return this process status */
         return add_directive_operand(&node->specific.directive, my_strndup(start, end - start));
+    } else {/* String does not start in with quotes */
+        set_error(INVALID_START_STRING, node->location);
+        return FALSE;
     }
-    /* Invalid string */
-    return FALSE;
 }
 
 /**

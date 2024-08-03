@@ -45,10 +45,8 @@ void controller(int argc, char* argv[]) {
             phase_controller(argv[i], file_am, &macro_trie);
         }
 
-        /* Check if the file succeeded processing */
-        if (get_status() == ERROR_IN_FILE) {
-            printf("Could not process file %s \n", argv[i]);
-        }
+        /* Print process summery */
+        print_error_summery(argv[i]);
 
         /* Check for fatal error */
         if (get_status() == FATAL_ERROR) {

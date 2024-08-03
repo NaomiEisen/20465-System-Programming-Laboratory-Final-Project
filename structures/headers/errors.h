@@ -1,7 +1,7 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 #include "../../assembler/headers/defines.h"
-
+/* ----------------------------- Defines ----------------------------- */
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 /* ---------------------------- Error Codes ---------------------------- */
@@ -49,15 +49,22 @@ typedef enum {
     INVALID_CHAR,
     DUPLICATE,
     NOT_INTEGER,
-    INVALID_STRING,
+    INVALID_START_STRING,
+    INVALID_END_STRING,
     INVALID_REGISTER,
     INVALID_PARAM_NUMBER,
     INVALID_PARAM_TYPE,
 
     /* ======  Hardware Errors ====== */
-    CPU_MEMORY_FULL
+    RAM_MEMORY_FULL
 
 } ErrorCode;
+
+typedef enum {
+    LABEL_ENTRY,
+    LABEL_EXTERN,
+    ENTRY_DUPLICATE
+} WarningCode;
 
 /* Structure that represents a location in a source file */
 typedef struct {
@@ -81,6 +88,9 @@ typedef enum {
 
 typedef struct {
     Status status;
+    int error_counter;
+    int warning_counter;
+    int full_memory;
 } ProgramStatus;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
@@ -131,11 +141,13 @@ ErrorCode get_error();
  *
  * @return The current program's status.
  */
-Status  get_status();
+Status get_status();
 
 /**
  * Prints a warning message indicating that a label before extern/entry is useless.
  */
-void print_warning();
+void print_warning(WarningCode code, Location *location);
+
+void print_error_summery(char *file);
 
 #endif /* ERRORS_H */

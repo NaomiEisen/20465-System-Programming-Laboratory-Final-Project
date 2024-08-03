@@ -10,7 +10,7 @@
  * --------------------------------------------------------------------------------------- */
 static void handle_instruction(ASTNode *node, CmpData *cmp_data);
 static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img);
-static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset);
+static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset, int param);
 static void code_operands(ASTNode *node, CmpData *cmp_data);
 static void handle_directive(ASTNode *node, CmpData *cmp_data);
 static void handle_extern(ASTNode* node, CmpData* cmp_data);
@@ -37,6 +37,11 @@ void first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
         handle_instruction(node, cmp_data);
     } else { /* Handle directive line */
         handle_directive(node, cmp_data);
+    }
+
+    /* Check if the program is run out of memory */
+    if (cmp_data->code.count + cmp_data->data.count > MEMORY_CAPACITY) {
+        set_general_error(RAM_MEMORY_FULL);
     }
 }
 
@@ -100,13 +105,13 @@ static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_im
     /* Check if there is operands to code */
     if (num_operands == 1) {
         opr_addr_dest = node->specific.instruction.operand1.adr_mode;
-        valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET);
+        valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET, 1);
     }
     else if (num_operands == 2) {
         opr_addr_dest = node->specific.instruction.operand2.adr_mode;
         opr_addr_src = node->specific.instruction.operand1.adr_mode;
-        valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET) &&
-                     code_first_word_addr(command_index, code_img, opr_addr_src, SRC_OFFSET);
+        valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET, 2) &&
+                     code_first_word_addr(command_index, code_img, opr_addr_src, SRC_OFFSET, 1);
     }
 
     /* Update the code image counter */
@@ -120,12 +125,13 @@ static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_im
  * @param command_index The index of the command in the operation table.
  * @param code_img The memory image where the encoded instruction will be stored.
  * @param addr_mode The addressing mode of the operand.
- * @param offset The bit offset for the addressing mode in the instruction word.
+ * @param offset The bit offset for the operand in the encoded word.
+ * @param param The param order from the read line.
  * @return TRUE if the addressing mode is valid and encoded successfully, FALSE otherwise.
  */
-static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset) {
+static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset, int param) {
     /* Encode only if the address mode of the operand is valid for the operation */
-    if (valid_addr_mode(command_index, addr_mode, 1) == TRUE) {
+    if (valid_addr_mode(command_index, addr_mode, param) == TRUE) {
         set_bit(offset - addr_mode, 1, code_img);
         return TRUE;
     } else {
@@ -267,10 +273,14 @@ static void handle_directive(ASTNode *node, CmpData *cmp_data) {
 
     /* insert label if exists */
     if (node->label[0] != '\0'){
-        if (node->specific.directive.operation == EXTERN ||
-        node->specific.directive.operation == ENTRY) {
-            /* Label before extern/entry directive is useless */
-            print_warning();
+        /* Label before extern/entry directive is useless */
+        if (node->specific.directive.operation == EXTERN){
+            /* Print warning - label ignored */
+            print_warning(LABEL_EXTERN, &node->location);
+        }
+        else if (node->specific.directive.operation == ENTRY) {
+            /* Print warning - label ignored */
+            print_warning(LABEL_ENTRY, &node->location);
         } else {add_label(node, id_start, cmp_data);}
     }
 }

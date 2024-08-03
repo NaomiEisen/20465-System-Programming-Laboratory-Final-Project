@@ -61,9 +61,13 @@ ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
         }
     }
 
-    /* Set data count and writer pointer */
+    /* Reset data counter and writing pointer in the code image */
     data->code.count = 0;
     data->code.write_ptr = 0;
+
+    /* Reset data counter and writing pointer in the memory image */
+    data->data.count = 0;
+    data->data.write_ptr = 0;
 
     /* Initialize data memory */
     for (i = 0; i < MEMORY_CAPACITY; i++) {
