@@ -36,6 +36,7 @@ typedef enum {
     LABEL_DUPLICATE,
     INVALID_LABEL_LENGTH,
     INVALID_CHAR_LABEL,
+    EXT_ENT_COLLIDES,
 
     /* ======= Comma Errors ======= */
     CONSECUTIVE_COMMA_ERROR,

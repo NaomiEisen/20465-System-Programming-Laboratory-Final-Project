@@ -5,22 +5,27 @@
 #include "mappings.h"
 
 /* ---------------------------------------- Structures ----------------------------------------*/
+/*
+ * Enum representing the different sections of a memory image.
+ */
 typedef enum {
-    CODE_IMAGE,
-    DATA_IMAGE
+    CODE_IMAGE, /* Section containing encoded instructions */
+    DATA_IMAGE    /* Section containing encoded directives */
 } MemoryImageType;
-
-/* MemoryImage struct
+/*
+ * MemoryImage struct
  * Represents a memory image with a fixed capacity for storing lines of bytes.
- * Contains a code_count of lines and a pointer for writing the next line.
+ * This structure holds encoded instructions and directives from the input assembly file.
+ * Instructions are written starting from the lowest index, while directives are written
+ * starting from the highest index.
  */
 typedef struct MemoryImage{
     char lines[MEMORY_CAPACITY][NUM_OF_BYTES]; /* Storage for lines of bytes */
-    int code_count;                        /* Number of lines currently in memory */
-    int writer_code;             /* Write pointer for writing on the next line */
-    int data_count;
-    int writer_data;
-    Boolean full;
+    int code_count;       /* Number of instruction lines currently in memory */
+    int code_pos;                  /* Position to write the next instruction */
+    int data_count;         /* Number of directive lines currently in memory */
+    int data_pos;                    /* Position to write the next directive */
+    Boolean full;                   /* Flag indicating if the memory is full */
 } MemoryImage;
 
 /*
@@ -84,15 +89,31 @@ Boolean add_unresolved_line(CmpData *data, int line);
 int get_unresolved_line(CmpData *data);
 
 /**
- * Updates the memory image counter.
- * Increments the memory image code_count and positions the writer pointer in the correct position.
+ * Updates the code memory image counter.
+ * Increments the code memory image code_count and positions the writer pointer in the correct position.
+ * The encoded instruction are written from the lowest index to the highest.
  *
- * @param memory_image The memory image whose counter and write pointer is to be updated.
+ * @param memory_image A pointer to the MemoryImage structure containing the code counter and the write
+ *                     pointer is to be updated.
  */
-void updt_code_image_counter(MemoryImage *memory_image);
+void updt_code_counter(MemoryImage *memory_image);
 
-void updt_data_image_counter(MemoryImage *memory_image);
+/**
+ * Updates the data memory image counter.
+ * Increments the memory image data_count and positions the writer pointer in the correct position.
+ * The encoded directives are written from the highest index to the lowest.
+ *
+ * @param memory_image A pointer to the MemoryImage structure containing the code counter and the write
+ *                     pointer is to be updated.
+ */
+void updt_data_counter(MemoryImage *memory_image);
 
+/**
+ * Sets the code image counter and writer back by one position, allowing the re-encoding of
+ * the previous instruction code.
+ *
+ * @param memory_image A pointer to the MemoryImage structure.
+ */
 void seek_back(MemoryImage *memory_image);
 
 /**

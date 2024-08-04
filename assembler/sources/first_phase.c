@@ -4,12 +4,11 @@
 #include "../../structures/headers/ast.h"
 #include "../../structures/headers/cmp_data.h"
 #include "../headers/code_convert.h"
-
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
 static void handle_instruction(ASTNode *node, CmpData *cmp_data);
-static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img);
+static Boolean first_word(ASTNode *node, int command_index, MemoryImage *image);
 static Boolean code_first_word_addr(int command_index, MemoryImage *code_img, int addr_mode, int offset, int param);
 static void code_operands(ASTNode *node, CmpData *cmp_data);
 static void handle_directive(ASTNode *node, CmpData *cmp_data);
@@ -81,10 +80,10 @@ static void handle_instruction(ASTNode *node, CmpData *cmp_data) {
  *
  * @param node The parsed line represented as an ASTNode.
  * @param command_index The index of the command in the operation table.
- * @param code_img The memory image where the encoded instruction will be stored.
+ * @param image The memory image where the encoded instruction will be stored.
  * @return TRUE if the first word is encoded successfully, FALSE otherwise.
  */
-static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_img) {
+static Boolean first_word(ASTNode *node, int command_index, MemoryImage *image) {
     int opr_addr_dest;              /* Address mode of the destination operand */
     int opr_addr_src;                    /* Address mode of the source operand */
     Boolean valid_addr = TRUE; /* Flag indicating if the address mode is valid */
@@ -92,30 +91,31 @@ static Boolean first_word(ASTNode *node, int command_index, MemoryImage *code_im
     int num_operands = node->specific.instruction.num_operands;
 
     /* Code the operation name */
-    set_int_code(0, 3, command_index, code_img, CODE_IMAGE);
+    set_int_code(0, 3, command_index, image, CODE_IMAGE);
 
     /* ARE default first word's field */
-    set_bit(A, 1, code_img, CODE_IMAGE);
+    set_bit(A, 1, image, CODE_IMAGE);
 
     /* Check if there is operands to image */
     if (num_operands == 1) {
         opr_addr_dest = node->specific.instruction.operand1.adr_mode;
-        valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET, 1);
+        valid_addr = code_first_word_addr(command_index, image, opr_addr_dest, DEST_OFFSET, 1);
     }
     else if (num_operands == 2) {
         opr_addr_dest = node->specific.instruction.operand2.adr_mode;
         opr_addr_src = node->specific.instruction.operand1.adr_mode;
-        valid_addr = code_first_word_addr(command_index, code_img, opr_addr_dest, DEST_OFFSET, 2) &&
-                     code_first_word_addr(command_index, code_img, opr_addr_src, SRC_OFFSET, 1);
+        valid_addr = code_first_word_addr(command_index, image, opr_addr_dest, DEST_OFFSET, 2) &&
+                     code_first_word_addr(command_index, image, opr_addr_src, SRC_OFFSET, 1);
     }
 
     /* Update the code image counter */
-    updt_code_image_counter(code_img);
+    updt_code_counter(image);
     return valid_addr; /* Return if the first word is valid */
 }
 
 /**
- * This function encodes the addressing mode of an operand into the first word of the instruction.
+ * The 'code_first_word_addr' function encodes the addressing mode of an operand into the first word
+ * of the instruction.
  *
  * @param command_index The index of the command in the operation table.
  * @param code_img The memory image where the encoded instruction will be stored.
@@ -218,9 +218,7 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
 
                 /* Two register operands can be written in a single word */
                 else if (reg == TRUE) {
-                    /* write on the previous word
-                    cmp_data->image.code_count--;
-                    cmp_data->image.writer_code = cmp_data->image.code_count;*/
+                    /* write on the previous word */
                     seek_back(&cmp_data->image);
                 }
 
@@ -233,7 +231,7 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
             default: break;
         }
         /* Update the memory image counter after each written operand  */
-        updt_code_image_counter(&cmp_data->image);
+        updt_code_counter(&cmp_data->image);
     }
 }
 

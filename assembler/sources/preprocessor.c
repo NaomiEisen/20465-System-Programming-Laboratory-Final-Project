@@ -7,14 +7,12 @@
 #include "../../structures/headers/macro_data.h"
 #include "../../utils/headers/utils.h"
 #include "../../structures/headers/mappings.h"
-#include "../headers/defines.h"
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
 static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_trie, Location location);
 static Boolean validate_line_length(const char *line, Location location);
 static Boolean verify_macro(const char *str, Location location);
-static int is_comment(const char* str);
 static void remove_comments(char* str);
 static int macr_start(const char* str);
 static int macr_end(const char* str);
@@ -243,19 +241,6 @@ static Boolean verify_macro(const char *str, Location location) {
     }
     return TRUE; /* Macro is valid */
 }
-
-/**
- * The `is_comment` function checks if a given string is a comment line.
- * A comment line defined as a line that starts with the char ';'.
- *
- * @param str The string to check.
- * @return Non-zero if the string is a comment line, 0 otherwise.
- */
-static int is_comment(const char* str) {
-    return str && str[0] == ';'; /* todo: DELETE!! */
-}
-
-
 
 /**
  * Private function - checks if a given string is the start of a macro definition.

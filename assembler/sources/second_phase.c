@@ -59,7 +59,7 @@ static void code_label_operands(ASTNode *node, CmpData *cmp_data) {
 
             if (line != -1) { /* If line exists */
                 unmark_word(&cmp_data->image, line); /* Unmark the line */
-                cmp_data->image.writer_code = line; /* Set writer to the relevant address */
+                cmp_data->image.code_pos = line; /* Set writer to the relevant address */
 
                 /* Encode the label */
                 if (code_direct_addr_mode(current_opr->value.char_val, cmp_data) == FALSE) {
@@ -81,15 +81,23 @@ static void code_label_operands(ASTNode *node, CmpData *cmp_data) {
  * @return TRUE if the entry labels are processed and resolved successfully, FALSE otherwise.
  */
 static void handle_entry(ASTNode *node, CmpData *cmp_data){
-    DirNode *current = node->specific.directive.operands;  /* Variable to store the current operand */
-    int address;                                     /* Variable to store the current label address */
+    /* Variable to store the current operand */
+    DirNode *current = node->specific.directive.operands;
+    /* Variable to store the current label type */
+    LabelType type = get_label_type(&cmp_data->label_table, current->operand);
+    int address; /* Variable to store the current label address */
 
     while (current) {
         /* Label was already set as entry */
-        if (get_label_type(&cmp_data->label_table, current->operand) == ENTERNAL) {
+        if (type == ENTERNAL) {
             /* Print warning that this line will be ignored */
             print_warning(ENTRY_DUPLICATE, &node->location);
-            return;
+            continue;
+        }
+
+        if (type == EXTERNAL) {
+            set_error(UNRECOGNIZED_LABEL, node->location);
+            break;
         }
 
         /* Set label type to ENTERNAL */

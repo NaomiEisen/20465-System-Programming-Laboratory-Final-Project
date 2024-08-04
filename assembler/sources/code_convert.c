@@ -2,24 +2,22 @@
  *                                          Includes
  * --------------------------------------------------------------------------------------- */
 #include "../headers/code_convert.h"
-#include "../../structures/headers/ast.h"
-#include "../../structures/headers/errors.h"
-#include "../../structures/headers/cmp_data.h"
 #include "../../utils/headers/utils.h"
 #include "../../utils/headers/output_files.h"
-#include "../headers/defines.h"
 /* ---------------------------------------------------------------------------------------
  *                                         Functions
  * --------------------------------------------------------------------------------------- */
 /**
- * Sets multiple bits in the memory image based on the given integer value.
- * The Function converts the given integer in base 10 to base 2 and writes the bits
+ * Sets multiple bits in the specified section of the memory image based on the given integer
+ * value. The Function converts the given integer in base 10 to base 2 and writes the bits
  * in the memory image.
  *
  * @param start The starting bit position.
  * @param end The ending bit position.
  * @param value The integer value to set in the memory image.
  * @param memory_img Pointer to the memory image structure.
+ * @param image_type The image type, indicating in which section the bits should be set: the data part
+ *                  or the code part.
  */
 void set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type) {
     int i;                              /* Variable to iterate trough loop */
@@ -39,22 +37,24 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img, Memory
 }
 
 /**
- * Sets or clears a specific bit in the memory image.
+ * Sets or clears a specific bit in the specified section of the memory image.
  *
  * @param i The bit position to set or clear.
  * @param value The value to set (1 for setting the bit, 0 for clearing it).
  * @param memory_img Pointer to the memory image structure.
+ * @param image_type The image type, indicating in which section the bits should be set: the data part
+ *                  or the code part.
  */
 void set_bit(int i, int value, MemoryImage *memory_img, MemoryImageType image_type) {
     int byteIndex = i / BYTE_SIZE;                       /* Calculate the byte index */
     int bitOffset = i % BYTE_SIZE;        /* Calculate the bit index within the byte */
     char mask = (char)(1 << (BYTE_SIZE - 1 - bitOffset)); /* Create mask accordingly */
-    int pos;
+    int pos;                             /* Writing position within the memory image */
 
-    switch (image_type) {
-        case CODE_IMAGE: pos = memory_img->writer_code;
+    switch (image_type) { /* Determine the writing position */
+        case CODE_IMAGE: pos = memory_img->code_pos;
         break;
-        case DATA_IMAGE: pos = memory_img->writer_data;
+        case DATA_IMAGE: pos = memory_img->data_pos;
         break;
     }
 
@@ -121,7 +121,7 @@ Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
     if (label_type == EXTERNAL) {
         /* Set the external bit and write the label to the extern file */
         set_bit(E, 1, &cmp_data->image, CODE_IMAGE);
-        write_label(label, cmp_data->image.writer_code + IC_START, cmp_data->extern_file.file);
+        write_label(label, cmp_data->image.code_pos + IC_START, cmp_data->extern_file.file);
         cmp_data->extern_file.delete = FALSE;  /* Set flag to false - non-empty file should not be deleted */
     } else {
         /* Set the relocatable bit */
@@ -164,7 +164,7 @@ void set_char_code(char c, MemoryImage *memory_img) {
 
     /* Set the binary image of the ASCII value using set_int_code */
     set_int_code(0, WORD_END_POS, ascii_value, memory_img, DATA_IMAGE);
-    updt_data_image_counter(memory_img);
+    updt_data_counter(memory_img);
 }
 
 /**
@@ -180,7 +180,7 @@ void code_data(ASTNode *node, MemoryImage *memory_image) {
         if (is_valid_integer(current->operand)) {
             /* Convert the text to integer and encode */
             set_int_code(0, WORD_END_POS, my_atoi(current->operand), memory_image, DATA_IMAGE);
-            updt_data_image_counter(memory_image); /* Update counter */
+            updt_data_counter(memory_image); /* Update counter */
             current = (DirNode *) current->next;
         } else {
             /* Not an integer */
@@ -231,7 +231,7 @@ void mark_word(MemoryImage *code_img) {
  * @param line The line number to unmark.
  */
 void unmark_word(MemoryImage *code_img, int line) {
-    code_img->writer_code = line; /* Set writer to line */
+    code_img->code_pos = line; /* Set writer to line */
     set_bit(LAST_WORD_BIT, 0, code_img, CODE_IMAGE);
 }
 

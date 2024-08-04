@@ -7,17 +7,6 @@
  *                                       Functions
  * --------------------------------------------------------------------------------------- */
 /**
- * Write a label and its associated address to the specified file.
- *
- * @param label The label to be written.
- * @param address The address associated with the label.
- * @param file The file to which the label and address should be written.
-
-void write_label(const char* label, int address, FILE* file) {
-    fprintf(file, "%s   %04d\n", label, address);
-} */
-
-/**
  * Write a label and its associated address to the specified file in fixed positions.
  * The label is left-justified and can be up to 31 characters.
  * The address is right-justified and always 4 digits.

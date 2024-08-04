@@ -3,20 +3,16 @@
  * --------------------------------------------------------------------------------------- */
 #include "../../structures/headers/cmp_data.h"
 #include "../../utils/headers/utils.h"
-
 /* ---------------------------------------------------------------------------------------
  *                                 Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
-
 static void close_files(CmpData* cmp_data);
 static void free_file_names(CmpData* cmp_data);
 static void delete_files(CmpData* cmp_data);
 static void free_unresolved_list(UnresolvedLineList *head);
-
 /* ---------------------------------------------------------------------------------------
  *                                         Functions
  * --------------------------------------------------------------------------------------- */
-
 /**
  * Function to initialize the ProgramData structure.
  * Initializes the sets to be empty sets and sets the corresponding pointers
@@ -61,14 +57,13 @@ ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
         }
     }
 
-    /* Reset data counter and writing pointer in the image */
+    /* Reset the memory image counters and writing pointers */
     data->image.code_count = 0;
-    data->image.writer_code = 0;
+    data->image.code_pos = 0;
     data->image.data_count = 0;
-    data->image.writer_data = MEMORY_CAPACITY-1;
+    data->image.data_pos = MEMORY_CAPACITY - 1;
 
-    /* Set capacity error to false */
-    data->image.full = FALSE;
+    data->image.full = FALSE; /* Set capacity error to false */
 
     data->line_list = NULL; /* Initialize unresolved line list line_list to NULL*/
 
@@ -142,6 +137,11 @@ int get_unresolved_line(CmpData *data) {
     return line; /* return the freed line number */
 }
 
+/**
+ * Private function - checks if the memory image is full.
+ * If so - sets appropriate error.
+ * @param memory_image
+ */
 static void check_capacity(MemoryImage *memory_image){
     /* Check if the program is run out of memory */
     if (memory_image->code_count + memory_image->data_count > MEMORY_CAPACITY) {
@@ -151,36 +151,51 @@ static void check_capacity(MemoryImage *memory_image){
 }
 
 /**
- * Updates the memory image counter.
- * Increments the memory image code_count and positions the writer pointer in the correct position.
+ * Updates the code memory image counter.
+ * Increments the code memory image code_count and positions the writer pointer in the correct position.
+ * The encoded instruction are written from the lowest index to the highest.
  *
- * @param memory_image The memory image whose counter and write pointer is to be updated.
+ * @param memory_image A pointer to the MemoryImage structure containing the code counter and the write
+ *                     pointer is to be updated.
  */
-void updt_code_image_counter(MemoryImage *memory_image) {
+void updt_code_counter(MemoryImage *memory_image) {
+    /* Update only if there is remaining memory */
     if (memory_image->full == FALSE){
         memory_image->code_count++;
-        memory_image->writer_code = memory_image->code_count;
+        memory_image->code_pos = memory_image->code_count;
         check_capacity(memory_image);
     }
 }
 
 /**
- * Updates the memory image counter.
- * Increments the memory image code_count and positions the writer pointer in the correct position.
+ * Updates the data memory image counter.
+ * Increments the memory image data_count and positions the writer pointer in the correct position.
+ * The encoded directives are written from the highest index to the lowest.
  *
- * @param memory_image The memory image whose counter and write pointer is to be updated.
+ * @param memory_image A pointer to the MemoryImage structure containing the code counter and the write
+ *                     pointer is to be updated.
  */
-void updt_data_image_counter(MemoryImage *memory_image) {
+void updt_data_counter(MemoryImage *memory_image) {
+    /* Update only if there is remaining memory */
     if (memory_image->full == FALSE) {
         memory_image->data_count++;
-        memory_image->writer_data--;
+        memory_image->data_pos--;
         check_capacity(memory_image);
     }
 }
 
+/**
+ * Sets the code image counter and writer back by one position, allowing the re-encoding of
+ * the previous instruction code.
+ *
+ * @param memory_image A pointer to the MemoryImage structure.
+ */
 void seek_back(MemoryImage *memory_image){
-    memory_image->code_count--;
-    memory_image->writer_code = memory_image->code_count;
+    /* Validate that the pointer will not be out of array's bound */
+    if (memory_image->code_count > 0) {
+        memory_image->code_count--;
+        memory_image->code_pos = memory_image->code_count;
+    }
 }
 
 /**

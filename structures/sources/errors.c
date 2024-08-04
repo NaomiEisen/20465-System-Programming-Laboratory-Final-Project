@@ -24,7 +24,7 @@ static ProgramStatus program_status = {ERROR_FREE_FILE, 0,0, };
 static const char* get_error_message(ErrorCode code) {
     switch (code) {
         case NO_ERROR:                   return "No error";
-        case MEMORY_ALLOCATION_ERROR:    return "Memory allocation failed";
+        case MEMORY_ALLOCATION_ERROR:    return "============== MEMORY ALLOCATION FAILURE ==============";
         case EOF_ERROR:                  return "End of file reached";
         case NO_ARGUMENTS:               return "No arguments provided";
         case PROGRAM_FILE_ERROR:         return "Failed to open program's extern/entry files";
@@ -47,6 +47,7 @@ static const char* get_error_message(ErrorCode code) {
         case LABEL_RESERVED_WORD:        return "Invalid label name - cannot be a reserved word";
         case INVALID_CHAR_LABEL:         return "Label name contains invalid characters";
         case LABEL_MACR_COLLIDES:        return "Label and macro name collision";
+        case EXT_ENT_COLLIDES:           return "Label extern and entry collision. Cannot be set to both.";
         case UNRECOGNIZED_LABEL:         return "Unrecognized label";
         case INVALID_LABEL_LENGTH:       return "Invalid label length - cannot exceed " TOSTRING(MAX_LABEL_LENGTH) " characters";
         case LABEL_DUPLICATE:            return "Invalid label name - duplicate label names found";
@@ -56,7 +57,7 @@ static const char* get_error_message(ErrorCode code) {
         case INVALID_REGISTER:           return "Invalid register name";
         case INVALID_PARAM_NUMBER:       return "Invalid number of parameters";
         case INVALID_PARAM_TYPE:         return "Invalid parameter type";
-        case RAM_MEMORY_FULL:            return "============== RAM memory full ==============\n\tABORTING ENCODE PROCESS";
+        case RAM_MEMORY_FULL:            return "============== RAM MEMORY FULL ==============\n\tABORTING ENCODE PROCESS";
         default:                         return "An unspecified error occurred";
     }
 }
@@ -79,8 +80,7 @@ static void print_location(Location* location){
 static void print_error() {
     /* Print only if error is set */
     if (error.code != NO_ERROR) {
-
-        printf("Error: %s", error.message);
+        printf("ERROR: %s", error.message);
         /* If there is specified location - print it too */
         print_location(&error.location);
         printf("\n\n");
@@ -200,7 +200,7 @@ ErrorCode get_error() {
  * Prints a warning message indicating that a label before extern/entry is useless.
  */
 void print_warning(WarningCode code, Location *location) {
-    printf("Warning: ");
+    printf("WARNING: ");
     switch (code) { /* Print the corresponding warning */
         case LABEL_ENTRY:
             printf("Label definition before entry command is ignored.");
