@@ -161,7 +161,6 @@ MacrCommand find_macr_reserved(const char* str) {
     return -1;
 }
 
-
 /**
  * Validates if a given addressing mode is valid for a specific instruction and parameter.
  *
@@ -172,6 +171,18 @@ MacrCommand find_macr_reserved(const char* str) {
  */
 Boolean valid_addr_mode(int command_index, int addr_mode, int param) {
     /* Check accordingly to the parameter index */
+    switch (param) {
+        case 1:
+            return instruct_table[command_index].addr_mode_op1[addr_mode] == 1? TRUE: FALSE;
+        case 2 :
+             return instruct_table[command_index].addr_mode_op2[addr_mode] == 1? TRUE : FALSE;
+        default:
+            return FALSE;
+
+    }
+
+
+    /*
     if (param == 1) {
         if (instruct_table[command_index].addr_mode_op1[addr_mode] == 1 ) return TRUE;
         else return FALSE;
@@ -179,7 +190,7 @@ Boolean valid_addr_mode(int command_index, int addr_mode, int param) {
     if (param == 2 ) {
         if (instruct_table[command_index].addr_mode_op2[addr_mode] == 1 ) return TRUE;
     }
-    return FALSE;
+    return FALSE;*/
 }
 
 /**
