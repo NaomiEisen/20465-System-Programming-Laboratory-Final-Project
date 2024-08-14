@@ -9,22 +9,22 @@
 
 /* --------------------------- Initialize the static variables --------------------------- */
 static Error error = {NO_ERROR, "No error"};
-static ProgramStatus program_status = {ERROR_FREE_FILE, 0,0, 0};
+static ProgramStatus program_status = {ERROR_FREE_FILE, 0,0, };
 
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
 
 /**
- * Function that retrieves the error message corresponding to a given error code.
+ * Function that retrieves the error message corresponding to a given error image.
  *
- * @param code The error code for which the message is to be retrieved.
+ * @param code The error image for which the message is to be retrieved.
  * @return A string containing the error message.
  */
 static const char* get_error_message(ErrorCode code) {
     switch (code) {
         case NO_ERROR:                   return "No error";
-        case MEMORY_ALLOCATION_ERROR:    return "Memory allocation failed";
+        case MEMORY_ALLOCATION_ERROR:    return "============== MEMORY ALLOCATION FAILURE ==============";
         case EOF_ERROR:                  return "End of file reached";
         case NO_ARGUMENTS:               return "No arguments provided";
         case PROGRAM_FILE_ERROR:         return "Failed to open program's extern/entry files";
@@ -47,6 +47,7 @@ static const char* get_error_message(ErrorCode code) {
         case LABEL_RESERVED_WORD:        return "Invalid label name - cannot be a reserved word";
         case INVALID_CHAR_LABEL:         return "Label name contains invalid characters";
         case LABEL_MACR_COLLIDES:        return "Label and macro name collision";
+        case EXT_ENT_COLLIDES:           return "Label extern and entry collision. Cannot be set to both.";
         case UNRECOGNIZED_LABEL:         return "Unrecognized label";
         case INVALID_LABEL_LENGTH:       return "Invalid label length - cannot exceed " TOSTRING(MAX_LABEL_LENGTH) " characters";
         case LABEL_DUPLICATE:            return "Invalid label name - duplicate label names found";
@@ -56,7 +57,7 @@ static const char* get_error_message(ErrorCode code) {
         case INVALID_REGISTER:           return "Invalid register name";
         case INVALID_PARAM_NUMBER:       return "Invalid number of parameters";
         case INVALID_PARAM_TYPE:         return "Invalid parameter type";
-        case RAM_MEMORY_FULL:            return "============== RAM memory full ==============\n\tABORTING ENCODE PROCESS";
+        case RAM_MEMORY_FULL:            return "============== RAM MEMORY FULL ==============\n\tABORTING ENCODE PROCESS";
         default:                         return "An unspecified error occurred";
     }
 }
@@ -114,9 +115,9 @@ Status get_status() {
 }
 
 /**
- * Sets the current error with the specified error code and location.
+ * Sets the current error with the specified error image and location.
  *
- * @param code The error code to set.
+ * @param code The error image to set.
  * @param location The location in the source file where the error occurred.
  */
 void set_error(ErrorCode code, Location location) {
@@ -125,12 +126,6 @@ void set_error(ErrorCode code, Location location) {
     error.location = location;
 
     if (code != NO_ERROR) {
-        /* Memory error should be printed no more than once */
-        if (error.code == RAM_MEMORY_FULL){
-            if (program_status.full_memory) return;
-            program_status.full_memory = 1;
-        }
-
         print_error();
         program_status.error_counter++;
         if (code == MEMORY_ALLOCATION_ERROR)
@@ -142,9 +137,9 @@ void set_error(ErrorCode code, Location location) {
 }
 
 /**
- * Sets a general error with the specified error code but without a specific location.
+ * Sets a general error with the specified error image but without a specific location.
  *
- * @param code The error code to set.
+ * @param code The error image to set.
  */
 void set_general_error(ErrorCode code) {
     Location default_location = {NULL, 0};
@@ -193,9 +188,9 @@ void free_location(Location *location){
 }
 
 /**
- * Returns the current error code.
+ * Returns the current error image.
  *
- * @return The current error code.
+ * @return The current error image.
  */
 ErrorCode get_error() {
     return error.code;
@@ -205,7 +200,7 @@ ErrorCode get_error() {
  * Prints a warning message indicating that a label before extern/entry is useless.
  */
 void print_warning(WarningCode code, Location *location) {
-    printf("Warning: ");
+    printf("WARNING: ");
     switch (code) { /* Print the corresponding warning */
         case LABEL_ENTRY:
             printf("Label definition before entry command is ignored.");
@@ -229,7 +224,7 @@ void print_warning(WarningCode code, Location *location) {
  * Private helper function - prints line for aesthetic purposes.
  */
 static void print_line(){
-    printf("--------------------------------------------------------\n");
+    printf("------------------------------------------------------\n");
 }
 
 /**
@@ -249,7 +244,7 @@ void print_error_summery(char *file) {
     } else if (program_status.status == FATAL_ERROR) {
         printf("Fatal error occurred, terminating the program...\n");
     } else {
-        printf("Process completed successfully.\n");
+        printf("File: %s processing completed successfully.\n", file);
     }
     print_line();
 }

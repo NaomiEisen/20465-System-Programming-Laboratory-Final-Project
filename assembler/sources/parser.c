@@ -22,14 +22,14 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
 static Boolean parse_string(const char **line, ASTNode *node);
 static void parse_instruct_operand(ASTNode *node, const char *operand, const MacroTrie *macr_trie);
 static void parse_int(ASTNode* node, const char *operand);
-static void parse_reg(ASTNode* node, const char *operand, int addr_mode);
+static void parse_reg(ASTNode* node, const char *operand, short addr_mode);
 static void parse_label(ASTNode *node, const char *operand, const MacroTrie *macr_trie);
 /* ---------------------------------------------------------------------------------------
  *                                   Head Function Of Parser
  * --------------------------------------------------------------------------------------- */
 /**
- * Parses a line of assembly code and creates an ASTNode representing the line.
- * This function processes a single line of assembly code, determining its type
+ * Parses a line of assembly image and creates an ASTNode representing the line.
+ * This function processes a single line of assembly image, determining its type
  * (empty/comment, label, directive, or instruction) and extracting the relevant
  * information into an ASTNode structure. It uses several helper functions to
  * handle different parts of the line.
@@ -37,7 +37,7 @@ static void parse_label(ASTNode *node, const char *operand, const MacroTrie *mac
  * @param macr_trie A trie containing macro definitions to check for collisions with labels.
  * @param file_name The name of the file being parsed, used for error reporting.
  * @param line_num The line number in the file, used for error reporting.
- * @param line The line of assembly code to parse.
+ * @param line The line of assembly image to parse.
  *
  * @return A pointer to the newly created ASTNode representing the parsed line.
  */
@@ -241,7 +241,7 @@ static Boolean parse_operation(const char **line, ASTNode *node) {
  * @return TRUE if the operation is valid, FALSE otherwise.
  */
 static Boolean validate_operation(const char *operation, ASTNode* node) {
-    int command_index; /* Index of the command in the command mapping */
+    short command_index; /* Index of the command in the command mapping */
 
     /* If this is an instruction line */
     if (node->lineType == LINE_INSTRUCTION) {
@@ -425,7 +425,7 @@ static void parse_instruct_operand(ASTNode *node, const char *operand, const Mac
 static void parse_int(ASTNode* node, const char *operand) {
     /* Validate if the rest of the string is an integer */
     if (is_valid_integer(operand)) {
-        if (add_instruct_operand(node, ADDR_MODE_IMMEDIATE, NULL, my_atoi(operand)) == FALSE) {
+        if (add_instruct_operand(node, ADDR_MODE_IMMEDIATE, NULL, (short)my_atoi(operand)) == FALSE) {
             set_error(INVALID_PARAM_NUMBER, node->location);
         }
     } else {
@@ -442,9 +442,9 @@ static void parse_int(ASTNode* node, const char *operand) {
  * @param operand The operand to parse.
  * @param addr_mode The addressing mode to set.
  */
-static void parse_reg(ASTNode* node, const char *operand, int addr_mode) {
+static void parse_reg(ASTNode* node, const char *operand, short addr_mode) {
     /* Get the corresponding register from the mappings */
-    int index = get_register_index(operand);
+    short index = get_register_index(operand);
     if (index != -1) {
         if (add_instruct_operand(node, addr_mode, NULL, index) == FALSE) {
             set_error(INVALID_PARAM_NUMBER, node->location);

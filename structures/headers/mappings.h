@@ -10,10 +10,10 @@
 
 /* Structure representing one instruction in the instructions mapping */
 typedef struct {
-    char command_str[MAX_COMMAND_CHAR];                        /* Instruction name */
-    int num_params;                     /* Number of parameters in the instruction */
-    int addr_mode_op1[ADDRESS_MODES];  /* Valid address modes in the first operand */
-    int addr_mode_op2[ADDRESS_MODES]; /* Valid address modes in the second operand */
+    char command_str[MAX_COMMAND_CHAR];                          /* Instruction name */
+    short num_params;                     /* Number of parameters in the instruction */
+    short addr_mode_op1[ADDRESS_MODES];  /* Valid address modes in the first operand */
+    short addr_mode_op2[ADDRESS_MODES]; /* Valid address modes in the second operand */
 } InstructMapping;
 
 /* Structure representing one directive in the directives mapping */
@@ -39,7 +39,7 @@ typedef struct {
  * @param i The index of the instruction in the instruct_table.
  * @return The number of parameters required by the instruction.
  */
-int get_num_param(int i);
+short get_num_param(short i);
 
 /**
  * Retrieves the directive type based on its index.
@@ -47,7 +47,7 @@ int get_num_param(int i);
  * @param i The index of the directive in the directive_table.
  * @return The directive type.
  */
-DirectiveType get_dir_command (int i);
+DirectiveType get_dir_command (short i);
 
 /**
  * Finds the index in the instruction table of an instruction based on its name.
@@ -55,7 +55,7 @@ DirectiveType get_dir_command (int i);
  * @param str The name of the instruction to find.
  * @return The index of the instruction in the instruct_table, or -1 if not found.
  */
-int get_instruct_index(const char* str);
+short get_instruct_index(const char* str);
 
 /**
  * Finds the corresponding index of the directive table of a directive based on its name.
@@ -63,7 +63,7 @@ int get_instruct_index(const char* str);
  * @param str The name of the directive to find.
  * @return The index of the directive in the directive_table, or -1 if not found.
  */
-int get_dir_index(const char* str);
+short get_dir_index(const char* str);
 
 /**
  * Finds the index of a register based on its name.
@@ -71,14 +71,14 @@ int get_dir_index(const char* str);
  * @param str The name of the register to find.
  * @return The index of the register in the registers array, or -1 if not found.
  */
-int get_register_index(const char* str);
+short get_register_index(const char* str);
 
 /**
  * Finds the index of a reserved macro word - one of the two words indicating
  * a macro initialization or the end of macro initialization.
  *
  * @param str The name of the reserved word to find.
- * @return The macro command code.
+ * @return The macro command image.
  */
 MacrCommand find_macr_reserved(const char* str);
 

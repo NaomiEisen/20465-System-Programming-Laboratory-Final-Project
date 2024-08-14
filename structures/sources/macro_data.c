@@ -27,7 +27,7 @@ Boolean init_macr_trie(MacroTrie *macr_trie) {
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @param macr_name The name of the macro to be added.
- * @return ErrorCode - Error code of the error that occurred or NO_ERROR if the process
+ * @return ErrorCode - Error image of the error that occurred or NO_ERROR if the process
  *          executed successfully.
  */
 ErrorCode add_macr(MacroTrie *macr_trie, const char *macr_name) {
