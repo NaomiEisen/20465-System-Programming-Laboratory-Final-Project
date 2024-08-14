@@ -237,12 +237,14 @@ void unmark_word(MemoryImage *code_img, int line) {
 
 /**
  * Retrieves the first marked word in the memory image.
+ * Going over the memory image with static variable for avoiding multiple
+ * unnecessary iteration.
  *
  * @param memory_img Pointer to the memory image structure.
  * @return The index of the first marked line, or -1 if no marked line is found.
  */
 int get_marked_line(MemoryImage *memory_img) {
-    int i; /* Variable to iterate through loop */
+    static int i = 0; /* Variable to iterate through loop */
     int byteIndex = LAST_WORD_BIT / BYTE_SIZE; /* Calculate the byte index */
     int bitOffset = LAST_WORD_BIT % BYTE_SIZE; /* Calculate the bit index */
 
@@ -250,10 +252,16 @@ int get_marked_line(MemoryImage *memory_img) {
     char mask = (char)(1 << (BYTE_SIZE - 1 - bitOffset));
 
     /* Go through the memory image and fine the first unresolved word */
-    for (i = 0; i < memory_img->code_count; i++) {
+    while (i < memory_img->code_count) {
         if ((memory_img->lines[i][byteIndex] & mask) != 0) {
             return i;
         }
+        i++;
     }
+   /* for (i = 0; i < memory_img->code_count; i++) {
+        if ((memory_img->lines[i][byteIndex] & mask) != 0) {
+            return i;
+        }
+    }*/
     return -1; /* No marked word found */
 }

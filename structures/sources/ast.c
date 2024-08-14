@@ -73,7 +73,7 @@ void set_operation_for_directive(ASTNode *node, DirectiveType operation) {
  * @param node: The AST node whose instruction operation is to be set.
  * @param operation: The instruction operation to be set.
  */
-void set_operation_for_instruction(ASTNode *node, int operation) {
+void set_operation_for_instruction(ASTNode *node, short operation) {
     /* First check if node exists and if it's type is instruction */
     if (node && node->lineType == LINE_INSTRUCTION) {
         node->specific.instruction.operation = operation;
@@ -87,7 +87,7 @@ void set_operation_for_instruction(ASTNode *node, int operation) {
  * @param num: The number of the operand to retrieve (1 or 2).
  * @return A pointer to the specified operand.
  */
-InstructionOperand* get_operand(ASTNode *node, int num) {
+InstructionOperand* get_operand(ASTNode *node, short num) {
     if (num == 2) { /* Second operand */
         return &node->specific.instruction.operand2;
     }
@@ -105,7 +105,7 @@ InstructionOperand* get_operand(ASTNode *node, int num) {
  * @param num: The register number (if applicable) of the operand.
  * @return TRUE if the operand was added successfully, FALSE otherwise.
  */
-Boolean add_instruct_operand(ASTNode *node, int adr_mode, const char *value, int num) {
+Boolean add_instruct_operand(ASTNode *node, short adr_mode, const char *value, short num) {
     InstructionOperand* instruct_op = get_operand(node, node->specific.instruction.num_operands + 1);
     switch (adr_mode) {
         /* Direct address mode - label operand */

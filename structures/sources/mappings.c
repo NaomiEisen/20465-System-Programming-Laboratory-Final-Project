@@ -62,7 +62,7 @@ static const MacrReserved macr_reserved_table[] = {
  * @param i The index of the instruction in the instruct_table.
  * @return The number of parameters required by the instruction.
  */
-int get_num_param(int i) {
+short get_num_param(short i) {
     return instruct_table[i].num_params;
 }
 
@@ -72,7 +72,7 @@ int get_num_param(int i) {
  * @param i The index of the directive in the directive_table.
  * @return The directive type.
  */
-DirectiveType get_dir_command (int i) {
+DirectiveType get_dir_command (short i) {
     return directive_table[i].dir_command;
 }
 
@@ -82,8 +82,8 @@ DirectiveType get_dir_command (int i) {
  * @param str The name of the instruction to find.
  * @return The index of the instruction in the instruct_table, or -1 if not found.
  */
-int get_instruct_index(const char* str) {
-    int i = 0; /* Index for iterating through the instruct_table array */
+short get_instruct_index(const char* str) {
+    short i = 0; /* Index for iterating through the instruct_table array */
 
     /* Iterate through the instruct_table array */
     while (instruct_table[i].command_str[0] != '\0') {
@@ -103,8 +103,8 @@ int get_instruct_index(const char* str) {
  * @param str The name of the directive to find.
  * @return The index of the directive in the directive_table, or -1 if not found.
  */
-int get_dir_index(const char* str) {
-    int i = 0; /* Index for iterating through the directive_table array */
+short get_dir_index(const char* str) {
+    short i = 0; /* Index for iterating through the directive_table array */
 
     /* Iterate through the directive_table array */
     while (directive_table[i].command_str[0] != '\0') {
@@ -124,8 +124,8 @@ int get_dir_index(const char* str) {
  * @param str The name of the register to find.
  * @return The index of the register in the registers array, or -1 if not found.
  */
-int get_register_index(const char* str) {
-    int i = 0; /* Index for iterating through the registers array */
+short get_register_index(const char* str) {
+    short i = 0; /* Index for iterating through the registers array */
 
     /* Iterate through the registers array */
     while (registers[i] != NULL) {
@@ -147,7 +147,7 @@ int get_register_index(const char* str) {
  * @return The macro command image.
  */
 MacrCommand find_macr_reserved(const char* str) {
-    int i = 0; /* Index for iterating through the macr_reserved_table array */
+    short i = 0; /* Index for iterating through the macr_reserved_table array */
 
     /* Iterate through the macr_reserved_table array */
     while (macr_reserved_table[i].command_str[0] != '\0') {

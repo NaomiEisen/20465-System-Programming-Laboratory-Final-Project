@@ -22,7 +22,7 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
 static Boolean parse_string(const char **line, ASTNode *node);
 static void parse_instruct_operand(ASTNode *node, const char *operand, const MacroTrie *macr_trie);
 static void parse_int(ASTNode* node, const char *operand);
-static void parse_reg(ASTNode* node, const char *operand, int addr_mode);
+static void parse_reg(ASTNode* node, const char *operand, short addr_mode);
 static void parse_label(ASTNode *node, const char *operand, const MacroTrie *macr_trie);
 /* ---------------------------------------------------------------------------------------
  *                                   Head Function Of Parser
@@ -241,7 +241,7 @@ static Boolean parse_operation(const char **line, ASTNode *node) {
  * @return TRUE if the operation is valid, FALSE otherwise.
  */
 static Boolean validate_operation(const char *operation, ASTNode* node) {
-    int command_index; /* Index of the command in the command mapping */
+    short command_index; /* Index of the command in the command mapping */
 
     /* If this is an instruction line */
     if (node->lineType == LINE_INSTRUCTION) {
@@ -425,7 +425,7 @@ static void parse_instruct_operand(ASTNode *node, const char *operand, const Mac
 static void parse_int(ASTNode* node, const char *operand) {
     /* Validate if the rest of the string is an integer */
     if (is_valid_integer(operand)) {
-        if (add_instruct_operand(node, ADDR_MODE_IMMEDIATE, NULL, my_atoi(operand)) == FALSE) {
+        if (add_instruct_operand(node, ADDR_MODE_IMMEDIATE, NULL, (short)my_atoi(operand)) == FALSE) {
             set_error(INVALID_PARAM_NUMBER, node->location);
         }
     } else {
@@ -442,9 +442,9 @@ static void parse_int(ASTNode* node, const char *operand) {
  * @param operand The operand to parse.
  * @param addr_mode The addressing mode to set.
  */
-static void parse_reg(ASTNode* node, const char *operand, int addr_mode) {
+static void parse_reg(ASTNode* node, const char *operand, short addr_mode) {
     /* Get the corresponding register from the mappings */
-    int index = get_register_index(operand);
+    short index = get_register_index(operand);
     if (index != -1) {
         if (add_instruct_operand(node, addr_mode, NULL, index) == FALSE) {
             set_error(INVALID_PARAM_NUMBER, node->location);

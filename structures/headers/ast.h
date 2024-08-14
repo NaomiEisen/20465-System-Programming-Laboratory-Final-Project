@@ -43,16 +43,16 @@ typedef union {
 
 /* Structure representing an operand in an instruction operation */
 typedef struct {
-    int adr_mode;              /* Address mode of the instruction */
+    short adr_mode;         /* Address mode of the instruction */
     InstructionValue value; /* Value of the instruction's operand */
 } InstructionOperand;
 
 /* Structure representing an instruction */
 typedef struct {
-    int operation;               /* Operation image for the instruction */
+    short operation;             /* The instruction index in the instruction's mapping */
     InstructionOperand operand1; /* First operand of the instruction */
     InstructionOperand operand2; /* Second operand of the instruction */
-    int num_operands;            /* Number of operands for the instruction */
+    short num_operands;          /* Number of operands for the instruction */
 } Instruction;
 
 /* Union holding either an instruction or a directive */
@@ -104,12 +104,12 @@ void set_ast_type(ASTNode *node, LineType lineType);
 void set_operation_for_directive(ASTNode *node, DirectiveType operation);
 
 /**
- * Sets the operation for an instruction in an AST node.
+ * Sets the operation index for an instruction in an AST node.
  *
  * @param node: The AST node whose instruction operation is to be set.
  * @param operation: The instruction operation to be set.
  */
-void set_operation_for_instruction(ASTNode *node, int operation);
+void set_operation_for_instruction(ASTNode *node, short operation);
 
 /**
  * Retrieves the operand of an instruction in an AST node.
@@ -118,7 +118,7 @@ void set_operation_for_instruction(ASTNode *node, int operation);
  * @param num: The number of the operand to retrieve (1 or 2).
  * @return A pointer to the specified operand.
  */
-InstructionOperand* get_operand(ASTNode *node, int num);
+InstructionOperand* get_operand(ASTNode *node, short num);
 /**
  * Adds an operand to an instruction in an AST node.
  *
@@ -128,7 +128,7 @@ InstructionOperand* get_operand(ASTNode *node, int num);
  * @param num: The register number (if applicable) of the operand.
  * @return TRUE if the operand was added successfully, FALSE otherwise.
  */
-Boolean add_instruct_operand(ASTNode *node, int adr_mode, const char *value, int num);
+Boolean add_instruct_operand(ASTNode *node, short adr_mode, const char *value, short num);
 
 /**
  * Adds an operand to a directive.

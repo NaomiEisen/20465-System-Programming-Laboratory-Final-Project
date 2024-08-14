@@ -53,7 +53,7 @@ void first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
  */
 static void handle_instruction(ASTNode *node, CmpData *cmp_data) {
     int ic_start = cmp_data->image.code_count; /* remember starting address */
-    int command_index = node->specific.instruction.operation;
+    short command_index = node->specific.instruction.operation;
 
     /* Validate number of parameters */
     if (get_num_param(command_index) != node->specific.instruction.num_operands) {
@@ -189,7 +189,7 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
     Boolean reg = FALSE; /* Flag indicating that operand of register type have been encoded */
     InstructionOperand *current_opr;         /* Variable to store current ASTNode's operand */
     int current_addr;                      /* Value to store current operand's address mode */
-    int i;                         /* Variable for iterating through the ASTNode's operands */
+    short i;                         /* Variable for iterating through the ASTNode's operands */
 
     /* Iterate through node's operands */
     for (i = 1; i <= node->specific.instruction.num_operands; i++) {

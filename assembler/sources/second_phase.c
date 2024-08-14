@@ -44,7 +44,7 @@ void second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
  */
 static void code_label_operands(ASTNode *node, CmpData *cmp_data) {
     InstructionOperand *current_opr; /* Variable to store the current operand */
-    int i;                       /* Variable to iterate through nodes operand */
+    short i;                     /* Variable to iterate through nodes operand */
     int line;            /* Variable to store the consecutive unresolved line */
 
     /* Iterate through node's operands */

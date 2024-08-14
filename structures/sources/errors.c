@@ -224,7 +224,7 @@ void print_warning(WarningCode code, Location *location) {
  * Private helper function - prints line for aesthetic purposes.
  */
 static void print_line(){
-    printf("--------------------------------------------------------\n");
+    printf("------------------------------------------------------\n");
 }
 
 /**
@@ -244,7 +244,7 @@ void print_error_summery(char *file) {
     } else if (program_status.status == FATAL_ERROR) {
         printf("Fatal error occurred, terminating the program...\n");
     } else {
-        printf("Process completed successfully.\n");
+        printf("File: %s processing completed successfully.\n", file);
     }
     print_line();
 }
