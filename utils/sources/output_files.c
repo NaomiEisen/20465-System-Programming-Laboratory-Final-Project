@@ -33,8 +33,8 @@ void print_memory_images(FILE *output_file, CmpData *data) {
     int i; /* Variable to iterate through the memory images */
     int data_addres = data->image.code_count+IC_START;
 
-    /* Print  the image and data images counts */
-    fprintf(output_file, "  %d   %d\n", data->image.code_count, data->image.data_count);
+    /* Print the data and code images counts */
+    fprintf(output_file,"%4d   %-5d\n", data->image.code_count, data->image.data_count);
 
     /* Print image image */
     for (i = 0; i < data->image.code_count; i++) {
