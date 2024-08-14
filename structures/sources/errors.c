@@ -69,7 +69,7 @@ static void print_location(Location* location){
     if (location->line > 0) {
         printf("\nFile:  %s | Line: %d", location->file, location->line);
         if (location->line_content) /* Print line content if exists */
-            printf("\n\t%s", location->line_content);
+            printf("\n       %s", location->line_content);
     }
 }
 
