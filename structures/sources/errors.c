@@ -80,7 +80,7 @@ static void print_location(Location* location){
 static void print_error() {
     /* Print only if error is set */
     if (error.code != NO_ERROR) {
-        printf("ERROR: %s", error.message);
+        printf("Error: %s", error.message);
         /* If there is specified location - print it too */
         print_location(&error.location);
         printf("\n\n");

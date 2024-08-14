@@ -16,7 +16,7 @@
  * @param file The file to which the label and address should be written.
  */
 void write_label(const char* label, int address, FILE* file) {
-    fprintf(file, "%-30s %04d\n", label, address);
+    fprintf(file, "%-31s %04d\n", label, address);
 }
 
 /**
