@@ -9,64 +9,64 @@
 
 /* Enum representing different types of lines */
 typedef enum {
-    LINE_EMPTY,      /* Represents an empty line */
-    LINE_COMMENT,    /* Represents a comment line */
-    LINE_DIRECTIVE,  /* Represents a directive line */
+    LINE_EMPTY,            /* Represents an empty line */
+    LINE_COMMENT,         /* Represents a comment line */
+    LINE_DIRECTIVE,     /* Represents a directive line */
     LINE_INSTRUCTION /* Represents an instruction line */
 } LineType;
 
 /* Enum representing different types of directive operations*/
 typedef enum {
-    STRING, /* Represents a string directive */
-    DATA,   /* Represents a data directive */
-    ENTRY,  /* Represents an entry directive */
+    STRING,  /* Represents a string directive */
+    DATA,      /* Represents a data directive */
+    ENTRY,   /* Represents an entry directive */
     EXTERN  /* Represents an extern directive */
 } DirectiveType;
 
 /* Node structure for operands in a directive operation */
 typedef struct OperandNode {
-    char *operand;        /* Operand string */
+    char *operand;                                         /* Operand string */
     struct DirNode *next; /* Pointer to the next operand node in a directive */
 } DirNode;
 
 /* Structure representing a directive operation */
 typedef struct {
     DirectiveType operation; /* Type of directive operation (STRING, DATA, ENTRY, EXTERN) */
-    DirNode *operands;       /* Linked list of operands for the directive */
+    DirNode *operands;                       /* Linked list of operands for the directive */
 } Directive;
 
 /* Union holding either an integer or a string of instruction operation's operands */
 typedef union {
-    int int_val;                     /* Integer value for instructions */
+    int int_val;                                 /* Integer value for instructions */
     char char_val[MAX_LABEL_LENGTH]; /* Character array for labels in instructions */
 } InstructionValue;
 
 /* Structure representing an operand in an instruction operation */
 typedef struct {
-    short adr_mode;         /* Address mode of the instruction */
+    short adr_mode;            /* Address mode of the instruction */
     InstructionValue value; /* Value of the instruction's operand */
 } InstructionOperand;
 
 /* Structure representing an instruction */
 typedef struct {
-    short operation;             /* The instruction index in the instruction's mapping */
-    InstructionOperand operand1; /* First operand of the instruction */
-    InstructionOperand operand2; /* Second operand of the instruction */
+    short operation; /* The instruction index in the instruction's mapping */
+    InstructionOperand operand1;       /* First operand of the instruction */
+    InstructionOperand operand2;      /* Second operand of the instruction */
     short num_operands;          /* Number of operands for the instruction */
 } Instruction;
 
 /* Union holding either an instruction or a directive */
 typedef union {
     Instruction instruction; /* Union holding an instruction */
-    Directive directive;     /* Union holding a directive */
+    Directive directive;        /* Union holding a directive */
 } LineTypeSpecific;
 
 /* Structure representing a node in an abstract syntax tree (AST) */
 typedef struct {
-    LineType lineType;            /* Type of the line (empty, comment, directive, instruction) */
-    char label[MAX_LABEL_LENGTH]; /* Label associated with the line (if any) */
-    LineTypeSpecific specific;    /* Specific details depending on lineType (instruction or directive) */
-    Location location;            /* Location information of the line */
+    LineType lineType; /* Type of the line (empty, comment, directive, instruction) */
+    char label[MAX_LABEL_LENGTH];        /* Label associated with the line (if any) */
+    LineTypeSpecific specific;            /* Specific details depending on lineType */
+    Location location;                          /* Location information of the line */
 } ASTNode;
 
 /* ----------------------------------- Functions Prototypes ------------------------------------*/

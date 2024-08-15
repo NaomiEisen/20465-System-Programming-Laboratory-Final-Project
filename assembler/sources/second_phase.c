@@ -19,7 +19,7 @@ static void handle_entry(ASTNode *node, CmpData *cmp_data);
  * It handles encoding of label operand's in instruction lines and entry directives.
  *
  * @param node The parsed line represented as an ASTNode containing an instruction or directive.
- * @param cmp_data The data structure holding various program-related data during assembly.
+ * @param cmp_data The data structure holding the memory image and the label trie.
  * @return TRUE if the line is processed successfully, FALSE otherwise.
  */
 void second_phase_analyzer(ASTNode *node, CmpData *cmp_data) {

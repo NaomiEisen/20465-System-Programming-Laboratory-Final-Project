@@ -164,7 +164,7 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
  *                                Preprocessor Utility Functions
  * --------------------------------------------------------------------------------------- */
 /**
- * Private function -  checks if a given string is a comment line.
+ * Checks if a given string is a comment line.
  * A comment is defined as a line/part of the line that starts with the character ';'.
  * If the comment character is found, the function trims any characters after
  * the ';' character from the line, while preserving the newline character at
@@ -194,7 +194,7 @@ static void remove_comments(char* str) {
 }
 
 /**
- * Private function - checks if a given line exceeds the maximum allowed length.
+ * Checks if a given line exceeds the maximum allowed length.
  * If the line is too long, it sets an error and returns FALSE.
  *
  * @param line The line to check.
@@ -212,7 +212,7 @@ static Boolean validate_line_length(const char *line, Location location) {
 }
 
 /**
-* Private function - verifies the validity of a macro initialization line.
+* Verifies the validity of a macro initialization line.
 * It checks if the macro has a valid name: if the name is not a reserved word,
 * and if there is no extra text after the macro name.
 *
@@ -243,7 +243,7 @@ static Boolean verify_macro(const char *str, Location location) {
 }
 
 /**
- * Private function - checks if a given string is the start of a macro definition.
+ * Checks if a given string is the start of a macro definition.
  *
  * @param str The string to check.
  * @return Non-zero if the string is the start of a macro, 0 otherwise.
@@ -253,7 +253,7 @@ static int macr_start(const char* str) {
 }
 
 /**
- * Private function - checks if a given string is the end of a macro definition.
+ * Checks if a given string is the end of a macro definition.
  *
  * @param str The string to check.
  * @return Non-zero if the string is the end of a macro, 0 otherwise.
@@ -263,7 +263,7 @@ static int macr_end(const char* str) {
 }
 
 /**
- * Private function - creates a new macro in the macro trie if the given string
+ * Creates a new macro in the macro trie if the given string
  * is a valid macro initialization line.
  *
  * @param macr_trie The trie structure containing macro definitions.
@@ -303,7 +303,7 @@ static Boolean create_macr(MacroTrie *macr_trie, const char *str, Location locat
 }
 
 /**
- * Private function - copies the contents of a macro to the specified output file.
+ * Copies the contents of a macro to the specified output file.
  *
  * @param macr The macro node containing the macro data to copy.
  * @param file The output file to write the macro contents to.
@@ -322,7 +322,7 @@ static void copy_macro_to_file(TrieNode *macr, FILE* file) {
 }
 
 /**
- * Private function - cleans up resources by closing files and freeing allocated memory for filenames.
+ * Cleans up resources by closing files and freeing allocated memory for filenames.
  * This helper function is used to centralize the cleanup process . It closes any open files and frees
  * any allocated memory for filenames if they are not NULL.
  *
