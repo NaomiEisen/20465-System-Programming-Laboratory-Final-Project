@@ -87,7 +87,7 @@ ASTNode *parseLine(const MacroTrie *macr_trie, const char *file_name, int line_n
  *                                         Functions
  * --------------------------------------------------------------------------------------- */
 /**
-* Private function - checks if a line is empty or a comment.
+* Static function - checks if a line is empty or a comment.
 * This function determines if a given line of text is empty or a comment
 * and updates the ASTNode accordingly.
 *
@@ -110,7 +110,7 @@ static Boolean check_empty_line(const char** line, ASTNode* node) {
 }
 
 /**
- * Private Function - identifies a label in the line, validates it, and updates the ASTNode.
+ * Static Function - identifies a label in the line, validates it, and updates the ASTNode.
  *
  * @param line Pointer to the line of text.
  * @param node The ASTNode to update.
@@ -118,8 +118,8 @@ static Boolean check_empty_line(const char** line, ASTNode* node) {
  * @return TRUE if the label was processed successfully, FALSE otherwise.
  */
 static Boolean is_label(const char **line, ASTNode *node, const MacroTrie *macr_trie) {
-    const char *start = *line;
-    const char *line_ptr = start;
+    const char *start = *line;    /* Start of the label if found */
+    const char *line_ptr = start; /* Pointer to iterate through the string */
     char *label;
 
     while (*line_ptr && *line_ptr != ':' && !isspace(*line_ptr)) line_ptr++;
@@ -150,7 +150,7 @@ static Boolean is_label(const char **line, ASTNode *node, const MacroTrie *macr_
 }
 
 /**
- * Private function - checks if the label is valid, ensuring it meets the naming rules
+ * Static function - checks if the label is valid, ensuring it meets the naming rules
  * and does not collide with reserved words or macros.
  *
  * @param label The label to validate.
@@ -187,7 +187,7 @@ static Boolean validate_label(const char *label, ASTNode *node, const MacroTrie 
 }
 
 /**
- * Private function - parses the operation from the line.
+ * Static function - parses the operation from the line.
  * This function extracts the operation name from the line, validates it,
  * and updates the ASTNode.
  *
@@ -232,7 +232,7 @@ static Boolean parse_operation(const char **line, ASTNode *node) {
 }
 
 /**
- * Private function - validates the operation.
+ * Static function - validates the operation.
  * This function checks if the operation is valid and updates the ASTNode
  * with the corresponding instruction or directive.
  *
@@ -271,7 +271,7 @@ static Boolean validate_operation(const char *operation, ASTNode* node) {
 }
 
 /**
- * Private function - parses the operands from the line.
+ * Static function - parses the operands from the line.
  * This function extracts the operands from the line, validates them,
  * and updates the ASTNode.
  *
@@ -293,7 +293,10 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
         }
     }
 
+    /* Iterate until the end of the line is reached */
     while (*line_ptr) {
+
+        /* Check condition for the first operand in the line */
         if (first_op == TRUE) {
             /* First operand shouldn't start with comma */
             if (*line_ptr == ',') {
@@ -302,8 +305,9 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
             }
         }
 
+        /* Check conditions for the rest of the operands */
         if (first_op == FALSE) {
-            /* All operand should be seperated by comma */
+            /* All arguments should be seperated by comma */
             if (*line_ptr != ',') {
                 set_error(MISSING_COMMA_ERROR, node->location);
                 return FALSE;
@@ -316,7 +320,8 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
             }
         }
 
-        start = line_ptr; /* Position the pointer to get the word */
+        /* Position the pointer to get the word */
+        start = line_ptr;
 
         /* Move the pointer to the end of the word */
         while (*line_ptr && *line_ptr != ',' && !isspace(*line_ptr)) {
@@ -355,7 +360,7 @@ static Boolean parse_operands(const char **line, ASTNode *node, const MacroTrie 
 }
 
 /**
- * Private function - parses a string operand.
+ * Static function - parses a string operand.
  * This function extracts a quoted string from the provided line. The string
  * consists of all characters placed between the first and last quotes. If the string
  * is invalid, an error is printed, and the function returns FALSE.
@@ -384,7 +389,7 @@ static Boolean parse_string(const char **line, ASTNode *node) {
 }
 
 /**
- * Private function - parses and sets the addressing modes for operands in an ASTNode.
+ * Static function - parses and sets the addressing modes for operands in an ASTNode.
  * This function parses using helper methods an operand and sets the appropriate addressing
  * mode in the ASTNode.
  *
@@ -416,7 +421,7 @@ static void parse_instruct_operand(ASTNode *node, const char *operand, const Mac
 }
 
 /**
- * Private function - parses an integer operand.
+ * Static function - parses an integer operand.
  * This function validates if the operand is an integer and adds it to the ASTNode.
  *
  * @param node The ASTNode to update.
@@ -435,7 +440,7 @@ static void parse_int(ASTNode* node, const char *operand) {
 }
 
 /**
- * Private function - parses a register operand.
+ * Static function - parses a register operand.
  * This function validates if the operand is a register and adds it to the ASTNode.
  *
  * @param node The ASTNode to update.
@@ -454,8 +459,8 @@ static void parse_reg(ASTNode* node, const char *operand, short addr_mode) {
     }
 }
 /**
- * Private function - parses a label operand.
- * his function checks if the operand is a valid label and if so, adds it to the ASTNode.
+ * Static function - parses a label operand.
+ * this function checks if the operand is a valid label and if so, adds it to the ASTNode.
  *
  * @param node The ASTNode to update.
  * @param operand The operand to parse.

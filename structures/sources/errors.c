@@ -242,9 +242,9 @@ void print_error_summery(char *file) {
     if (program_status.status == ERROR_IN_FILE) {
         printf("Could not process file %s\n", file);
     } else if (program_status.status == FATAL_ERROR) {
-        printf("Fatal error occurred, terminating the program...\n");
+        printf("Fatal error occurred during '%s' processing, terminating the program...\n", file);
     } else {
-        printf("File: %s processing completed successfully.\n", file);
+        printf("File processing completed successfully: '%s'\n", file);
     }
     print_line();
 }

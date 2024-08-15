@@ -198,11 +198,11 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
         /* Encode accordingly to the operand's address mode */
         switch (current_addr) {
             /* ------------------------ Immediate address mode ------------------------ */
-            case 0:
+            case ADDR_MODE_IMMEDIATE:
                 code_immediate_addr_mode(current_opr->value.int_val, &cmp_data->image);
                 break;
             /* -------------------------- Direct address mode -------------------------- */
-            case 1:
+            case ADDR_MODE_DIRECT:
                 /* Don't code labels in the first pass - mark them for the second phase */
                 mark_word(&cmp_data->image);
                 if (add_unresolved_line(cmp_data, node->location.line) == FALSE) {
@@ -211,8 +211,8 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
                 }
                 break;
             /* ----------------- Direct/Indirect register address mode ---------------- */
-            case 2:
-            case 3:
+            case ADDR_INDIRECT_REG:
+            case ADDR_DIRECT_REG:
                 /* If there is only one register operand - it is the target register */
                 if (node->specific.instruction.num_operands == 1) i++;
 
@@ -276,7 +276,6 @@ static void handle_directive(ASTNode *node, CmpData *cmp_data) {
         } else {add_label(node, id_start, cmp_data);}
     }
 }
-
 
 /**
  * Processes an EXTERN directive during the first phase of assembly.
