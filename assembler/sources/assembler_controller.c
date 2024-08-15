@@ -49,9 +49,7 @@ void controller(int argc, char* argv[]) {
         print_error_summery(argv[i]);
 
         /* Check for fatal error */
-        if (get_status() == FATAL_ERROR) {
-            exit(0);
-        }
+        if (get_status() == FATAL_ERROR) exit(0);
 
         /* updated variables */
         i++;
