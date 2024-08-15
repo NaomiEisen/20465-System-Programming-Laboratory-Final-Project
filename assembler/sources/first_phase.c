@@ -3,6 +3,7 @@
  * --------------------------------------------------------------------------------------- */
 #include "../../structures/headers/ast.h"
 #include "../../structures/headers/cmp_data.h"
+#include "../../structures/headers/label_data.h"
 #include "../headers/code_convert.h"
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
@@ -60,8 +61,8 @@ static void handle_instruction(ASTNode *node, CmpData *cmp_data) {
         set_error(INVALID_PARAM_NUMBER, node->location);
     }
 
-    /* Code first word */
-    if (first_word(node, command_index, &cmp_data->image) == FALSE) {
+    /* Code first word if the number of parameters is valid */
+    else if (first_word(node, command_index, &cmp_data->image) == FALSE) {
         set_error(INVALID_PARAM_TYPE, node->location);
     }
 
@@ -199,7 +200,7 @@ static void code_operands(ASTNode *node, CmpData *cmp_data) {
         switch (current_addr) {
             /* ------------------------ Immediate address mode ------------------------ */
             case ADDR_MODE_IMMEDIATE:
-                code_immediate_addr_mode(current_opr->value.int_val, &cmp_data->image);
+                code_immediate_addr_mode(current_opr->value.int_val, &cmp_data->image, node);
                 break;
             /* -------------------------- Direct address mode -------------------------- */
             case ADDR_MODE_DIRECT:
@@ -302,7 +303,14 @@ static void handle_extern(ASTNode* node, CmpData* cmp_data) {
                 break;
 
             case DUPLICATE:
-                set_error(MACR_DUPLICATE, node->location);
+                /* The same label has been declared 'extern' twice */
+                if (get_label_type(&cmp_data->label_table,current->operand) == EXTERNAL) {
+                    /* Print warning and ignore this label */
+                    print_warning(EXTERN_DUPLICATE, &node->location);
+                } else {
+                    /* Duplicate label definition */
+                    set_error(LABEL_DUPLICATE, node->location);
+                }
                 break;
 
             default: /* Process executed successfully */

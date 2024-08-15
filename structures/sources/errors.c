@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include "../headers/errors.h"
 #include "../../utils/headers/utils.h"
-
 /* --------------------------- Initialize the static variables --------------------------- */
 static Error error = {NO_ERROR, "No error"};
 static ProgramStatus program_status = {ERROR_FREE_FILE, 0,0, };
@@ -32,7 +31,7 @@ static const char* get_error_message(ErrorCode code) {
         case FAILED_CREATE_FILE:         return "Cannot create file";
         case FAILED_CLOSE_FILE:          return "Failed to close file";
         case FAILED_DELETE_FILE:         return "Failed to delete file";
-        case LINE_TOO_LONG:              return "Line is too long; max length is " TOSTRING(MAX_LINE_LENGTH) " characters";
+        case LINE_TOO_LONG:              return "Line is too long; max length is " TOSTRING(MAX_LINE_PRINTABLE) " characters";
         case MACR_RESERVED_WORD:         return "Invalid macro name - name is a reserved word";
         case EXTRA_TXT_MACR:             return "Extra text after macro definition";
         case MACR_DUPLICATE:             return "Invalid macro name - duplicate macro names found";
@@ -49,9 +48,11 @@ static const char* get_error_message(ErrorCode code) {
         case LABEL_MACR_COLLIDES:        return "Label and macro name collision";
         case EXT_ENT_COLLIDES:           return "Label extern and entry collision. Cannot be set to both.";
         case UNRECOGNIZED_LABEL:         return "Unrecognized label";
-        case INVALID_LABEL_LENGTH:       return "Invalid label length - cannot exceed " TOSTRING(MAX_LABEL_LENGTH) " characters";
+        case INVALID_LABEL_LENGTH:       return "Invalid label length - cannot exceed "TOSTRING(MAX_LABEL_PRINTABLE)" characters";
         case LABEL_DUPLICATE:            return "Invalid label name - duplicate label names found";
         case NOT_INTEGER:                return "Not an integer";
+        case INTEGER_OUT_OF_RANGE:       return "Integer is out of the allowed range ; Must be between "TOSTRING(MIN_VALUE)" and "
+                                                 TOSTRING(MAX_VALUE);
         case INVALID_START_STRING:       return "Invalid string format - does not start with double quotation mark";
         case INVALID_END_STRING:         return "Invalid string format - does not end with double quotation mark";
         case INVALID_REGISTER:           return "Invalid register name";
@@ -69,9 +70,9 @@ static const char* get_error_message(ErrorCode code) {
   */
 static void print_location(Location* location){
     if (location->line > 0) {
-        printf("\nFile:  %s | Line: %d", location->file, location->line);
+        printf("\nFile:    %s | Line: %d", location->file, location->line);
         if (location->line_content) /* Print line content if exists */
-            printf("\n       %s", location->line_content);
+            printf("\n         %s", location->line_content);
     }
 }
 
@@ -82,7 +83,7 @@ static void print_location(Location* location){
 static void print_error() {
     /* Print only if error is set */
     if (error.code != NO_ERROR) {
-        printf("ERROR: %s", error.message);
+        printf("ERROR:   %s", error.message);
         /* If there is specified location - print it too */
         print_location(&error.location);
         printf("\n\n");
@@ -211,13 +212,16 @@ void print_warning(WarningCode code, Location *location) {
     printf("WARNING: ");
     switch (code) { /* Print the corresponding warning */
         case LABEL_ENTRY:
-            printf("Label definition before entry command is ignored.");
+            printf("Label definition before entry command is ignored");
             break;
         case LABEL_EXTERN:
-            printf("Label definition before extern command is ignored.");
+            printf("Label definition before extern command is ignored");
             break;
         case ENTRY_DUPLICATE:
-            printf("You have already declared this label as entry. This line will be ignored");
+            printf("Label is already declared as entry; This declaration will be ignored");
+            break;
+        case EXTERN_DUPLICATE:
+            printf("Label is already declared as extern; This declaration will be ignored");
             break;
     }
     /* Print location */
@@ -232,7 +236,7 @@ void print_warning(WarningCode code, Location *location) {
  * Static helper function - prints line for aesthetic purposes.
  */
 static void print_line(){
-    printf("------------------------------------------------------\n");
+    printf("-------------------------------------------------\n");
 }
 
 /**
@@ -244,15 +248,21 @@ static void print_line(){
  */
 void print_error_summery(char *file) {
     print_line(); /* Print line separating this message from previous messages */
-    printf("ERROR SUMMARY: %d errors | %d warnings\n", program_status.error_counter, program_status.warning_counter);
+    printf("| ERROR SUMMARY ('%s')\n", file);
+    printf("|    Errors   : %d\n", program_status.error_counter);
+    printf("|    Warnings : %d\n", program_status.warning_counter);
+    print_line();
 
     /* Print the program's status */
     if (program_status.status == ERROR_IN_FILE) {
-        printf("Could not process file %s\n", file);
+        printf("|    Could not process file\n");
     } else if (program_status.status == FATAL_ERROR) {
-        printf("Fatal error occurred during '%s' processing, terminating the program...\n", file);
+        printf("|    Fatal error occurred during processing,\n");
+        printf("|    terminating the program...\n");
     } else {
-        printf("File processing completed successfully: '%s'\n", file);
+        printf("|    File processing completed successfully\n");
     }
+
     print_line();
 }
+

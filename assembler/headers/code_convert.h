@@ -38,7 +38,7 @@ unsigned int convert_to_octal(const char *word);
  * @param num The immediate value to encode.
  * @param memory_img Pointer to the memory image structure.
  */
-void code_immediate_addr_mode (int num, MemoryImage *memory_img);
+void code_immediate_addr_mode(int num, MemoryImage *memory_img, ASTNode *node);
 
 /**
  * Encodes a direct address mode value into the memory image.

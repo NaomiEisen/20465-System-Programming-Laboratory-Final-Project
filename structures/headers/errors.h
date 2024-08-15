@@ -49,9 +49,12 @@ typedef enum {
     EXTRA_TXT,
     INVALID_CHAR,
     DUPLICATE,
-    NOT_INTEGER,
     INVALID_START_STRING,
     INVALID_END_STRING,
+
+    /* ====== Logic Errors ====== */
+    NOT_INTEGER,
+    INTEGER_OUT_OF_RANGE,
     INVALID_REGISTER,
     INVALID_PARAM_NUMBER,
     INVALID_PARAM_TYPE,
@@ -61,10 +64,12 @@ typedef enum {
 
 } ErrorCode;
 
+/* Warning codes */
 typedef enum {
-    LABEL_ENTRY,
-    LABEL_EXTERN,
-    ENTRY_DUPLICATE
+    LABEL_ENTRY,                         /* Label before entry */
+    LABEL_EXTERN,                       /* Label before extern */
+    ENTRY_DUPLICATE,  /* Defining the same label 'entry' twice */
+    EXTERN_DUPLICATE /* Defining the same label 'extern' twice */
 } WarningCode;
 
 /* Structure that represents a location in a source file */

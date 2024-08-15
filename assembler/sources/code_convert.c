@@ -89,9 +89,15 @@ unsigned int convert_to_octal(const char *word) {
  *
  * @param num The immediate value to encode.
  * @param memory_img Pointer to the memory image structure.
+ * @param node Pointer to ASTNode for error printing.
  */
-void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
+void code_immediate_addr_mode(int num, MemoryImage *memory_img, ASTNode *node) {
     int end = IMMEDIATE_DIRECTIVE_BIT_SIZE - 1;
+
+    /* Check that the given number is within the allowed range */
+    if (integer_in_range(num) == FALSE) {
+        set_error(INTEGER_OUT_OF_RANGE, node->location);
+    }
     set_int_code(0, end, num, memory_img, CODE_IMAGE);
     set_bit(A, 1, memory_img, CODE_IMAGE);
 }
@@ -168,18 +174,26 @@ void set_char_code(char c, MemoryImage *memory_img) {
  */
 void code_data(ASTNode *node, MemoryImage *memory_image) {
     DirNode *current = node->specific.directive.operands;
+    int num = 0;
+
     while (current) {
         /* Validate operand */
         if (is_valid_integer(current->operand)) {
             /* Convert the text to integer and encode */
-            set_int_code(0, WORD_END_POS, my_atoi(current->operand), memory_image, DATA_IMAGE);
+            num = my_atoi(current->operand);
+
+            /* Validate that the integer is within the allowed range */
+            if (integer_in_range(num) == FALSE) {
+                set_error(INTEGER_OUT_OF_RANGE, node->location);
+            }
+
+            set_int_code(0, WORD_END_POS, num, memory_image, DATA_IMAGE);
             updt_data_counter(memory_image); /* Update counter */
-            current = (DirNode *) current->next;
         } else {
             /* Not an integer */
             set_error(NOT_INTEGER, node->location);
-            current = (DirNode *) current->next;
         }
+        current = (DirNode *) current->next;
     }
 }
 

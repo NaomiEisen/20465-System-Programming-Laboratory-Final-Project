@@ -2,13 +2,20 @@
 #define DEFINES_H
 /* -------------------- General macro's --------------------*/
 /* Maximum length of a command line in the source file */
-#define MAX_LINE_LENGTH 82 /* 80 chars + '/n' if exists + '/0' */
+/* 80 chars + '/n' if exists + '/0' */
+#define MAX_LINE_LENGTH 82
+/* For printing purposes */
+#define MAX_LINE_PRINTABLE (MAX_LINE_LENGTH - 2)
 
 /* Maximum length of a label */
-#define MAX_LABEL_LENGTH 32 /* 31 chars + '/0' (null-terminator) */
+/* 31 chars + '/0' (null-terminator) */
+#define MAX_LABEL_LENGTH 32
+/* For printing purposes */
+#define MAX_LABEL_PRINTABLE (MAX_LABEL_LENGTH - 1)
 
-/* Max integer value that can be saved in 15 bits */
-#define MAX_INTEGER 32767
+/* Range of tje integer value that can be saved in 15 bits */
+#define MAX_VALUE 16383
+#define MIN_VALUE -16384
 
 /* --------------- Macro's for assembler phases --------------*/
 /* Second register's position in a word */

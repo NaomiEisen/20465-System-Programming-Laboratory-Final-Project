@@ -78,6 +78,14 @@ Boolean create_new_file_name(const char* original_filename, char** new_filename 
 Boolean is_valid_integer(const char *str);
 
 /**
+ * Validates if a given integer is within the allowed range in the program.
+ *
+ * @param num The number to check.
+ * @return TRUE if the number is in the specified range; FALSE otherwise
+ */
+Boolean integer_in_range(int num);
+
+/**
  * Converts a string to an integer, handling optional leading spaces and signs.
  *
  * @param str The string to convert.
