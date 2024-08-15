@@ -36,21 +36,21 @@ static InstructMapping instruct_table[] = {
         {"red", 1, {0,1,1,1}},            /* RED instruction with 1 parameter */
         {"prn", 1, {1,1,1,1}},            /* PRN instruction with 1 parameter */
         {"jsr", 1, {0,1,1,0}},            /* JSR instruction with 1 parameter */
-        {"rts", 0},                        /* RTS instruction with no parameters */
+        {"rts", 0},                       /* RTS instruction with no parameters */
         {"stop", 0},                      /* STOP instruction with no parameters */
         {"", 0}                           /* Sentinel value to mark the end of the table */
 };
 
-/* Register table listing the names of available registers. */
+/* Register table listing the names of available registers */
 static const char* registers[] = {
         "r0", "r1", "r2", "r3", "r4", "r5",
-        "r6", "r7", NULL       /* NULL marks the end of the array */
+        "r6", "r7", NULL /* NULL marks the end of the array */
 };
 
 /* Table for macro commands - initialization and the end of initialization of a macro */
 static const MacrReserved macr_reserved_table[] = {
         {"macr", MACR_START}, {"endmacr", MACR_END},
-        {"",          0} /* Sentinel value to mark the end of the table */
+        {"",0} /* Sentinel value to mark the end of the table */
 };
 
 /* ---------------------------------------------------------------------------------------
@@ -180,17 +180,6 @@ Boolean valid_addr_mode(int command_index, int addr_mode, int param) {
             return FALSE;
 
     }
-
-
-    /*
-    if (param == 1) {
-        if (instruct_table[command_index].addr_mode_op1[addr_mode] == 1 ) return TRUE;
-        else return FALSE;
-    }
-    if (param == 2 ) {
-        if (instruct_table[command_index].addr_mode_op2[addr_mode] == 1 ) return TRUE;
-    }
-    return FALSE;*/
 }
 
 /**

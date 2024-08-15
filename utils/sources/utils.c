@@ -205,37 +205,3 @@ int my_atoi(const char *str) {
     /* Return the integer according to the specified sign */
     return sign * result;
 }
-
-
-
-
-
-/*
-void trim_spaces(char **str) {
-    char *end;
-    char *start = *str;
-
-
-    trim_leading_spaces((const char **) &start);
-
-    if (*start == 0) {
-        *str = start;
-        return;
-    }
-
-
-
-    end = start + strlen(start) - 1;
-    while (end > start && is_space(*end)) {
-        end--;
-    }
-
-
-    *(end + 1) = '\0';
-
-
-    *str = start;
-}
-*/
-
-

@@ -6,7 +6,7 @@
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
 /**
- * Private function to get the index of a character in the trie.
+ * Function to get the index of a character in the trie.
  *
  * This function determines the index of a given character based on predefined offsets
  * for different character types: lowercase letters, uppercase letters, digits, and
@@ -138,16 +138,17 @@ TrieNode* search_trie(const Trie *trie, const char *label) {
 
     while (*label) {
         int index = get_index(*label);
-        if (index == -1 || !node->children[index]) {
-            return NULL; /* Label not found or invalid character */
-        }
+
+        /* Label not found or invalid character */
+        if (index == -1 || !node->children[index]) return NULL;
+
         node = node->children[index];
         label++;
     }
 
-    if (node && node->exist) {
-        return node; /* Return the node if it exists */
-    }
+    /* Return the node if it exists */
+    if (node && node->exist)  return node;
+
     return NULL; /* Node wasn't found */
 }
 
@@ -188,39 +189,3 @@ void free_node(TrieNode *node) {
 void free_data(void *data) {
     free(data);
 }
-
-/* --------------------------------------------------------------------------------------- */
-
-/* Function to print all words in the trie */
-void print_trie(TrieNode *node, char *word_so_far) {
-    int i;
-    char *new_word;
-    char new_char[2];
-
-    if (!node) {
-        return;
-    }
-
-    if (node->exist) {
-        printf("%s\n", word_so_far); /* Print the current word */
-    }
-
-    for (i = 0; i < ALPHABET_SIZE; i++) {
-        if (node->children[i]) {
-            new_char[0] = (i < 26) ? 'a' + i : ((i < 52) ? 'A' + i - 26 : '0' + i - 52);
-            new_char[1] = '\0';
-
-            /* Allocate memory for the new word */
-            new_word = (char *)malloc(strlen(word_so_far) + 2); /* +2 for new char and null terminator */
-            if (new_word) {
-                strcpy(new_word, word_so_far);
-                strcat(new_word, new_char);
-                print_trie(node->children[i], new_word);
-                free(new_word);
-            }
-        }
-    }
-}
-
-
-

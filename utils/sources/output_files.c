@@ -21,8 +21,8 @@ void write_label(const char* label, int address, FILE* file) {
 
 /**
  * Print the memory images to the specified output file in octal format.
- * This function prints the counts of image and data images, followed by each line
- * of the image and data images formatted in octal. The addresses are incremented from
+ * This function prints the counts of code and data images, followed by each line
+ * of the code and data images formatted in octal. The addresses are incremented from
  * a starting point, and each line is converted from its original format to octal for
  * output.
  *
@@ -36,7 +36,7 @@ void print_memory_images(FILE *output_file, CmpData *data) {
     /* Print the data and code images counts */
     fprintf(output_file,"%4d   %-5d\n", data->image.code_count, data->image.data_count);
 
-    /* Print image image */
+    /* Print code image */
     for (i = 0; i < data->image.code_count; i++) {
         fprintf(output_file, "%04d   %05o\n", IC_START + i, convert_to_octal(data->image.lines[i]));
     }

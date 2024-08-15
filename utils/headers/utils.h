@@ -34,7 +34,6 @@ void trim_leading_spaces(const char** str);
 /**
  * Finds the last non-space character in the given string.
  *
- *
  * @param str Pointer to the string to be processed.
  * @return Pointer to the last non-space character in the string.
  */
