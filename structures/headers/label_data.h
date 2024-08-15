@@ -37,7 +37,7 @@ Boolean init_label_trie(Trie *trie);
  * @param label The label to be inserted.
  * @param address The address associated with the label.
  * @param label_type The type of the label.
- * @return ErrorCode - Error image of the error that occurred or NO_ERROR if the process
+ * @return ErrorCode - Error code of the error that occurred or NO_ERROR if the process
  *          executed successfully.
  */
 ErrorCode insert_label(Trie *trie, const char *label, int address, LabelType label_type);

@@ -16,9 +16,9 @@ static ProgramStatus program_status = {ERROR_FREE_FILE, 0,0, };
  * --------------------------------------------------------------------------------------- */
 
 /**
- * Function that retrieves the error message corresponding to a given error image.
+ * Function that retrieves the error message corresponding to a given error code.
  *
- * @param code The error image for which the message is to be retrieved.
+ * @param code The error code for which the message is to be retrieved.
  * @return A string containing the error message.
  */
 static const char* get_error_message(ErrorCode code) {
@@ -62,9 +62,11 @@ static const char* get_error_message(ErrorCode code) {
     }
 }
 
-/**
- * Private methods - prints the specified location.
- */
+ /**
+  * Prints the details of the specified location.
+  *
+  * @param location The location to print.
+  */
 static void print_location(Location* location){
     if (location->line > 0) {
         printf("\nFile:  %s | Line: %d", location->file, location->line);
@@ -74,7 +76,7 @@ static void print_location(Location* location){
 }
 
 /**
- * Private methods - prints the current error message and location, if an error is set.
+ * Prints the current error message and location, if an error is set.
  * Activates whenever an error is set.
  */
 static void print_error() {
@@ -115,9 +117,9 @@ Status get_status() {
 }
 
 /**
- * Sets the current error with the specified error image and location.
+ * Sets the current error with the specified error code and location.
  *
- * @param code The error image to set.
+ * @param code The error code to set.
  * @param location The location in the source file where the error occurred.
  */
 void set_error(ErrorCode code, Location location) {
@@ -137,9 +139,9 @@ void set_error(ErrorCode code, Location location) {
 }
 
 /**
- * Sets a general error with the specified error image but without a specific location.
+ * Sets a general error with the specified error code but without a specific location.
  *
- * @param code The error image to set.
+ * @param code The error code to set.
  */
 void set_general_error(ErrorCode code) {
     Location default_location = {NULL, 0};
@@ -147,7 +149,7 @@ void set_general_error(ErrorCode code) {
 }
 
 /**
- * Makes a copy of the gicen string, and saves it as the line content in the specified
+ * Makes a copy of the given string, and saves it as the line content in the specified
  * location struct.
  *
  * @param location the location struct to save the line into.
@@ -197,7 +199,10 @@ ErrorCode get_error() {
 }
 
 /**
- * Prints a warning message indicating that a label before extern/entry is useless.
+ * Prints a warning message that corresponding to the specified warning code.
+ *
+ * @param code The warning code, indicating the cause of the warning.
+ * @param location The location of the line that triggered the warning.
  */
 void print_warning(WarningCode code, Location *location) {
     printf("WARNING: ");
@@ -221,16 +226,16 @@ void print_warning(WarningCode code, Location *location) {
 }
 
 /**
- * Private helper function - prints line for aesthetic purposes.
+ * Static helper function - prints line for aesthetic purposes.
  */
 static void print_line(){
     printf("------------------------------------------------------\n");
 }
 
 /**
- * Prints the error summary of the program. This includes the number of errors and warnings that occurred during
- * file processing, along with a message indicating whether the file was processed successfully and if the program
- * will continue to the next file.
+ * Prints the status of the program, including a summary of errors.
+ * Indicates whether the file processing completed successfully, and the number
+ * of errors and warnings that occurred during the process.
  *
  * @param file The name of the file that was processed.
  */

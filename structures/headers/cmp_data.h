@@ -73,8 +73,8 @@ ErrorCode init_cmp_data(CmpData *data, const char *file_name);
  * Adds a line to the unresolved line list for the second phase.
  * Saves the line number in thr unresolved line list.
  *
- * @param data: The program's data structure containing the unresolved line list.
- * @param line: The line number to be added to the unresolved line list.
+ * @param data The program's data structure containing the unresolved line list.
+ * @param line The line number to be added to the unresolved line list.
  * @return TRUE if the line was added successfully, FALSE if memory allocation failed.
  */
 Boolean add_unresolved_line(CmpData *data, int line);
@@ -83,7 +83,7 @@ Boolean add_unresolved_line(CmpData *data, int line);
  * Retrieves and removes the next unresolved line from the list.
  * Returns the number (integer) of the unresolved line.
  *
- * @param data: The program's data structure containing the unresolved line list.
+ * @param data The program's data structure containing the unresolved line list.
  * @return The line number of the next unresolved line, or -1 if the list is empty.
  */
 int get_unresolved_line(CmpData *data);
@@ -120,12 +120,9 @@ void seek_back(MemoryImage *memory_image);
  * Frees the CmpData structure, containing all the programs data, including closing and
  * optionally deleting files.
  *
- * @param cmp_data: The programs data to be freed.
- * @param delete: If TRUE, delete the files associated with the CmpData structure.
+ * @param cmp_data The programs data to be freed.
+ * @param delete If TRUE, delete the files associated with the CmpData structure.
  */
 void free_cmp_data(CmpData *cmp_data, Boolean delete);
-
-
-void print_memory_image_marks(const MemoryImage *memory_image);
 
 #endif /* CMP_DATA_H */

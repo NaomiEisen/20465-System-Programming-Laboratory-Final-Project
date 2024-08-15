@@ -20,9 +20,8 @@ static void free_unresolved_list(UnresolvedLineList *head);
  * @param data Pointer to the ProgramData to be initialized
  */
 ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
-    int i, j;
-    char* extern_file = NULL;
-    char* entry_file= NULL;
+    char *extern_file = NULL;
+    char *entry_file = NULL;
 
     /* Create and open a file for writing */
     create_new_file_name(file_name, &entry_file, ".ent");
@@ -36,26 +35,19 @@ ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
     data->extern_file.file = fopen(extern_file, "w");
 
     /* Failed to open */
-   if (data->extern_file.file == NULL || data->entry_file.file == NULL) {
+    if (data->extern_file.file == NULL || data->entry_file.file == NULL) {
         free(extern_file);
         free(entry_file);
         return PROGRAM_FILE_ERROR;
     }
 
-   /* Save the file name */
-   data->entry_file.file_name = entry_file;
-   data->extern_file.file_name = extern_file;
+    /* Save the file name */
+    data->entry_file.file_name = entry_file;
+    data->extern_file.file_name = extern_file;
 
-   /* Default state - delete the files. Will be changed only if text will be written on them */
-   data->entry_file.delete = TRUE;
-   data->extern_file.delete = TRUE;
-
-    /* Initialize image memory */
-    for (i = 0; i < MEMORY_CAPACITY; i++) {
-        for (j = 0; j < NUM_OF_BYTES; j++) {
-            data->image.lines[i][j] = 0;
-        }
-    }
+    /* Default state - delete the files. Will be changed only if text will be written on them */
+    data->entry_file.delete = TRUE;
+    data->extern_file.delete = TRUE;
 
     /* Reset the memory image counters and writing pointers */
     data->image.code_count = 0;
@@ -68,9 +60,8 @@ ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
     data->line_list = NULL; /* Initialize unresolved line list line_list to NULL*/
 
     /* return the status of trie initialization */
-    return (init_label_trie(&data->label_table) == TRUE)? NO_ERROR: MEMORY_ALLOCATION_ERROR;
+    return (init_label_trie(&data->label_table) == TRUE) ? NO_ERROR : MEMORY_ALLOCATION_ERROR;
 }
-
 
 /**
  * Adds a line to the unresolved line list for the second phase.
@@ -202,8 +193,8 @@ void seek_back(MemoryImage *memory_image){
  * Frees the CmpData structure, containing all the programs data, including closing and
  * optionally deleting files.
  *
- * @param cmp_data: The programs data to be freed.
- * @param delete: If TRUE, delete the files associated with the CmpData structure.
+ * @param cmp_data The programs data to be freed.
+ * @param delete If TRUE, delete the files associated with the CmpData structure.
  */
 void free_cmp_data(CmpData *cmp_data, Boolean delete) {
     close_files(cmp_data); /* Close the files */
@@ -227,9 +218,9 @@ void free_cmp_data(CmpData *cmp_data, Boolean delete) {
 }
 
 /**
- * Private function - frees the entire linked list of unresolved lines.
+ * Static function - frees the entire linked list of unresolved lines.
  *
- * @param head: The head of the unresolved line list to be freed.
+ * @param head The head of the unresolved line list to be freed.
  */
 static void free_unresolved_list(UnresolvedLineList *head) {
     /* Variables to iterate through list */
@@ -245,9 +236,9 @@ static void free_unresolved_list(UnresolvedLineList *head) {
 }
 
 /**
- * Private function - closes the files associated with the CmpData structure.
+ * Static function - closes the files associated with the CmpData structure.
  *
- * @param cmp_data: The program's data structure containing the files to be closed.
+ * @param cmp_data The program's data structure containing the files to be closed.
  */
 static void close_files(CmpData* cmp_data) {
     /* If file exists - close file */
@@ -266,9 +257,9 @@ static void close_files(CmpData* cmp_data) {
 }
 
 /**
- * Private function - frees the memory allocated for the file names in the CmpData structure.
+ * Static function - frees the memory allocated for the file names in the CmpData structure.
  *
- * @param cmp_data: The program's data structure containing the file names to be freed.
+ * @param cmp_data The program's data structure containing the file names to be freed.
  */
 static void free_file_names(CmpData* cmp_data){
     /* Free the files names */
@@ -281,9 +272,9 @@ static void free_file_names(CmpData* cmp_data){
 }
 
 /**
- * Private function - deletes the files associated with the CmpData structure.
+ * Static function - deletes the files associated with the CmpData structure.
  *
- * @param cmp_data: The program's data structure containing the files to be deleted.
+ * @param cmp_data The program's data structure containing the files to be deleted.
  */
 static void delete_files(CmpData* cmp_data) {
     /* Delete file */
@@ -302,104 +293,4 @@ static void delete_files(CmpData* cmp_data) {
         printf("The file name: %s\n", cmp_data->extern_file.file_name);
     }
 }
-}
-
-/* ------------------------------------------------- for me ------------------------------------------*/
-
-
-void print_memory_image(const MemoryImage *memory_image) {
-    int i, j, k;
-    char bit;
-
-    if (memory_image == NULL) {
-        printf("Empty memory image.\n");
-        return;
-    }
-
-    printf("Count: %d\n", memory_image->code_count);
-
-    for (i = 0; i < memory_image->code_count; i++) {
-        printf("%04d    ", i); /* Print the line number */
-
-        for (j = 0; j < NUM_OF_BYTES; j++) {
-            char current_char = memory_image->lines[i][j];
-            for (k = 7; k >= 0; k--) {
-                if (j == 1 && k == 0) {
-                    continue; /* Skip the last bit */
-                }
-                bit = (current_char & (1 << k)) ? '1' : '0';
-                printf("%c", bit);
-                if (j == 0 && (k == 4 || k == 0)) { /* Add a space after every 4 bits in the first byte */
-                    printf(" ");
-                }
-                if (j == 1 && k == 4) { /* Add a space after 4 bits in the second byte */
-                    printf(" ");
-                }
-            }
-        }
-        printf("\n");
-    }
-}
-
-void print_memory_image_marks(const MemoryImage *memory_image) {
-    int i, j, k, c;
-    char bit;
-
-    if (memory_image == NULL) {
-        printf("Empty memory image.\n");
-        return;
-    }
-
-    printf("Code: %d\n", memory_image->code_count);
-
-    for (i = 0; i < memory_image->code_count; i++) {
-        printf("%04d    ", i); /* Print the line number */
-
-        for (j = 0; j < NUM_OF_BYTES; j++) {
-            char current_char = memory_image->lines[i][j];
-            for (k = 7; k >= 0; k--) {
-                if (j == 1 && k == 0) {
-                    continue; /* Skip the last bit */
-                }
-                bit = (current_char & (1 << k)) ? '1' : '0';
-                printf("%c", bit);
-                if (j == 0 && (k == 4 || k == 0)) { /* Add a space after every 4 bits in the first byte */
-                    printf(" ");
-                }
-                if (j == 1 && k == 4) { /* Add a space after 4 bits in the second byte */
-                    printf(" ");
-                }
-            }
-        }
-        /* Print the skipped 15th bit (bit 0 of the second byte) separately */
-        printf(" %c", (memory_image->lines[i][1] & 1) ? '1' : '0');
-        printf("\n");
-    }
-
-    printf("Data: %d\n", memory_image->data_count);
-    c = memory_image->code_count;
-    for (i = MEMORY_CAPACITY-1; i > MEMORY_CAPACITY - memory_image->data_count; i--) {
-        printf("%04d    ", c); /* Print the line number */
-
-        for (j = 0; j < NUM_OF_BYTES; j++) {
-            char current_char = memory_image->lines[i][j];
-            for (k = 7; k >= 0; k--) {
-                if (j == 1 && k == 0) {
-                    continue; /* Skip the last bit */
-                }
-                bit = (current_char & (1 << k)) ? '1' : '0';
-                printf("%c", bit);
-                if (j == 0 && (k == 4 || k == 0)) { /* Add a space after every 4 bits in the first byte */
-                    printf(" ");
-                }
-                if (j == 1 && k == 4) { /* Add a space after 4 bits in the second byte */
-                    printf(" ");
-                }
-            }
-        }
-        /* Print the skipped 15th bit (bit 0 of the second byte) separately */
-        printf(" %c", (memory_image->lines[i][1] & 1) ? '1' : '0');
-        printf("\n");
-        c++;
-    }
 }

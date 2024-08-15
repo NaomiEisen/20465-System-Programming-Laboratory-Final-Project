@@ -25,7 +25,7 @@ typedef struct TrieNode {
 
 /* Trie structure */
 typedef struct Trie {
-    TrieNode *root;  /* Pointer to the root node of the trie */
+    TrieNode *root;                             /* Pointer to the root node of the trie */
 } Trie;
 
 /* ----------------------------------- Functions Prototypes ---------------------------------- */
@@ -60,7 +60,7 @@ Boolean init_trie(Trie *trie);
  * @param trie A pointer to the Trie in which the string will be inserted.
  * @param str The string to be inserted into the trie.
  * @param data A pointer to the generic data to be stored at the final node of the string.
- * @return ErrorCode - Error image of the error that occurred or NO_ERROR if the process
+ * @return ErrorCode - Error code of the error that occurred or NO_ERROR if the process
  *          executed successfully.
  */
 ErrorCode insert_to_trie(Trie *trie, const char *str, void *data);

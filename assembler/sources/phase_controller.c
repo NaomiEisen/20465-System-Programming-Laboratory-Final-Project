@@ -32,7 +32,7 @@ static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean dele
  */
 void phase_controller(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
     FILE* file_am = NULL;    /* the source file (.am) */
-    CmpData cmp_data;               /* program's data */
+    CmpData cmp_data = {0};  /* program's data - initialize the memory image to 0 */
     ErrorCode cmp_init_status;
 
     /* Open the am file in read mode */
@@ -43,7 +43,7 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
         return;
     }
 
-    /* initialize the computer's data */
+    /* initialize the computer's data with the specified content */
     cmp_init_status = init_cmp_data(&cmp_data, origin_file_name);
     if (cmp_init_status != NO_ERROR) {
         set_general_error(cmp_init_status);

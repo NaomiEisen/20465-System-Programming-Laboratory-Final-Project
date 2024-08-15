@@ -73,8 +73,8 @@ typedef struct {
 
 /**
  * Creates and initializes an empty AST node.
- * @param file: The name of the file where the node is created.
- * @param line: The line number in the file where the node is created.
+ * @param file The name of the file where the node is created.
+ * @param line The line number in the file where the node is created.
  * @return A pointer to the newly created AST node, or a null pointer if memory allocation failed.
  */
 ASTNode *create_empty_ASTnode(const char *file, int line, char *line_content);
@@ -82,50 +82,51 @@ ASTNode *create_empty_ASTnode(const char *file, int line, char *line_content);
 /**
  * Sets the label of an AST node.
  *
- * @param node: The AST node whose label is to be set.
- * @param label: The label to be set.
+ * @param node The AST node whose label is to be set.
+ * @param label The label to be set.
  */
 void set_ast_label(ASTNode *node, const char *label);
 
 /**
  * Sets the type of an AST node.
  *
- * @param node: The AST node whose type is to be set.
- * @param lineType: The type to be set.
+ * @param node The AST node whose type is to be set.
+ * @param lineType The type to be set.
  */
 void set_ast_type(ASTNode *node, LineType lineType);
 
 /**
  * Sets the operation for a directive in an AST node.
  *
- * @param node: The AST node whose directive operation is to be set.
- * @param operation: The directive operation to be set.
+ * @param node The AST node whose directive operation is to be set.
+ * @param operation The directive operation to be set.
  */
 void set_operation_for_directive(ASTNode *node, DirectiveType operation);
 
 /**
  * Sets the operation index for an instruction in an AST node.
  *
- * @param node: The AST node whose instruction operation is to be set.
- * @param operation: The instruction operation to be set.
+ * @param node The AST node whose instruction operation is to be set.
+ * @param operation The instruction operation to be set.
  */
 void set_operation_for_instruction(ASTNode *node, short operation);
 
 /**
  * Retrieves the operand of an instruction in an AST node.
  *
- * @param node: The AST node from which to retrieve the operand.
- * @param num: The number of the operand to retrieve (1 or 2).
+ * @param node The AST node from which to retrieve the operand.
+ * @param num The number of the operand to retrieve (1 or 2).
  * @return A pointer to the specified operand.
  */
 InstructionOperand* get_operand(ASTNode *node, short num);
+
 /**
  * Adds an operand to an instruction in an AST node.
  *
- * @param node: The AST node to which the operand is to be added.
- * @param adr_mode: The addressing mode of the operand.
- * @param value: The value of the operand.
- * @param num: The register number (if applicable) of the operand.
+ * @param node The AST node to which the operand is to be added.
+ * @param adr_mode The addressing mode of the operand.
+ * @param value The value of the operand.
+ * @param num The register number (if applicable) of the operand.
  * @return TRUE if the operand was added successfully, FALSE otherwise.
  */
 Boolean add_instruct_operand(ASTNode *node, short adr_mode, const char *value, short num);
@@ -133,8 +134,8 @@ Boolean add_instruct_operand(ASTNode *node, short adr_mode, const char *value, s
 /**
  * Adds an operand to a directive.
  *
- * @param directive: The directive to which the operand is to be added.
- * @param operand: The operand to be added.
+ * @param directive The directive to which the operand is to be added.
+ * @param operand The operand to be added.
  * @return TRUE if the operand was added successfully, FALSE otherwise.
  */
 Boolean add_directive_operand(Directive *directive, char *operand);
