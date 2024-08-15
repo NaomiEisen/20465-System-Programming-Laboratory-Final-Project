@@ -102,10 +102,10 @@ static void process_line(FILE *source_file, FILE* output_file, MacroTrie *macro_
     TrieNode* macr_usage = NULL;         /* node to hold macro's data in case of usage */
 
     while (fgets(line, sizeof(line), source_file) != NULL && get_status() != FATAL_ERROR) {
-        location.line++;                                            /* Update counter */
-        line_ptr = line;                             /* Set line pointer to line start */
-        trim_leading_spaces((const char **)&line_ptr);           /* Skip leading spaces */
-        save_line_content(&location, line_ptr);             /* Save line content */
+        location.line++;                                     /* Update counter */
+        line_ptr = line;                     /* Set line pointer to line start */
+        trim_leading_spaces((const char **)&line_ptr);  /* Skip leading spaces */
+        save_line_content(&location, line_ptr);           /* Save line content */
 
         /* Check if the line is too long */
         if (validate_line_length(line, location) == FALSE) {
