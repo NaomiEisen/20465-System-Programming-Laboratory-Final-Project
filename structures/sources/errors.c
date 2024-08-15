@@ -123,18 +123,21 @@ Status get_status() {
  * @param location The location in the source file where the error occurred.
  */
 void set_error(ErrorCode code, Location location) {
+    /* Set the error attributes according to the inputted code */
     error.code = code;
     error.message = get_error_message(code);
     error.location = location;
 
+    /* If an actual error was set */
     if (code != NO_ERROR) {
-        print_error();
+        print_error(); /* Print the error message */
         program_status.error_counter++;
+
+        /* Set the program's status accordingly */
         if (code == MEMORY_ALLOCATION_ERROR)
             set_program_status(FATAL_ERROR);
         else
             set_program_status(ERROR_IN_FILE);
-
     }
 }
 

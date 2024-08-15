@@ -27,17 +27,17 @@ static InstructMapping instruct_table[] = {
         {"add", 2, {1,1,1,1}, {0,1,1,1}}, /* ADD instruction with 2 parameters */
         {"sub", 2, {1,1,1,1}, {0,1,1,1}}, /* SUB instruction with 2 parameters */
         {"lea", 2, {0,1,0,0}, {0,1,1,1}}, /* LEA instruction with 2 parameters */
-        {"clr", 1, {0,1,1,1}},             /* CLR instruction with 1 parameter */
-        {"not", 1, {0,1,1,1}},             /* NOT instruction with 1 parameter */
-        {"inc", 1, {0,1,1,1}},             /* INC instruction with 1 parameter */
-        {"dec", 1, {0,1,1,1}},             /* DEC instruction with 1 parameter */
-        {"jmp", 1, {0,1,1,0}},             /* JMP instruction with 1 parameter */
-        {"bne", 1, {0,1,1,0}},             /* BNE instruction with 1 parameter */
-        {"red", 1, {0,1,1,1}},             /* RED instruction with 1 parameter */
-        {"prn", 1, {1,1,1,1}},             /* PRN instruction with 1 parameter */
-        {"jsr", 1, {0,1,1,0}},             /* JSR instruction with 1 parameter */
+        {"clr", 1, {0,1,1,1}},            /* CLR instruction with 1 parameter */
+        {"not", 1, {0,1,1,1}},            /* NOT instruction with 1 parameter */
+        {"inc", 1, {0,1,1,1}},            /* INC instruction with 1 parameter */
+        {"dec", 1, {0,1,1,1}},            /* DEC instruction with 1 parameter */
+        {"jmp", 1, {0,1,1,0}},            /* JMP instruction with 1 parameter */
+        {"bne", 1, {0,1,1,0}},            /* BNE instruction with 1 parameter */
+        {"red", 1, {0,1,1,1}},            /* RED instruction with 1 parameter */
+        {"prn", 1, {1,1,1,1}},            /* PRN instruction with 1 parameter */
+        {"jsr", 1, {0,1,1,0}},            /* JSR instruction with 1 parameter */
         {"rts", 0},                        /* RTS instruction with no parameters */
-        {"stop", 0},                       /* STOP instruction with no parameters */
+        {"stop", 0},                      /* STOP instruction with no parameters */
         {"", 0}                           /* Sentinel value to mark the end of the table */
 };
 
