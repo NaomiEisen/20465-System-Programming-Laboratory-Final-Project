@@ -11,6 +11,7 @@
 #include "../../utils/headers/output_files.h"
 #include "../../structures/headers/macro_data.h"
 #include "../headers/parser.h"
+#include "../../assembler/headers/code_convert.h"
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
@@ -31,8 +32,8 @@ static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean dele
  * @param macr_trie The trie structure containing macro definitions.
  */
 void phase_controller(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
-    FILE* file_am = NULL;    /* the source file (.am) */
-    CmpData cmp_data = {0};  /* program's data - initialize the memory image to 0 */
+    FILE* file_am = NULL; /* the source file (.am) */
+    CmpData cmp_data;     /* program's data - initialize the memory image to 0 */
     ErrorCode cmp_init_status;
 
     /* Open the am file in read mode */
@@ -209,4 +210,6 @@ static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean dele
     free_label_tree(&cmp_data->label_table);
     fclose(source_file);
     free_cmp_data(cmp_data, delete);
+    /* Reset static variable for unresolved line loop */
+    get_marked_line(NULL, TRUE);
 }

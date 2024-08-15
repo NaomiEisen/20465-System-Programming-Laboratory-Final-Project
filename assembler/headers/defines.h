@@ -13,9 +13,9 @@
 /* For printing purposes */
 #define MAX_LABEL_PRINTABLE (MAX_LABEL_LENGTH - 1)
 
-/* Range of tje integer value that can be saved in 15 bits */
-#define MAX_VALUE 16383
-#define MIN_VALUE -16384
+/* The range of integer values that can be represented with 15 bits */
+/*#define MAX_VALUE 16383*/
+/*#define MIN_VALUE (-16384)*/
 
 /* --------------- Macro's for assembler phases --------------*/
 /* Second register's position in a word */

@@ -19,12 +19,15 @@
  * @param image_type The image type, indicating in which section the bits should be set: the data part
  *                  or the code part.
  */
-void set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type) {
+Boolean set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type) {
     int i;                              /* Variable to iterate trough loop */
     int bit_per_line = NUM_OF_BYTES * BYTE_SIZE; /* Length of word in bits */
 
     /* Ensure the range is within a single line's limit */
-    if ((end - start + 1) > bit_per_line) return;
+    if ((end - start + 1) > bit_per_line) return FALSE;
+
+    /* Check if the value can be represented in 15 bits (two's complement) */
+    if (value < -(1 << (end-start+1)) || value >= (1 << (end-start+1))) return FALSE;
 
     /* Encode the bits */
     for (i = start; i <= end; i++) {
@@ -32,6 +35,7 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img, Memory
             set_bit(i, 1, memory_img, image_type);
         }
     }
+    return TRUE;
 }
 
 /**
@@ -94,11 +98,10 @@ unsigned int convert_to_octal(const char *word) {
 void code_immediate_addr_mode(int num, MemoryImage *memory_img, ASTNode *node) {
     int end = IMMEDIATE_DIRECTIVE_BIT_SIZE - 1;
 
-    /* Check that the given number is within the allowed range */
-    if (integer_in_range(num) == FALSE) {
+    if (set_int_code(0, end, num, memory_img, CODE_IMAGE) == FALSE) {
+        /* Integer is out of range */
         set_error(INTEGER_OUT_OF_RANGE, node->location);
     }
-    set_int_code(0, end, num, memory_img, CODE_IMAGE);
     set_bit(A, 1, memory_img, CODE_IMAGE);
 }
 
@@ -174,20 +177,16 @@ void set_char_code(char c, MemoryImage *memory_img) {
  */
 void code_data(ASTNode *node, MemoryImage *memory_image) {
     DirNode *current = node->specific.directive.operands;
-    int num = 0;
 
     while (current) {
         /* Validate operand */
         if (is_valid_integer(current->operand)) {
-            /* Convert the text to integer and encode */
-            num = my_atoi(current->operand);
-
-            /* Validate that the integer is within the allowed range */
-            if (integer_in_range(num) == FALSE) {
+            /* Code integer */
+            if (set_int_code(0, WORD_END_POS, my_atoi(current->operand),
+                             memory_image, DATA_IMAGE) == FALSE) {
+                /* Integer is out of range */
                 set_error(INTEGER_OUT_OF_RANGE, node->location);
             }
-
-            set_int_code(0, WORD_END_POS, num, memory_image, DATA_IMAGE);
             updt_data_counter(memory_image); /* Update counter */
         } else {
             /* Not an integer */
@@ -245,18 +244,25 @@ void unmark_word(MemoryImage *code_img, int line) {
 /**
  * Retrieves the first marked word in the memory image.
  * Going over the memory image with static variable for avoiding multiple
- * unnecessary iteration.
+ * unnecessary iteration. The variable is being reset after each file.
  *
  * @param memory_img Pointer to the memory image structure.
+ * @param reset Flag indicating if a reset of the static variable should occur.
  * @return The index of the first marked line, or -1 if no marked line is found.
  */
-int get_marked_line(MemoryImage *memory_img) {
+int get_marked_line(MemoryImage *memory_img, Boolean reset) {
     static int i = 0;                  /* Variable to iterate through loop */
     int byteIndex = LAST_WORD_BIT / BYTE_SIZE; /* Calculate the byte index */
     int bitOffset = LAST_WORD_BIT % BYTE_SIZE;  /* Calculate the bit index */
 
     /* Create the relevant mask */
     char mask = (char)(1 << (BYTE_SIZE - 1 - bitOffset));
+
+    /* Reset the static value if specified */
+    if (reset == TRUE) {
+        i = 0;
+        return -1;
+    }
 
     /* Go through the memory image and fine the first unresolved word */
     while (i < memory_img->code_count) {

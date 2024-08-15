@@ -182,7 +182,7 @@ Boolean is_valid_integer(const char *str) {
  * @return TRUE if the number is in the specified range; FALSE otherwise
  */
 Boolean integer_in_range(int num) {
-    if (num > MAX_VALUE || num < MIN_VALUE) return FALSE;
+   /* if (num > MAX_VALUE || num < MIN_VALUE) return FALSE;*/
     return TRUE;
 }
 

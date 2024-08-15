@@ -14,7 +14,7 @@
  * @param value The integer value to set in the memory image.
  * @param memory_img Pointer to the memory image structure.
  */
-void set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type);
+Boolean set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type);
 
 /**
  * Sets or clears a specific bit in the memory image.
@@ -100,10 +100,13 @@ void unmark_word(MemoryImage *code_img, int line);
 
 /**
  * Retrieves the first marked word in the memory image.
+ * Going over the memory image with static variable for avoiding multiple
+ * unnecessary iteration. The variable is being reset after each file.
  *
  * @param memory_img Pointer to the memory image structure.
+ * @param reset Flag indicating if a reset of the static variable should occur.
  * @return The index of the first marked line, or -1 if no marked line is found.
  */
-int get_marked_line(MemoryImage *memory_img);
+int get_marked_line(MemoryImage *memory_img, Boolean reset);
 
 #endif /* CODE_CONVERT_H */

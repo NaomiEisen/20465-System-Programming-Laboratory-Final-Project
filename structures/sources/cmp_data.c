@@ -22,6 +22,7 @@ static void free_unresolved_list(UnresolvedLineList *head);
 ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
     char *extern_file = NULL;
     char *entry_file = NULL;
+    int i, j;
 
     /* Create and open a file for writing */
     create_new_file_name(file_name, &entry_file, ".ent");
@@ -48,6 +49,13 @@ ErrorCode init_cmp_data(CmpData *data, const char *file_name) {
     /* Default state - delete the files. Will be changed only if text will be written on them */
     data->entry_file.delete = TRUE;
     data->extern_file.delete = TRUE;
+
+    /* Reset image memory */
+    for (i = 0; i < MEMORY_CAPACITY; i++) {
+        for (j = 0; j < NUM_OF_BYTES; j++) {
+            data->image.lines[i][j] = 0;
+        }
+    }
 
     /* Reset the memory image counters and writing pointers */
     data->image.code_count = 0;

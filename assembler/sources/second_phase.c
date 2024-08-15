@@ -55,7 +55,7 @@ static void code_label_operands(ASTNode *node, CmpData *cmp_data) {
         /* If this is operand of type label - encode */
         if (current_opr->adr_mode == ADDR_MODE_DIRECT) {
             /* Get the unresolved line */
-            line = get_marked_line(&cmp_data->image);
+            line = get_marked_line(&cmp_data->image, FALSE);
 
             if (line != -1) { /* If line exists */
                 unmark_word(&cmp_data->image, line); /* Unmark the line */

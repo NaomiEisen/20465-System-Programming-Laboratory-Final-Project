@@ -23,7 +23,7 @@ static ProgramStatus program_status = {ERROR_FREE_FILE, 0,0, };
 static const char* get_error_message(ErrorCode code) {
     switch (code) {
         case NO_ERROR:                   return "No error";
-        case MEMORY_ALLOCATION_ERROR:    return "============== MEMORY ALLOCATION FAILURE ==============";
+        case MEMORY_ALLOCATION_ERROR:    return "MEMORY ALLOCATION FAILURE";
         case EOF_ERROR:                  return "End of file reached";
         case NO_ARGUMENTS:               return "No arguments provided";
         case PROGRAM_FILE_ERROR:         return "Failed to open program's extern/entry files";
@@ -51,14 +51,13 @@ static const char* get_error_message(ErrorCode code) {
         case INVALID_LABEL_LENGTH:       return "Invalid label length - cannot exceed "TOSTRING(MAX_LABEL_PRINTABLE)" characters";
         case LABEL_DUPLICATE:            return "Invalid label name - duplicate label names found";
         case NOT_INTEGER:                return "Not an integer";
-        case INTEGER_OUT_OF_RANGE:       return "Integer is out of the allowed range ; Must be between "TOSTRING(MIN_VALUE)" and "
-                                                 TOSTRING(MAX_VALUE);
+        case INTEGER_OUT_OF_RANGE:       return "Integer is out of range";
         case INVALID_START_STRING:       return "Invalid string format - does not start with double quotation mark";
         case INVALID_END_STRING:         return "Invalid string format - does not end with double quotation mark";
         case INVALID_REGISTER:           return "Invalid register name";
         case INVALID_PARAM_NUMBER:       return "Invalid number of parameters";
         case INVALID_PARAM_TYPE:         return "Invalid parameter type";
-        case RAM_MEMORY_FULL:            return "============== RAM MEMORY FULL ==============\n\tABORTING ENCODE PROCESS";
+        case RAM_MEMORY_FULL:            return "RAM MEMORY FULL - file is too long\n\t ABORTING ENCODE PROCESS";
         default:                         return "An unspecified error occurred";
     }
 }

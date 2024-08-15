@@ -30,6 +30,7 @@ Boolean init_label_trie(Trie *trie) {
  *          executed successfully.
  */
 ErrorCode insert_label(Trie *trie, const char *label, int address, LabelType label_type) {
+    ErrorCode insert_status;
     /* Allocate memory for the labelData struct */
     LabelData *label_data = (LabelData *)malloc(sizeof(LabelData));
     if (!label_data) return MEMORY_ALLOCATION_ERROR;
@@ -38,8 +39,13 @@ ErrorCode insert_label(Trie *trie, const char *label, int address, LabelType lab
     label_data->address = address;
     label_data->label_type = label_type;
 
-    /* Insert the label in the trie and return the process status */
-    return insert_to_trie(trie, label, label_data);
+    /* Insert the label in the trie and save the process status */
+    insert_status = insert_to_trie(trie, label, label_data);
+
+    /* If the process failed - free the located memory */
+    if (insert_status != NO_ERROR) free(label_data);
+
+    return insert_status;
 }
 
 /**
