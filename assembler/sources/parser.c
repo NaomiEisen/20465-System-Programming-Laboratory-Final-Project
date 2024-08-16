@@ -166,7 +166,7 @@ static Boolean validate_label(const char *label, ASTNode *node, const MacroTrie 
     }
 
     /* Check if the label exceeds the maximum allowed length */
-    if (strlen(label) > MAX_LABEL_LENGTH) {
+    if (strlen(label) > MAX_LABEL_LENGTH-1) {
         set_error(INVALID_LABEL_LENGTH, node->location);
         return FALSE; /* Return FALSE if the label is too long */
     }
