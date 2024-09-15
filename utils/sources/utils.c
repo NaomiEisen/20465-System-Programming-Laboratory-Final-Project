@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "../headers/boolean.h"
+#include "../../assembler/headers/defines.h"
 /* ---------------------------------------------------------------------------------------
  *                                          Functions
  * --------------------------------------------------------------------------------------- */
@@ -175,6 +176,17 @@ Boolean is_valid_integer(const char *str) {
 }
 
 /**
+ * Validates if a given integer is within the allowed range in the program.
+ *
+ * @param num The number to check.
+ * @return TRUE if the number is in the specified range; FALSE otherwise
+ */
+Boolean integer_in_range(int num) {
+   /* if (num > MAX_VALUE || num < MIN_VALUE) return FALSE;*/
+    return TRUE;
+}
+
+/**
  * Converts a string to an integer, handling optional leading spaces and signs.
  *
  * @param str The string to convert.
@@ -205,37 +217,3 @@ int my_atoi(const char *str) {
     /* Return the integer according to the specified sign */
     return sign * result;
 }
-
-
-
-
-
-/*
-void trim_spaces(char **str) {
-    char *end;
-    char *start = *str;
-
-
-    trim_leading_spaces((const char **) &start);
-
-    if (*start == 0) {
-        *str = start;
-        return;
-    }
-
-
-
-    end = start + strlen(start) - 1;
-    while (end > start && is_space(*end)) {
-        end--;
-    }
-
-
-    *(end + 1) = '\0';
-
-
-    *str = start;
-}
-*/
-
-

@@ -19,14 +19,15 @@
  * @param image_type The image type, indicating in which section the bits should be set: the data part
  *                  or the code part.
  */
-void set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type) {
+Boolean set_int_code(int start, int end, int value, MemoryImage *memory_img, MemoryImageType image_type) {
     int i;                              /* Variable to iterate trough loop */
-    int bit_per_line = NUM_OF_BYTES * BYTE_SIZE; /* length of word in bits */
+    int bit_per_line = NUM_OF_BYTES * BYTE_SIZE; /* Length of word in bits */
 
     /* Ensure the range is within a single line's limit */
-    if ((end - start + 1) > bit_per_line) {
-        return;
-    }
+    if ((end - start + 1) > bit_per_line) return FALSE;
+
+    /* Check if the value can be represented in 15 bits (two's complement) */
+    if (value < -(1 << (end-start+1)) || value >= (1 << (end-start+1))) return FALSE;
 
     /* Encode the bits */
     for (i = start; i <= end; i++) {
@@ -34,6 +35,7 @@ void set_int_code(int start, int end, int value, MemoryImage *memory_img, Memory
             set_bit(i, 1, memory_img, image_type);
         }
     }
+    return TRUE;
 }
 
 /**
@@ -77,8 +79,9 @@ void set_bit(int i, int value, MemoryImage *memory_img, MemoryImageType image_ty
 unsigned int convert_to_octal(const char *word) {
     unsigned int value = 0; /* The octal representation */
     int i;           /* Variable to iterate trough loop */
+
     for (i = 0; i < LAST_WORD_BIT; i++) {
-        int byteIndex = i / BYTE_SIZE;  /* Calculate the byte index */
+        int byteIndex = i / BYTE_SIZE; /* Calculate the byte index */
         int bitOffset = i % BYTE_SIZE; /* Calculate the bit index within the byte */
         value = (value << 1) | ((word[byteIndex] >> (BYTE_SIZE - 1 - bitOffset)) & 1);
     }
@@ -90,10 +93,15 @@ unsigned int convert_to_octal(const char *word) {
  *
  * @param num The immediate value to encode.
  * @param memory_img Pointer to the memory image structure.
+ * @param node Pointer to ASTNode for error printing.
  */
-void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
+void code_immediate_addr_mode(int num, MemoryImage *memory_img, ASTNode *node) {
     int end = IMMEDIATE_DIRECTIVE_BIT_SIZE - 1;
-    set_int_code(0, end, num, memory_img, CODE_IMAGE);
+
+    if (set_int_code(0, end, num, memory_img, CODE_IMAGE) == FALSE) {
+        /* Integer is out of range */
+        set_error(INTEGER_OUT_OF_RANGE, node->location);
+    }
     set_bit(A, 1, memory_img, CODE_IMAGE);
 }
 
@@ -101,7 +109,8 @@ void code_immediate_addr_mode (int num, MemoryImage *memory_img) {
  * Encodes a direct address mode value into the memory image.
  *
  * @param label The label to encode.
- * @param cmp_data Pointer to the compilation data structure.
+ * @param cmp_data Pointer to the CmpData structure containing the memory
+ *                 image and the label trie.
  * @return TRUE if the label was successfully encoded, FALSE otherwise.
  */
 Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
@@ -111,9 +120,7 @@ Boolean code_direct_addr_mode(const char *label, CmpData *cmp_data) {
     int end = IMMEDIATE_DIRECTIVE_BIT_SIZE - 1;
 
     /* Label is not found */
-    if (address == -1) {
-        return FALSE;
-    }
+    if (address == -1) return FALSE;
 
     /* Encode the label address into the memory image */
     set_int_code(0, end, address, &cmp_data->image, CODE_IMAGE);
@@ -157,11 +164,6 @@ void set_char_code(char c, MemoryImage *memory_img) {
     /* ASCII value of the character */
     ascii_value = (int)c;
 
-    /* Ensure the ASCII value fits within 15 bits */
-    if (ascii_value > MAX_INTEGER) {
-        return;
-    }
-
     /* Set the binary image of the ASCII value using set_int_code */
     set_int_code(0, WORD_END_POS, ascii_value, memory_img, DATA_IMAGE);
     updt_data_counter(memory_img);
@@ -175,18 +177,22 @@ void set_char_code(char c, MemoryImage *memory_img) {
  */
 void code_data(ASTNode *node, MemoryImage *memory_image) {
     DirNode *current = node->specific.directive.operands;
+
     while (current) {
         /* Validate operand */
         if (is_valid_integer(current->operand)) {
-            /* Convert the text to integer and encode */
-            set_int_code(0, WORD_END_POS, my_atoi(current->operand), memory_image, DATA_IMAGE);
+            /* Code integer */
+            if (set_int_code(0, WORD_END_POS, my_atoi(current->operand),
+                             memory_image, DATA_IMAGE) == FALSE) {
+                /* Integer is out of range */
+                set_error(INTEGER_OUT_OF_RANGE, node->location);
+            }
             updt_data_counter(memory_image); /* Update counter */
-            current = (DirNode *) current->next;
         } else {
             /* Not an integer */
             set_error(NOT_INTEGER, node->location);
-            current = (DirNode *) current->next;
         }
+        current = (DirNode *) current->next;
     }
 }
 
@@ -238,30 +244,31 @@ void unmark_word(MemoryImage *code_img, int line) {
 /**
  * Retrieves the first marked word in the memory image.
  * Going over the memory image with static variable for avoiding multiple
- * unnecessary iteration.
+ * unnecessary iteration. The variable is being reset after each file.
  *
  * @param memory_img Pointer to the memory image structure.
+ * @param reset Flag indicating if a reset of the static variable should occur.
  * @return The index of the first marked line, or -1 if no marked line is found.
  */
-int get_marked_line(MemoryImage *memory_img) {
-    static int i = 0; /* Variable to iterate through loop */
+int get_marked_line(MemoryImage *memory_img, Boolean reset) {
+    static int i = 0;                  /* Variable to iterate through loop */
     int byteIndex = LAST_WORD_BIT / BYTE_SIZE; /* Calculate the byte index */
-    int bitOffset = LAST_WORD_BIT % BYTE_SIZE; /* Calculate the bit index */
+    int bitOffset = LAST_WORD_BIT % BYTE_SIZE;  /* Calculate the bit index */
 
     /* Create the relevant mask */
     char mask = (char)(1 << (BYTE_SIZE - 1 - bitOffset));
 
+    /* Reset the static value if specified */
+    if (reset == TRUE) {
+        i = 0;
+        return -1;
+    }
+
     /* Go through the memory image and fine the first unresolved word */
     while (i < memory_img->code_count) {
-        if ((memory_img->lines[i][byteIndex] & mask) != 0) {
-            return i;
-        }
+        if ((memory_img->lines[i][byteIndex] & mask) != 0) return i;
         i++;
     }
-   /* for (i = 0; i < memory_img->code_count; i++) {
-        if ((memory_img->lines[i][byteIndex] & mask) != 0) {
-            return i;
-        }
-    }*/
+
     return -1; /* No marked word found */
 }

@@ -28,7 +28,7 @@ typedef struct MacroTrie {
 
 /* ----------------------------------- Functions Prototypes ------------------------------------*/
 /**
- * Initialize the Macro Trie.
+ * Initializes the Macro Trie.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @return TRUE if initialization is successful, FALSE otherwise.
@@ -36,7 +36,7 @@ typedef struct MacroTrie {
 Boolean init_macr_trie(MacroTrie *macr_trie);
 
 /**
- * Insert a macro name into the Macro Trie.
+ * Inserts a macro name into the Macro Trie.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @param macr_name The name of the macro to be added.
@@ -46,7 +46,7 @@ Boolean init_macr_trie(MacroTrie *macr_trie);
 ErrorCode add_macr(MacroTrie *macr_trie, const char *macr_name);
 
 /**
- * Add a line to the last added macro.
+ * Adds a line to the last added macro.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @param line The line to be added.
@@ -55,7 +55,7 @@ ErrorCode add_macr(MacroTrie *macr_trie, const char *macr_name);
 void add_line_to_last_macro(MacroTrie *macr_trie, const char *line);
 
 /**
- * Find a macro in the Macro Trie.
+ * Finds a macro in the Macro Trie.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @param macr_name The name of the macro.
@@ -64,30 +64,17 @@ void add_line_to_last_macro(MacroTrie *macr_trie, const char *line);
 TrieNode* find_macro(const MacroTrie *macr_trie, const char *macr_name);
 
 /**
- * Free all data in the trie without freeing the nodes.
+ * Frees all data in the trie without freeing the nodes.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  */
 void free_trie_data(MacroTrie *macr_trie);
 
 /**
- * Free the entire Macro Trie.
+ * Frees the entire Macro Trie.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  */
 void free_macr_trie(MacroTrie *macr_trie);
-
-/**
- * Print lines of a macro.
- *
- * @param head Pointer to the head of the LineNode linked list.
- */
-void print_lines(LineNode* head);
-
-
-
-
-
-void print_trie_test(MacroTrie* macr_trie);
 
 #endif /* MACRO_LIST_H */

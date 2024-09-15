@@ -34,7 +34,6 @@ void trim_leading_spaces(const char** str);
 /**
  * Finds the last non-space character in the given string.
  *
- *
  * @param str Pointer to the string to be processed.
  * @return Pointer to the last non-space character in the string.
  */
@@ -77,6 +76,14 @@ Boolean create_new_file_name(const char* original_filename, char** new_filename 
  * @return TRUE if the string is a valid integer, FALSE otherwise.
  */
 Boolean is_valid_integer(const char *str);
+
+/**
+ * Validates if a given integer is within the allowed range in the program.
+ *
+ * @param num The number to check.
+ * @return TRUE if the number is in the specified range; FALSE otherwise
+ */
+Boolean integer_in_range(int num);
 
 /**
  * Converts a string to an integer, handling optional leading spaces and signs.

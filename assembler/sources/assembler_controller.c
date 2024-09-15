@@ -38,7 +38,6 @@ void controller(int argc, char* argv[]) {
 
         /* Preprocess file */
         file_am = preprocessor_controller(argv[i], &macro_trie);
-        /*print_trie_test(&macro_trie);  todo for meeee */
 
         /* Continue processing only if no error occurred */
         if (get_status() == ERROR_FREE_FILE) {
@@ -49,9 +48,7 @@ void controller(int argc, char* argv[]) {
         print_error_summery(argv[i]);
 
         /* Check for fatal error */
-        if (get_status() == FATAL_ERROR) {
-            exit(0);
-        }
+        if (get_status() == FATAL_ERROR) exit(0);
 
         /* updated variables */
         i++;

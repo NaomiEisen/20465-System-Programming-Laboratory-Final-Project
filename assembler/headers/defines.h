@@ -2,11 +2,16 @@
 #define DEFINES_H
 /* -------------------- General macro's --------------------*/
 /* Maximum length of a command line in the source file */
-#define MAX_LINE_LENGTH 81
+/* 80 chars + '/r' (if exists) +'/n' (if exists) + '/0' */
+#define MAX_LINE_LENGTH 83
+/* For printing purposes */
+#define MAX_LINE_PRINTABLE 80
+
 /* Maximum length of a label */
+/* 31 chars + '/0' (null-terminator) */
 #define MAX_LABEL_LENGTH 32
-/* Max integer value that can be saved in 15 bits */
-#define MAX_INTEGER 32767
+/* For printing purposes */
+#define MAX_LABEL_PRINTABLE 31
 
 /* --------------- Macro's for assembler phases --------------*/
 /* Second register's position in a word */
@@ -34,7 +39,7 @@
 #define ADDR_DIRECT_REG 3
 
 /* ----------------- Macro's for programs data  ----------------*/
-#define MEMORY_CAPACITY 4096
+#define MEMORY_CAPACITY 3996 /* Starting address is 100, therefore 4096-100 */
 #define NUM_OF_BYTES 2
 #define BYTE_SIZE 8
 #define IC_START 100

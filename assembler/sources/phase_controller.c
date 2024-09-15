@@ -11,6 +11,7 @@
 #include "../../utils/headers/output_files.h"
 #include "../../structures/headers/macro_data.h"
 #include "../headers/parser.h"
+#include "../../assembler/headers/code_convert.h"
 /* ---------------------------------------------------------------------------------------
  *                               Static Functions Prototypes
  * --------------------------------------------------------------------------------------- */
@@ -31,8 +32,8 @@ static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean dele
  * @param macr_trie The trie structure containing macro definitions.
  */
 void phase_controller(const char *origin_file_name, const char *file_name_am, MacroTrie *macr_trie) {
-    FILE* file_am = NULL;    /* the source file (.am) */
-    CmpData cmp_data;              /* program's data */
+    FILE* file_am = NULL; /* the source file (.am) */
+    CmpData cmp_data;     /* program's data - initialize the memory image to 0 */
     ErrorCode cmp_init_status;
 
     /* Open the am file in read mode */
@@ -43,7 +44,7 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
         return;
     }
 
-    /* initialize the computer's data */
+    /* initialize the computer's data with the specified content */
     cmp_init_status = init_cmp_data(&cmp_data, origin_file_name);
     if (cmp_init_status != NO_ERROR) {
         set_general_error(cmp_init_status);
@@ -71,16 +72,9 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
     /* ------------------------------------ Create object file ----------------------------------- */
     if (create_obj_file(origin_file_name, &cmp_data) == FALSE) {
         free_program_data(&cmp_data, file_am, TRUE);
-    }else {
+    } else {
         free_program_data(&cmp_data, file_am, FALSE);
     }
-
-    /* todo FOR ME !! ------------------------------------------*/
-    print_trie(cmp_data.label_table.root,"");
-    printf(" image:\n");
-    print_memory_image_marks(&cmp_data.image);
-
-    /*--------------------------------------------------------------*/
 }
 
 /* ---------------------------------------------------------------------------------------
@@ -99,9 +93,9 @@ void phase_controller(const char *origin_file_name, const char *file_name_am, Ma
  * @return TRUE if the first phase completes without errors, FALSE otherwise.
  */
 static void first_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
-    int line_count = 0;                 /* line counter */
+    int line_count = 0;                                 /* line counter */
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    ASTNode* node = NULL;
+    ASTNode* node = NULL; /* Ast node that will contain the parsed line */
 
     /* Read line from the am file */
     while (fgets(line, sizeof(line), file_am) != NULL) {
@@ -142,8 +136,8 @@ static void first_phase_controller(FILE* file_am, const char* file_name, MacroTr
  */
 static void second_phase_controller(FILE* file_am, const char* file_name, MacroTrie *macr_trie, CmpData *cmp_data) {
     char line[MAX_LINE_LENGTH] = {0};   /* string to hold the read line */
-    ASTNode* node = NULL;
-    int line_count = 1;                 /* line counter */
+    ASTNode* node = NULL; /* Ast node that will contain the parsed line */
+    int line_count = 1;                                 /* line counter */
     int unresolved_line = get_unresolved_line(cmp_data);
 
     /* Read line from the am file */
@@ -170,7 +164,7 @@ static void second_phase_controller(FILE* file_am, const char* file_name, MacroT
  *                                Utility Functions Functions
  * --------------------------------------------------------------------------------------- */
 /**
- * The `create_obj_file` function creates an object file with the `.ob` extension from the source file name.
+ * Creates an object file with the `.ob` extension from the source file name.
  * It writes the program's memory images to the object file with the method 'print_memory_images'.
  *
  * @param source_file_name The name of the source file.
@@ -192,7 +186,6 @@ static Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) 
     if (!(object_file = fopen(file_ob, "w"))) {
         /* If the file fails to open, set an error and return */
         set_general_error(FAILED_OPEN_FILE);
-        /*fclose(object_file);  close the file */
         free(file_ob);
         return FALSE;
     }
@@ -205,8 +198,8 @@ static Boolean create_obj_file(const char* source_file_name, CmpData* cmp_data) 
 }
 
 /**
- * The `free_program_data` function frees the resources allocated for the program data,
- * closes the source file, and optionally deletes the files associated with the compiled data.
+ * Frees the resources allocated for the program data, closes the source file,
+ * and optionally deletes the files associated with the compiled data.
  * The files will be deleted if an error occurred during the processing stages.
  *
  * @param cmp_data The data structure holding various program-related data during assembly.
@@ -217,4 +210,6 @@ static void free_program_data(CmpData *cmp_data, FILE *source_file, Boolean dele
     free_label_tree(&cmp_data->label_table);
     fclose(source_file);
     free_cmp_data(cmp_data, delete);
+    /* Reset static variable for unresolved line loop */
+    get_marked_line(NULL, TRUE);
 }

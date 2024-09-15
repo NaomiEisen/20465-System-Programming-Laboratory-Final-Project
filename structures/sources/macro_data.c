@@ -9,7 +9,7 @@
  *                                         Functions
  * --------------------------------------------------------------------------------------- */
 /**
- * Initialize the Macro Trie.
+ * Initializes the Macro Trie.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @return TRUE if initialization is successful, FALSE otherwise.
@@ -23,7 +23,7 @@ Boolean init_macr_trie(MacroTrie *macr_trie) {
 }
 
 /**
- * Insert a macro name into the Macro Trie.
+ * Inserts a macro name into the Macro Trie.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @param macr_name The name of the macro to be added.
@@ -52,7 +52,7 @@ ErrorCode add_macr(MacroTrie *macr_trie, const char *macr_name) {
 }
 
 /**
- * Add a line to the last added macro.
+ * Adds a line to the last added macro.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @param line The line to be added.
@@ -89,7 +89,7 @@ void add_line_to_last_macro(MacroTrie *macr_trie, const char *line) {
 }
 
 /**
- * Find a macro in the Macro Trie.
+ * Finds a macro in the Macro Trie.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  * @param macr_name The name of the macro.
@@ -100,7 +100,7 @@ TrieNode* find_macro(const MacroTrie *macr_trie, const char *macr_name) {
 }
 
 /**
- * Private function - free a LineNode linked list associated with a Macro
+ * Static function - frees a LineNode linked list associated with a Macro
  * Trie node.
  *
  * @param head Pointer to the head of the LineNode linked list.
@@ -119,7 +119,7 @@ static void free_line_nodes(LineNode *head) {
 }
 
 /**
- * Private function - frees the data associated with a Macro Trie node.
+ * Static function - frees the data associated with a Macro Trie node.
  *
  * @param data Pointer to the data to be freed.
  */
@@ -135,7 +135,7 @@ static void free_macr_data(void *data) {
 }
 
 /**
- * Private function - frees all data in the trie without freeing the nodes.
+ * Static function - frees all data in the trie without freeing the nodes.
  * Leaving the only necessary data for the following steps.
  *
  * @param node Pointer to the root of the trie.
@@ -158,7 +158,7 @@ void free_data_recursive(TrieNode* node) {
 }
 
 /**
- * Free all data in the trie without freeing the nodes.
+ * Frees all data in the trie without freeing the nodes.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  */
@@ -167,109 +167,10 @@ void free_trie_data(MacroTrie *macr_trie) {
 }
 
 /**
- * Free the entire Macro Trie.
+ * Frees the entire Macro Trie.
  *
  * @param macr_trie Pointer to the Macro Trie structure.
  */
 void free_macr_trie(MacroTrie *macr_trie) {
     free_node(macr_trie->trie.root);
-}
-
-/**
- * Print lines of a macro.
- *
- * @param head Pointer to the head of the LineNode linked list.
- */
-void print_lines(LineNode* head) {
-    LineNode* current = head;
-    while (current != NULL) {
-        printf("%s\n", current->line);
-        current = current->next;
-    }
-}
-
-
-
-/*todo-------------------------------------for me ---------------------------------------*/
-
-/**
- * Get the character from an index in the trie.
- *
- * @param index The index in the trie.
- * @return The character corresponding to the index.
- */
-static char get_char(int index) {
-    if (index >= 0 && index < 26) {
-        return 'a' + index;
-    } else if (index >= 26 && index < 52) {
-        return 'A' + (index - 26);
-    } else if (index >= 52 && index < 62) {
-        return '0' + (index - 52);
-    } else if (index == 62) {
-        return '-';
-    } else if (index == 63) {
-        return '_';
-    } else if (index == 64) {
-        return '.';
-    } else {
-        return '\0'; /* Invalid index */
-    }
-}
-
-/**
- * Recursive function to print the trie.
- *
- * @param node Pointer to the current trie node.
- * @param buffer Buffer to store the current prefix.
- * @param depth Current depth in the trie.
- */
-void print_trie_recursive(TrieNode* node, char* buffer, int depth) {
-    MacroData* macro_data = NULL;
-    int i;
-    if (node == NULL) {
-        return;
-    }
-
-    if (node->exist) {
-        buffer[depth] = '\0'; /* Null-terminate the current prefix */
-        printf("Macro: %s\n", buffer);
-        macro_data = (MacroData*)node->data;
-        if (macro_data != NULL) {
-            print_lines(macro_data->head);
-        }
-        printf("\n");
-    }
-
-    for (i = 0; i < ALPHABET_SIZE; i++) {
-        if (node->children[i] != NULL) {
-            buffer[depth] = get_char(i);
-            print_trie_recursive(node->children[i], buffer, depth + 1);
-        }
-    }
-}
-
-/* Function to print the entire trie */
-void print_trie_test(MacroTrie* macr_trie) {
-    char buffer[256]; /* Buffer to store the current prefix */
-    print_trie_recursive(macr_trie->trie.root, buffer, 0);
-}
-
-
-/**
- * Get the content of a macro.
- *
- * @param macr_trie Pointer to the Macro Trie structure.
- * @param macr_name The name of the macro.
- * @return Pointer to the head of the line nodes containing the macro content, or NULL if not found.
- */
-LineNode* get_macr_content(MacroTrie *macr_trie, const char *macr_name) {
-    TrieNode *node;
-    MacroData *macr_data;
-
-    node = search_trie(&macr_trie->trie, macr_name);
-    if (node == NULL) {
-        return NULL;
-    }
-    macr_data = (MacroData *)node->data;
-    return macr_data->head;
 }

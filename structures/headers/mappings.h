@@ -22,6 +22,7 @@ typedef struct {
     DirectiveType dir_command;          /* Directive type */
 } DirectiveMapping;
 
+/* Reserved words related to macro initialization */
 typedef enum {
     MACR_START,
     MACR_END

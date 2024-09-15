@@ -49,9 +49,12 @@ typedef enum {
     EXTRA_TXT,
     INVALID_CHAR,
     DUPLICATE,
-    NOT_INTEGER,
     INVALID_START_STRING,
     INVALID_END_STRING,
+
+    /* ====== Logic Errors ====== */
+    NOT_INTEGER,
+    INTEGER_OUT_OF_RANGE,
     INVALID_REGISTER,
     INVALID_PARAM_NUMBER,
     INVALID_PARAM_TYPE,
@@ -61,56 +64,58 @@ typedef enum {
 
 } ErrorCode;
 
+/* Warning codes */
 typedef enum {
-    LABEL_ENTRY,
-    LABEL_EXTERN,
-    ENTRY_DUPLICATE
+    LABEL_ENTRY,                         /* Label before entry */
+    LABEL_EXTERN,                       /* Label before extern */
+    ENTRY_DUPLICATE,  /* Defining the same label 'entry' twice */
+    EXTERN_DUPLICATE /* Defining the same label 'extern' twice */
 } WarningCode;
 
 /* Structure that represents a location in a source file */
 typedef struct {
-    const char *file;                                             /* File name */
-    int line;                                       /* Line number in the file */
+    const char *file;                            /* File name */
+    int line;                      /* Line number in the file */
     char *line_content;  /* command line from the source file */
 } Location;
 
 /* Structure that represents an error with associated information */
 typedef struct {
-    ErrorCode code;               /* Error's image */
+    ErrorCode code;              /* Error's image */
     const char *message; /* Message to be printed */
     Location location;        /* Error's location */
 } Error;
 
 typedef enum {
-    FATAL_ERROR,
-    ERROR_IN_FILE,
-    ERROR_FREE_FILE
+    FATAL_ERROR,          /* Error indicating for terminating the program */
+    ERROR_IN_FILE, /* Indicating the abortion of creating the object file */
+    ERROR_FREE_FILE                    /* No errors in the processed file */
 } Status;
 
 typedef struct {
-    Status status;
-    int error_counter;
-    int warning_counter;
+    Status status;                      /* Status code */
+    int error_counter;     /* Number of errors in file */
+    int warning_counter; /* Number of warnings in file */
 } ProgramStatus;
 
 /* ---------------------------- Functions Prototypes ---------------------------- */
 /**
- * Sets the current error with the specified error image and location.
+ * Sets the current error with the specified error code and location.
  *
- * @param code The error image to set.
+ * @param code The error code to set.
  * @param location The location in the source file where the error occurred.
  */
 void set_error(ErrorCode code, Location location);
 
 /**
- * Sets a general error with the specified error image but without a specific location.
+ * Sets a general error with the specified error code but without a specific location.
  *
- * @param code The error image to set.
+ * @param code The error code to set.
  */
 void set_general_error(ErrorCode code);
 
 /**
- * Makes a copy of the gicen string, and saves it as the line content in the specified
+ * Makes a copy of the given string, and saves it as the line content in the specified
  * location struct.
  * @param location the location struct to save the line into.
  * @param content the string to save as a content in the location struct.
@@ -123,16 +128,20 @@ void save_line_content(Location *location, char *content);
 void clear_error();
 
 /**
- * Resets the program's status to 'error free file status.
+ * Resets the program's status to 'error free file status'.
  */
 void clear_status();
 
+/**
+ * Frees the memory allocated for the Location struct.
+ * @param location the specified Location struct to free.
+ */
 void free_location(Location *location);
 
 /**
- * Returns the current error image.
+ * Returns the current error code.
  *
- * @return The current error image.
+ * @return The current error code.
  */
 ErrorCode get_error();
 
@@ -143,11 +152,21 @@ ErrorCode get_error();
  */
 Status get_status();
 
-/**
- * Prints a warning message indicating that a label before extern/entry is useless.
- */
+ /**
+  * Prints a warning message that corresponding to the specified warning code.
+  *
+  * @param code The warning code, indicating the cause of the warning.
+  * @param location The location of the line that triggered the warning.
+  */
 void print_warning(WarningCode code, Location *location);
 
+/**
+ * Prints the status of the program, including a summary of errors.
+ * Indicates whether the file processing completed successfully, and the number
+ * of errors and warnings that occurred during the process.
+ *
+ * @param file The name of the file that was processed.
+ */
 void print_error_summery(char *file);
 
 #endif /* ERRORS_H */
