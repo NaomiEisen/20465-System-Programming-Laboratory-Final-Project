@@ -1,9 +1,3 @@
-<style>
-H1{color:Blue !important;}
-H2{color:DarkOrange !important;}
-p{color:Black !important;}
-</style>
-
 # Assembler Project in C90 🤟
 
 This project is the final assignment for the course **'Laboratory C'** in the Open University of israel :)
