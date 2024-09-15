@@ -1,15 +1,16 @@
-# Assembler Project in C90
+# Assembler Project in C90 🤟
 
 This project is the final assignment for the course **'Laboratory C'** in the Open University of israel :)
 
 ## Overview
-The assembler converts an assembly file into an object file, as well as additional extern and entry files.The assembler operates in two phases:
-1. **First Phase**: Checks syntax, generates the symbol table, and translates all instructions that do not depend on labels.
-2. **Second Phase**: Handles the translation of the remaining instructions and generates the output files.
+The assembler converts an assembly file into an object file, as well as additional extern and entry files.
+The assembler follows a two-phase process:
+1. **Preprocessing**: Expands macros and prepares the input file for further processing.
+2. **First Phase**: Checks syntax, generates the symbol table, and translates all instructions that do not depend on labels.
+3. **Second Phase**: Handles the translation of the remaining instructions and generates the output files.
 
 ## Assembly Syntax
 
-![Insert Image/Diagram of Syntax](path_to_image)
 
 ---
 
