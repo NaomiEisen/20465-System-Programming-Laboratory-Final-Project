@@ -1,17 +1,18 @@
-# Assembler Project in C90 🤟
+# Assembler Project in C 🤟
 
 This project is the final assignment for the course **'Laboratory C'** in the Open University of israel :)
 
-## Overview
+
+## ✧ Overview ✧ 
 The assembler converts an assembly file into an object file, as well as additional extern and entry files.
 The assembler follows a two-phase process:
 1. **Preprocessing**: Expands macros and prepares the input file for further processing.
 2. **First Phase**: Checks syntax, generates the symbol table, and translates all instructions that do not depend on labels.
 3. **Second Phase**: Handles the translation of the remaining instructions and generates the output files.
 ---
-## Assembly Syntax
+## ➭ Assembly Syntax
 The assembly language instructions used in this project are described below:
-### Two Argument Instructions
+### ⭑ Two Argument Instructions ⭑
 | Instruction       | Description                                                      |
 | ----------------- | ------------------------------------------------------------------ |
 | **mov** | Moves data from the source operand to the destination operand. |
@@ -20,7 +21,7 @@ The assembly language instructions used in this project are described below:
 | **sub** | Subtracts the value of the source operand from the destination operand. |
 | **lea** | Loads the effective address of the source operand into the destination operand. |
 
-### One Argument Instructions
+### ⭑ One Argument Instructions ⭑
 | Instruction       | Description                                                      |
 | ----------------- | ------------------------------------------------------------------ |
 | **clr** | Clears the value of the operand, setting it to zero. |
@@ -33,26 +34,26 @@ The assembly language instructions used in this project are described below:
 | **prn** | Prints the value of the operand. |
 | **jsr** | Jumps to a subroutine at the specified address and stores the return address for later use. |
 
-### No Argument Instructions
+### ⭑ No Argument Instructions ⭑
 | Instruction       | Description                                                      |
 | ----------------- | ------------------------------------------------------------------ |
 | **rts** | Returns from a subroutine, resuming execution at the return address stored on the stack. |
 | **stop** | Halts the program execution. |
 
-### Registers
+### ⭑ Registers ⭑
 There are 8 registers used in this project, named `r0` to `r7`. These registers are used for storing temporary data and performing calculations. Each register can hold a value, and they are referenced in assembly instructions to perform operations like loading, storing, and arithmetic operations. 
 
-** The actual execution of the assembly instructions is not relevant to the project, so a detailed understanding of each instruction is not required for completing the translation. However, it is useful to have a basic understanding of the types of operations the assembler supports. :)
+⤷ The actual execution of the assembly instructions is not relevant to the project, so a detailed understanding of each instruction is not required for completing the translation. However, it is useful to have a basic understanding of the types of operations the assembler supports. :)
 
 
 
 ---
 
-## Project Structure
+## ➭ Project Structure
 
 The project is organized into folders, each containing 'headers' and 'sources' files for different components:
 
-### assembler
+### ⭑ assembler ⭑
 This folder contains files responsible for the entire assembling process, including:
 
 - **preprocessor**: Prepares the input file by handling macros and file includes.
@@ -63,7 +64,7 @@ This folder contains files responsible for the entire assembling process, includ
 - **code_convert**: Manages the binary conversion of assembly instructions.
 - **assembler**: The main file that launches the program.
 
-### Data Structures
+### ⭑ Data Structures ⭑
 This folder contains files defining various data structures and their associated methods used throughout the project:
 
 - **ast**: Abstract Syntax Tree. Represents an assembly instruction in all its possible formats.
@@ -74,7 +75,7 @@ This folder contains files defining various data structures and their associated
 - **cmp_data**: Represents the "imaginary" computer's memory and data needed for file processing. It includes two memory sections—data and code, that grow towards each other, allowing flexible management of the shared maximum capacity. Additionally, it stores label structures, external/entry files, and a list of unresolved lines for the second assembly phase.
 - **error**: A structure for handling errors during execution. It contains error codes, their corresponding messages, and a location structure indicating where the error occurred.
 
-### Utils
+### ⭑ Utils ⭑
 Contains utility functions and structures used throughout the project.
 
 - **Boolean**: Defines boolean enums for clarity and simplicity. 
@@ -84,9 +85,5 @@ Contains utility functions and structures used throughout the project.
 
 ---
 
-## How to Run
-1. Clone the repository.
-2. Navigate to the project directory.
-3. Compile the project using the provided makefile:
-   ```bash
-   make
+## ➭ How to Run
+
