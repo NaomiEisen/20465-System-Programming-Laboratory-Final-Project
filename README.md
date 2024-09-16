@@ -8,8 +8,42 @@ The assembler follows a two-phase process:
 1. **Preprocessing**: Expands macros and prepares the input file for further processing.
 2. **First Phase**: Checks syntax, generates the symbol table, and translates all instructions that do not depend on labels.
 3. **Second Phase**: Handles the translation of the remaining instructions and generates the output files.
-
+---
 ## Assembly Syntax
+The assembly language instructions used in this project are described below:
+### Two Argument Instructions
+| Instruction       | Description                                                      |
+| ----------------- | ------------------------------------------------------------------ |
+| **mov** | Moves data from the source operand to the destination operand. |
+| **cmp** | Compares two operands and updates the status flags based on the result. |
+| **add** | Adds the value of the source operand to the destination operand. |
+| **sub** | Subtracts the value of the source operand from the destination operand. |
+| **lea** | Loads the effective address of the source operand into the destination operand. |
+
+### One Argument Instructions
+| Instruction       | Description                                                      |
+| ----------------- | ------------------------------------------------------------------ |
+| **clr** | Clears the value of the operand, setting it to zero. |
+| **not** | Inverts all bits of the operand. |
+| **inc** | Increments the operand by one. |
+| **dec** | Decrements the operand by one. |
+| **jmp** | Unconditionally jumps to the specified address. |
+| **bne** | Jumps to the specified address if the previous comparison result was not equal. |
+| **red** | Reads a value from the input and stores it in the operand. |
+| **prn** | Prints the value of the operand. |
+| **jsr** | Jumps to a subroutine at the specified address and stores the return address for later use. |
+
+### No Argument Instructions
+| Instruction       | Description                                                      |
+| ----------------- | ------------------------------------------------------------------ |
+| **rts** | Returns from a subroutine, resuming execution at the return address stored on the stack. |
+| **stop** | Halts the program execution. |
+
+### Registers
+There are 8 registers used in this project, named `r0` to `r7`. These registers are used for storing temporary data and performing calculations. Each register can hold a value, and they are referenced in assembly instructions to perform operations like loading, storing, and arithmetic operations. 
+
+** The actual execution of the assembly instructions is not relevant to the project, so a detailed understanding of each instruction is not required for completing the translation. However, it is useful to have a basic understanding of the types of operations the assembler supports. :)
+
 
 
 ---
