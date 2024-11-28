@@ -95,8 +95,9 @@ The Execution_Report folder contains examples of program execution, showcasing:
 ### On Linux (using the Makefile)
 1. Open a terminal and navigate to the project folder.
 2. Compile the project by running:
-   ```bash
+```bash
    make
+```
  Note: A preconfigured Makefile is included for your convenience. 
 3. Execute the program with the following command:
    ```bash
