@@ -85,9 +85,9 @@ Contains utility functions and structures used throughout the project.
 ### ⭑ Execution Report ⭑
 The Execution_Report folder contains examples of program execution, showcasing:
 
-**Sample Assembly Files**: Example inputs and their expected outputs.
-**Generated Outputs**: Object files, extern files, and entry files created by the assembler.
-**Memory Management Reports**: Logs confirming no memory leaks, verified using tools like valgrind.
+- **Sample Assembly Files**: Example inputs and their expected outputs.
+- **Generated Outputs**: Object files, extern files, and entry files created by the assembler.
+- **Memory Management Reports**: Logs confirming no memory leaks, verified using tools like valgrind.
 
 ---
 
