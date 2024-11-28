@@ -82,8 +82,23 @@ Contains utility functions and structures used throughout the project.
 - **output_files**: Handles the writing of processed data to output files.
 - **utils**: Provides various utility functions for handling strings, integers, and file name extensions.
 
+### ⭑ Execution Report ⭑
+The Execution_Report folder contains examples of program execution, showcasing:
+
+**Sample Assembly Files**: Example inputs and their expected outputs.
+**Generated Outputs**: Object files, extern files, and entry files created by the assembler.
+**Memory Management Reports**: Logs confirming no memory leaks, verified using tools like valgrind.
 
 ---
 
 ## ➭ How to Run
+### On Linux (using the Makefile)
+1. Open a terminal and navigate to the project folder.
+2. Compile the project by running:
+   ```bash
+   make
+ Note: A preconfigured Makefile is included for your convenience. 
+3. Execute the program with the following command:
+  ```bash
+  ./assembler_exe <input_files>
 
