@@ -5,4 +5,3 @@
 typedef enum { FALSE, TRUE } Boolean;
 
 #endif /* BOOL_H */
-/* commit */

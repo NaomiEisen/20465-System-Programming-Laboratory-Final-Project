@@ -148,4 +148,3 @@ Boolean add_directive_operand(Directive *directive, char *operand);
 void free_ast_node(ASTNode *node);
 
 #endif /* AST_H */
-/* commit */
