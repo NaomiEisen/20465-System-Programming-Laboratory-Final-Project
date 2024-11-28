@@ -1,0 +1,40 @@
+ERROR:   Extra text after macro definition
+File:    testMacroErrors.as | Line: 6
+         macr macrname  *
+
+
+ERROR:   Invalid macro name - name is a reserved word
+File:    testMacroErrors.as | Line: 13
+         macr macr
+
+
+ERROR:   Invalid macro name - name is a reserved word
+File:    testMacroErrors.as | Line: 19
+         macr endmacr
+
+
+ERROR:   Invalid macro name - name is a reserved word
+File:    testMacroErrors.as | Line: 25
+         macr mov
+
+
+ERROR:   Invalid macro name - duplicate macro names found
+File:    testMacroErrors.as | Line: 32
+         macr validMacro
+
+
+ERROR:   Line is too long; max length is 80 characters
+File:    testMacroErrors.as | Line: 39
+
+ERROR:   Extra text after macro definition
+File:    testMacroErrors.as | Line: 46
+         endmacr          hello:)
+
+
+-------------------------------------------------
+| ERROR SUMMARY ('testMacroErrors')
+|    Errors   : 7
+|    Warnings : 0
+-------------------------------------------------
+|    Could not process file
+-------------------------------------------------

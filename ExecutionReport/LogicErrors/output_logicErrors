@@ -1,0 +1,87 @@
+ERROR:   Invalid label name - duplicate label names found
+File:    testLogicErrors.am | Line: 3
+         LA_BEL: prn #48
+
+
+ERROR:   Invalid label name - should start with an alphabetic character
+File:    testLogicErrors.am | Line: 4
+         .laebl:  prn #48
+
+
+ERROR:   Invalid label name - should start with an alphabetic character
+File:    testLogicErrors.am | Line: 5
+         7something:  prn #48
+
+
+ERROR:   Invalid number of parameters
+File:    testLogicErrors.am | Line: 6
+         inc r6, r10
+
+
+ERROR:   Invalid command name
+File:    testLogicErrors.am | Line: 10
+         mor r1, r5
+
+
+ERROR:   Invalid parameter type
+File:    testLogicErrors.am | Line: 11
+         lea LA_BEL, #5
+
+
+ERROR:   Invalid parameter type
+File:    testLogicErrors.am | Line: 12
+         dec #59
+
+
+ERROR:   Integer is out of range
+File:    testLogicErrors.am | Line: 13
+         prn #50000000000
+
+
+ERROR:   Integer is out of range
+File:    testLogicErrors.am | Line: 14
+         prn #16384
+
+
+ERROR:   Integer is out of range
+File:    testLogicErrors.am | Line: 15
+         prn #-16385
+
+
+ERROR:   Invalid parameter type
+File:    testLogicErrors.am | Line: 16
+         jmp r4
+
+
+ERROR:   Invalid register name
+File:    testLogicErrors.am | Line: 17
+         mov *r9
+
+
+ERROR:   Invalid label name - duplicate label names found
+File:    testLogicErrors.am | Line: 18
+         .extern LA_BEL
+
+
+WARNING: Label definition before extern command is ignored
+File:    testLogicErrors.am | Line: 19
+         INVALID: .extern somethinggg
+
+
+WARNING: Label definition before entry command is ignored
+File:    testLogicErrors.am | Line: 20
+         INVALID2: .entry somethinggg2
+
+
+WARNING: Label is already declared as extern; This declaration will be ignored
+File:    testLogicErrors.am | Line: 22
+         .extern one
+
+
+-------------------------------------------------
+| ERROR SUMMARY ('testLogicErrors')
+|    Errors   : 13
+|    Warnings : 3
+-------------------------------------------------
+|    Could not process file
+-------------------------------------------------

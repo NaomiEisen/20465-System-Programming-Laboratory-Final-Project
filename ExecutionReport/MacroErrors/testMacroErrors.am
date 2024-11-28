@@ -1,0 +1,8 @@
+cmp r3, #-6
+bne END
+cmp r3, #-6
+cmp r3, #-6
+LIST: .data 7898,0,-1
+.data -100
+LIST: .data 7898,0,-1
+.data -100

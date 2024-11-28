@@ -1,0 +1,67 @@
+ERROR:   Missing comma
+File:    testSyntaxErrors.am | Line: 1
+         MAIN: add    r3    LIST
+
+
+ERROR:   Illegal comma
+File:    testSyntaxErrors.am | Line: 2
+         add ,   r3  ,  LIST
+
+
+ERROR:   Multiple consecutive commas
+File:    testSyntaxErrors.am | Line: 3
+         add  r3  ,  ,  LIST
+
+
+ERROR:   Extra text after command
+File:    testSyntaxErrors.am | Line: 4
+         add  r3 ,LIST ,
+
+
+ERROR:   Invalid number of parameters
+File:    testSyntaxErrors.am | Line: 5
+         add  r3 ,LIST ,r4
+
+
+ERROR:   Invalid number of parameters
+File:    testSyntaxErrors.am | Line: 6
+         add  r3
+
+
+ERROR:   Invalid string format - does not end with double quotation mark
+File:    testSyntaxErrors.am | Line: 7
+         STR: .string "abcd" fdf
+
+
+ERROR:   Invalid label length - cannot exceed 31 characters
+File:    testSyntaxErrors.am | Line: 9
+         MAINnnnnnnnnnnnnnnnnnnnnnnnnnnnn: add    r3 ,   LIST
+
+
+ERROR:   Invalid label name - should start with an alphabetic character
+File:    testSyntaxErrors.am | Line: 10
+         9main: prn #7
+
+
+ERROR:   Invalid label name - cannot be a reserved word
+File:    testSyntaxErrors.am | Line: 11
+         string: sub r1, r4
+
+
+ERROR:   Label and macro name collision
+File:    testSyntaxErrors.am | Line: 12
+         m_macr: sub r1, r4
+
+
+ERROR:   Invalid label name - duplicate label names found
+File:    testSyntaxErrors.am | Line: 16
+         LIST: .data 8
+
+
+-------------------------------------------------
+| ERROR SUMMARY ('testSyntaxErrors')
+|    Errors   : 12
+|    Warnings : 0
+-------------------------------------------------
+|    Could not process file
+-------------------------------------------------
