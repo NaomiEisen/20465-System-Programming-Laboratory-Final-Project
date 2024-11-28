@@ -99,6 +99,7 @@ The Execution_Report folder contains examples of program execution, showcasing:
    make
 ```
 Note: A preconfigured Makefile is included for your convenience. 
+
 3. Execute the program with the following command:
 ```bash
    ./assembler_exe <input_file>
