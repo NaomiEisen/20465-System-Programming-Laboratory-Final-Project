@@ -37,6 +37,7 @@ void first_phase_analyzer(ASTNode *node, CmpData *cmp_data) {
     } else { /* Handle directive line */
         handle_directive(node, cmp_data);
     }
+    /*commit*/
 }
 
 /* ---------------------------------------------------------------------------------------
