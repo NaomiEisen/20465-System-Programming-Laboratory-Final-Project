@@ -98,9 +98,9 @@ The Execution_Report folder contains examples of program execution, showcasing:
 ```bash
    make
 ```
- Note: A preconfigured Makefile is included for your convenience. 
+Note: A preconfigured Makefile is included for your convenience. 
 3. Execute the program with the following command:
-   ```bash
+```bash
    ./assembler_exe <input_file>
 ```
 Replace <assembly_file_name> with the name of your assembly file, without the file type extension.
