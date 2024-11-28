@@ -1,4 +1,4 @@
-# Assembler Project in C 🤟
+# Two-Phase Assembler in C 🤟
 
 This project is the final assignment for the course **'Laboratory C'** in the Open University of israel :)
 
