@@ -99,6 +99,16 @@ The Execution_Report folder contains examples of program execution, showcasing:
    make
  Note: A preconfigured Makefile is included for your convenience. 
 3. Execute the program with the following command:
-  ```bash
-  ./assembler_exe <input_files>
+   ```bash
+   ./assembler_exe <input_file>
+```
+Replace <assembly_file_name> with the name of your assembly file, without the file type extension.
 
+### On an IDE (using CMakeLists)
+1. Open your IDE (e.g., CLion) and load the project directory.
+2. Ensure the **CMakeLists.txt** file is properly configured in the root folder.
+3. Build the project using the IDE's build option.
+4. To run the program on specified files:
+   - Go to the **Run/Debug Configurations** menu.
+   - Add the name(s) of the assembly file(s) (`<assembly_file_name>`) **without the file type extension**, separated by spaces if you want to run multiple files.
+   - Run the program.
